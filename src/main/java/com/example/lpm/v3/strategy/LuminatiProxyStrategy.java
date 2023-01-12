@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.example.lpm.v3.domain.entity.ProxyPortDO;
+import com.example.lpm.v3.domain.request.ChangeIpRequest;
 import com.example.lpm.v3.service.ProxyPortService;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RBlockingQueue;
@@ -408,6 +409,11 @@ public class LuminatiProxyStrategy implements ProxyStrategy {
 
     @Override
     public void getCollectionProgress() {
+
+    }
+
+    @Override
+    public void changeProxyIp(ChangeIpRequest changeIpRequest) {
 
     }
 
