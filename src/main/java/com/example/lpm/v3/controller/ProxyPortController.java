@@ -1,11 +1,15 @@
 package com.example.lpm.v3.controller;
 
+import com.example.lpm.domain.request.RolaIpRequest;
 import com.example.lpm.domain.vo.PageVO;
 import com.example.lpm.v3.domain.entity.ProxyPortDO;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.ProxyPortQuery;
+import com.example.lpm.v3.domain.request.ChangeIpRequest;
 import com.example.lpm.v3.domain.request.DeleteProxyPortRequest;
 import com.example.lpm.v3.service.ProxyPortService;
+import com.example.lpm.v3.strategy.ProxyStrategy;
+import com.example.lpm.v3.strategy.ProxyStrategyFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,8 @@ import java.util.List;
 public class ProxyPortController {
 
     private final ProxyPortService proxyPortService;
+
+    private final ProxyStrategyFactory proxyStrategyFactory;
 
     @Operation(summary = "分页查询 【合并】")
     @GetMapping("/listProxyPortsByPage")
@@ -56,7 +62,11 @@ public class ProxyPortController {
     }
 
 
-    // TODO 更换
-
+    @Operation(summary = "更换代理IP   【合并】")
+    @PostMapping("/changeProxyIp")
+    public void changeProxyIp(@RequestBody ChangeIpRequest changeIpRequest) throws Exception {
+        ProxyStrategy proxyStrategy = proxyStrategyFactory.findStrategy(changeIpRequest.getProxyIpType());
+        proxyStrategy.changeProxyIp(changeIpRequest);
+    }
 
 }
