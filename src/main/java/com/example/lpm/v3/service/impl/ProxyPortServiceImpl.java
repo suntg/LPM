@@ -72,6 +72,7 @@ public class ProxyPortServiceImpl extends ServiceImpl<ProxyPortMapper, ProxyPort
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProxyPort(Long id) {
         ProxyPortDO proxyPortDO = proxyPortMapper.selectById(id);
         if (ObjectUtil.isNotNull(proxyPortDO)) {
@@ -81,6 +82,15 @@ public class ProxyPortServiceImpl extends ServiceImpl<ProxyPortMapper, ProxyPort
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteBatchProxyPorts(List<Long> ids) {
+        for (Long id : ids) {
+            deleteProxyPort(id);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteAllProxyPort() {
         String result = RuntimeUtil.execForStr("killall -9 proxy");
         log.info("kill all proxy:{}", result);
