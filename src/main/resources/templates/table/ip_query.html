@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="#" type="image/png">
+
+    <title>住宅代理列表</title>
+    <!--data table-->
+    <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css"/>
+    <style>
+        .inputStyle {
+            width: 250px;
+        }
+
+        .el-table .danger-row {
+            background: #FF8C69;
+        }
+
+        .el-table .primary-row {
+            background: #98F5FF;
+        }
+
+        body {
+            padding-right: 0px !important;
+            overflow: hidden;
+        }
+    </style>
+    <div th:include="common :: commonheader"></div>
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    <div th:replace="common :: #leftmenu"></div>
+
+    <!-- main content start-->
+    <div class="main-content">
+
+        <div th:replace="common :: headermenu"></div>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                住宅代理列表
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active">住宅代理列表</li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper" id="app">
+            <div class="row">
+                <div class="col-sm-12">
+                    <section class="panel">
+                        <header class="panel-heading">
+                            住宅代理列表
+                        </header>
+
+                        <div class="panel-body">
+                            <div class="adv-table editable-table ">
+
+                                <div style="margin-bottom:25px;">
+                                    <span>IP类型：</span>
+                                    <el-select v-model="ipType" placeholder="请选择IP类型：">
+                                        <el-option
+                                                v-for="item in ipTypes"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                    <span>IP：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="ip"
+                                            clearable
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                    >
+                                    </el-input>
+                                    <span>Country：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="country"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>State：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="state"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>City：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="city"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>ZipCode：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="zipCode"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <el-button type="primary" @click="listProxyIpsByPage">查询</el-button>
+                                    <el-button type="info" @click="resetCondition">重置</el-button>
+                                </div>
+
+                                <hr>
+                                <table class="table table-striped table-hover table-bordered"
+                                       id="editable-sample"
+                                >
+                                    <tbody>
+                                    <template>
+                                        <el-table
+                                                :data="ips"
+                                                border
+                                                style="width: 100%"
+                                                :cell-style="redCharacter"
+                                                @cell-click="cellclick"
+                                                :row-class-name="tableRowClassName"
+                                                ref="table"
+                                                row-key="id"
+                                                :key="timeStamp"
+                                        >
+<!--                                            <el-table-column type="selection" width="55" :reserve-selection="true">-->
+<!--                                            </el-table-column>-->
+                                            <el-table-column
+                                                    prop="id"
+                                                    label="ID"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="ip"
+                                                    label="IP"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="country"
+                                                    label="Country">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="region"
+                                                    label="State">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="city"
+                                                    label="City">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="postalCode"
+                                                    label="ZipCode">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="risk"
+                                                    label="Risk"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="score"
+                                                    label="Score"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="timezone"
+                                                    label="TimeZone"
+                                                    width="250"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="xLuminatiIp"
+                                                    label="xLuminatiIp"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="typeName"
+                                                    label="IP类型"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    label="操作"
+                                                    align="center"
+                                                    min-width="100">
+                                                <template slot-scope="scope">
+                                                    <el-button type="primary" @click="testAlive(scope)">测活</el-button>
+                                                    <el-button type="success" @click="fillForm(scope)">启用</el-button>
+                                                    <el-button type="danger" @click="deleteByIp(scope)">删除</el-button>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                        <el-dialog title="启动代理端口" :visible.sync="dialogVisible" width="30%">
+                                            <el-form ref="form" :model="form" label-width="120px">
+<!--                                                <el-form-item label="IP">-->
+<!--                                                    <el-input v-model="form.checkIp"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="xLuminatiIp">-->
+<!--                                                    <el-input v-model="form.xLuminatiIp"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="API URI">-->
+<!--                                                    <el-input v-model="form.proxyServer"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="API port">-->
+<!--                                                    <el-input v-model="form.apiPort"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="代理端口">-->
+<!--                                                    <el-input v-model="form.proxyPort"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="代理端口时长(秒)">-->
+<!--                                                    <el-input v-model="form.timeout"></el-input>-->
+<!--                                                </el-form-item>-->
+
+<!--                                                <el-form-item label="删除代理端口">-->
+<!--                                                    <el-select v-model="form.deleteProxyPortFlag" placeholder="请选择：">-->
+<!--                                                        <el-option-->
+<!--                                                                v-for="item in options"-->
+<!--                                                                :key="item.value"-->
+<!--                                                                :label="item.label"-->
+<!--                                                                :value="item.value">-->
+<!--                                                        </el-option>-->
+<!--                                                    </el-select>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="Zone">-->
+<!--                                                    <el-input v-model="form.zone"></el-input>-->
+<!--                                                </el-form-item>-->
+<!--                                                <el-form-item label="Password">-->
+<!--                                                    <el-input v-model="form.zonePassword"></el-input>-->
+<!--                                                </el-form-item>-->
+                                                <!--<el-alert
+                                                        title="如果不填写Zone和Password，则使用默认"
+                                                        type="info"
+                                                        closable="false"
+                                                        show-icon>
+                                                </el-alert>-->
+                                                <el-form-item label="启动端口">
+                                                    <el-input v-model="form.socksPort"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="设备名称">
+                                                    <el-input v-model="form.deviceName"></el-input>
+                                                </el-form-item>
+                                            </el-form>
+
+                                            <el-button @click="dialogVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="startSocksPort(scope)">确 定</el-button>
+                                            </span>
+                                        </el-dialog>
+                                    </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <el-pagination
+                                background
+                                :page-sizes="[50, 10, 20, 100]"
+                                :page-size="pageSize"
+                                :current-page="pageNum"
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange"
+                                layout="total, sizes, prev, pager, next"
+                                :total="total">
+                        </el-pagination>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!--body wrapper end-->
+
+        <!--footer section start-->
+        <!--<footer>
+            2020 &copy; AdminEx by ThemeBucket </a>
+        </footer>-->
+        <!--footer section end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/modernizr.min.js"></script>
+<script src="js/jquery.nicescroll.js"></script>
+<!--<script src="js/Date.js"></script>-->
+
+<!--data table-->
+<script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/data-tables/DT_bootstrap.js"></script>
+
+<!--common scripts for all pages-->
+<script src="js/scripts.js"></script>
+
+<script src="js/vue.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<!--script for editable table-->
+<!-- END JAVASCRIPTS -->
+<script>
+
+    /*    jQuery(document).ready(function() {
+            EditableTable.init();
+        });*/
+    var app = new Vue({
+        el: '#app',
+        data () {
+            let data = {
+                ip: '',
+                country: '',
+                state: '',
+                city: '',
+                zipCode: '',
+                typeName: '',
+                remark: '',
+                xLuminatiIp: '',
+                form: {
+                    startTime: '',
+                    endTime: ''
+                },
+                ips: [],
+                summary: '',
+                total: 0,
+                pageNum: 1,
+                pageSize: 50,
+                getIpTimes: '',
+                timeStamp: '',
+                dialogVisible: false,
+                form: {
+                checkIp: '',
+                    xLuminatiIp: '',
+                    proxyServer: '47.75.52.53',
+                    apiPort: 58081,
+                    proxyPort: '',
+                    timeout: 3600,
+                    deleteProxyPortFlag: 0,
+                    zone: '',
+                    zonePassword: '',
+                    socksPort: '',
+                    deviceName: '',
+                    proxyIpType:'',
+                },
+                ipType: '',
+                ipTypes: [{
+                    value: 'LUMINATI',
+                    label: 'x-luminati-ip'
+                }, {
+                    value: 'ROLA',
+                    label: 'rola-ip'
+                }],
+        }
+            data.ip = localStorage.getItem('ip') ? localStorage.getItem('ip') : '';
+            data.country = localStorage.getItem('country')? localStorage.getItem('country') : '';
+            data.state = localStorage.getItem('state')? localStorage.getItem('state') : '';
+            data.city = localStorage.getItem('city')? localStorage.getItem('city') : '';
+            data.zipCode = localStorage.getItem('zipCode')? localStorage.getItem('zipCode') : '';
+            return data
+        },
+
+        beforeUpdate(){
+            // console.log(this.$data);
+            localStorage.setItem('ip', this.$data.ip);
+            localStorage.setItem('country', this.$data.country);
+            localStorage.setItem('state', this.$data.state);
+            localStorage.setItem('city', this.$data.city);
+            localStorage.setItem('zipCode', this.$data.zipCode);
+        },
+        methods: {
+            listProxyIpsByPage() {
+
+                axios.get(baseUrl + '/proxyIp/page',
+                    {
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                            'Access-Control-Allow-Credentials': 'true', //解决session问题
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                        },
+                        withCredentials: true,
+                        params: {
+                            ip: this.ip,
+                            country: this.country.toLowerCase(),
+                            state: this.state.toLowerCase(),
+                            city: this.city.toLowerCase(),
+                            zipCode: this.zipCode,
+                            typeName: this.ipType,
+                            pageNum: this.pageNum,
+                            pageSize: this.pageSize
+                        }
+                    })
+                    .then((response) => {
+                        // console.log("responose是：" + response.data);
+                        this.ips = response.data.data.records
+                        if (response.data != null) {
+                            this.total = response.data.data.total
+                        }
+                    })
+            },
+            resetCondition() {
+                this.ip = '',
+                this.country = '',
+                this.state = '',
+                this.city= '',
+                this.zipCode = '',
+                this.ipType = '';
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.pageNum = 1;
+                this.listProxyIpsByPage();
+            },
+            handleCurrentChange(val) {
+                this.pageNum = val;
+                this.listProxyIpsByPage();
+            },
+            redCharacter(row, column, rowIndex, columnIndex) {
+                if (row.columnIndex == 8 && row.state == 0) {
+                    return 'color:red';
+                }
+            },
+            tableRowClassName({row, rowIndex}) {
+                console.log("tableRowClassName 方法触发了！！！！")
+                if (row.result === true) {
+                    return 'primary-row';
+                } else if (row.result === false) {
+                    return 'danger-row';
+                }
+
+                return '';
+            },
+            getLuminatiIpAddr() {
+                axios.post(baseUrl + '/ipAddr/getLuminatiIpAddr', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        number: this.getIpTimes
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            search() {
+                this.listProxyIpsByPage();
+            },
+            testAlive({row, column}) {
+                //保存Vue指针
+                let that = this;
+                const loading = this.$loading({
+                    lock: true,
+                    text: '测活中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                axios.post(baseUrl + '/proxyIp/checkIpSurvival', {
+                    ip: row.ip,
+                    proxyIpType: row.typeName
+                }, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                    },
+                    withCredentials: true
+                })
+                    .then((response) => {
+                        loading.close();
+                     /*   that.$alert(response.data.message, '测活结果', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message({
+                                    type: 'info',
+                                    message: response.data.message
+                                });
+                            }
+                        });*/
+                        let arr = that.ips;
+                        if (response.data.status == 100) {
+                            for (let i = 0; i < arr.length; i++) {
+                                if (arr[i].ip == response.data.data) {
+                                    arr[i].result = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            console.log("测活失败，row.ip 是 " + row.ip)
+                            for (let i = 0; i < arr.length; i++) {
+                                if (arr[i].id == row.id) {
+                                    arr[i].result = false;
+                                    break;
+                                }
+                            }
+                        }
+                        that.ips = arr;
+                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                        this.timeStamp = new Date().getTime();
+
+                        // that.$set(that.ips);
+
+                        // that.$forceUpdate();
+                    })
+                    .catch((error) => {
+                        loading.close();
+/*                        that.$alert(error.message, '测活结果', {
+                            confirmButtonText: '确定',
+                            type: 'error',
+                            callback: action => {
+                                that.$message.error('异常错误：' + error.message);
+                            }
+                        });*/
+
+                        let arr = that.ips;
+                        for (let i = 0; i < arr.length; i++) {
+                            if (arr[i].id == row.id) {
+                                arr[i].result = false;
+                                break;
+                            }
+                        }
+                        that.ips = arr;
+                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                        this.timeStamp = new Date().getTime();
+
+                        // that.$set(that.ips);
+
+                        // that.$forceUpdate();
+                    });
+
+            },
+            deleteByIp({row, column}) {
+                //保存Vue指针
+                var that = this;
+                const loading = this.$loading({
+                    lock: true,
+                    text: '删除中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                axios.post(baseUrl + '/proxyPort/deleteProxyPortByIP', {
+                    ip: row.ip,
+                    typeName: row.typeName
+                }, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为json类型
+                    },
+                    withCredentials: true
+                })
+                    .then(function (response) {
+                        loading.close();
+                        that.$alert(response.data.message, '操作结果', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message({
+                                    type: 'info',
+                                    message: response.data.message
+                                });
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        loading.close();
+                        that.$alert(error.data.message, '操作结果', {
+                            confirmButtonText: '确定',
+                            type: 'error',
+                            callback: action => {
+                                that.$message.error('异常错误：' + error.data.message);
+                            }
+                        });
+                    });
+            },
+            fillForm({row, column}) {
+
+                this.form.checkIp = row.ip;
+                this.form.xLuminatiIp = row.xluminatiIp;
+                this.form.proxyIpType = row.typeName;
+                this.form.proxyPort = '';
+                this.dialogVisible = true;
+
+            },
+            startSocksPort() {
+
+                //保存Vue指针
+                var that = this;
+                let data = {
+/*                    proxyServer: that.form.proxyServer,
+                    proxyPort: that.form.proxyPort,
+                    timeout: that.form.timeout,
+                    xLuminatiIp: that.form.xLuminatiIp,
+                    deleteProxyPortFlag: that.form.deleteProxyPortFlag,
+                    zone: that.form.zone,
+                    zonePassword: that.form.zonePassword,
+                    apiPort: that.form.apiPort,*/
+                    proxyIp: this.form.checkIp,
+                    proxyPort: this.form.socksPort,
+                    deviceName: this.form.deviceName,
+                    proxyIpType: this.form.proxyIpType
+
+                };
+                axios.post(baseUrl + '/proxyIp/startProxyPort', data)
+                    .then(function (response) {
+                        if (response.data.status == 100) {
+                            console.log(response.data.status);
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'success'
+                            });
+                        } else {
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'warning'
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        that.$message({
+                            showClose: true,
+                            offset: 250,
+                            message: error.data.message,
+                            type: 'warning'
+                        });
+                    });
+                this.dialogVisible = false;
+            },
+
+        },
+        mounted() {
+            this.listProxyIpsByPage();
+        }
+    })
+</script>
+
+</body>
+</html>

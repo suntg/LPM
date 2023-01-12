@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="#" type="image/png">
+
+    <title>ROLA-IP代理</title>
+    <!--data table-->
+    <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css"/>
+    <style>
+        .inputStyle {
+            width: 250px;
+        }
+
+        .el-table .danger-row {
+            background: #FF8C69;
+        }
+
+        .el-table .primary-row {
+            background: #98F5FF;
+        }
+
+        body {
+            padding-right: 0px !important;
+            overflow: hidden;
+        }
+    </style>
+    <div th:include="common :: commonheader"></div>
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    <div th:replace="common :: #leftmenu"></div>
+
+    <!-- main content start-->
+    <div class="main-content">
+
+        <div th:replace="common :: headermenu"></div>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                ROLA-IP代理
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active">代理端口</li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper" id="app">
+            <div class="row">
+                <div class="col-sm-12">
+                    <section class="panel">
+                        <header class="panel-heading">
+                            Rola-Ip List
+                        </header>
+
+                        <div class="panel-body">
+                            <div class="adv-table editable-table ">
+
+                                <div style="margin-bottom:25px;">
+                                    <span>名称：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="name"
+                                            clearable
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                    >
+                                    </el-input>
+                                    <span>国家：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="country"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>洲：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="region"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>城市：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="city"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+<!--                                    <span>邮编：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入内容"-->
+<!--                                            v-model.trim="postalCode"-->
+<!--                                            @keyup.enter.native="search"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <span>时区：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入内容"-->
+<!--                                            v-model.trim="tz"-->
+<!--                                            @keyup.enter.native="search"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+                                    <span>Socks5端口：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="proxyPort"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+<!--                                    <el-button type="primary" @click="onSubmit">查询</el-button>-->
+
+                                </div>
+                                <!--<div style="margin-bottom:25px;margin-top:25px;">
+                                    <span class="demonstration">选择创建时间区间：</span>
+                                    <el-date-picker
+                                            v-model="createTimeRange"
+                                            type="datetimerange"
+                                            value-format="yyyy-MM-dd HH:mm:ss"
+                                            :picker-options="pickerOptions"
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            align="right">
+                                    </el-date-picker>
+                                </div>
+                                <div style="margin-bottom:25px;margin-top:25px;">
+                                    <span class="demonstration">选择心跳时间区间：</span>
+                                    <el-date-picker
+                                            v-model="heartbeatTimeRange"
+                                            type="datetimerange"
+                                            value-format="yyyy-MM-dd HH:mm:ss"
+                                            :picker-options="pickerOptions"
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            align="right">
+                                    </el-date-picker>
+                                </div>-->
+
+<!--                               <el-button type="primary" @click="startProxyPort">启动代理</el-button>
+                               <el-button type="warning" @click="batchDelete">批量删除</el-button>
+                               <el-button type="danger" @click="deleteAll">全部删除</el-button>-->
+                                <hr>
+                                <table class="table table-striped table-hover table-bordered"
+                                       id="editable-sample"
+                                >
+                                    <tbody>
+                                    <template>
+                                        <el-table
+                                                :data="reports"
+                                                border
+                                                style="width: 100%"
+                                                :cell-style="redCharacter"
+                                                @cell-click="cellclick"
+                                                :row-class-name="tableRowClassName"
+                                                ref="table"
+                                                row-key="id"
+                                                :key="timeStamp"
+                                        >
+                                            <el-table-column type="selection" width="55" :reserve-selection="true">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="id"
+                                                    label="ID"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="name"
+                                                    label="名称">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="proxyPort"
+                                                    label="Socks5端口">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="rolaIp"
+                                                    label="IP">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="city"
+                                                    label="城市">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="region"
+                                                    label="州">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="country"
+                                                    label="国家">
+                                            </el-table-column>
+<!--                                            <el-table-column-->
+<!--                                                    prop="postalCode"-->
+<!--                                                    label="邮编">-->
+<!--                                            </el-table-column>-->
+<!--                                            <el-table-column-->
+<!--                                                    prop="tz"-->
+<!--                                                    label="时区">-->
+<!--                                            </el-table-column>-->
+                                            <!--                                            <el-table-column
+                                                                                                prop="state"
+                                                                                                label="state"
+                                                                                        >
+                                                                                            <template slot-scope="scope">
+                                                                                                <span v-if="scope.row.state == '0'">不可用</span>
+                                                                                                <span v-if="scope.row.state == '1'">可用</span>
+                                                                                                <span v-if="scope.row.state == '2'">不稳定</span>
+                                                                                            </template>
+                                                                                        </el-table-column>
+                                                                                        <el-table-column
+                                                                                                prop="remark"
+                                                                                                label="remark"
+                                                                                        >
+                                                                                            <template slot-scope="scope">
+                                                                                                <el-input
+                                                                                                        ref="gain"
+                                                                                                        size="mini"
+                                                                                                        v-if="scope.row.isOK"
+                                                                                                        @keyup.native.enter="blurClick(scope)"
+                                                                                                        @blur="blurClick(scope)"
+                                                                                                        v-model="scope.row.remark"
+                                                                                                        style="width:100%;hight:100%"></el-input>
+                                                                                                <span size="mini" v-else>{{scope.row.remark}}</span>
+                                                                                            </template>
+                                                                                        </el-table-column>
+                                                                                        <el-table-column
+                                                                                                prop="heartbeatQuantity"
+                                                                                                label="heartbeatQuantity"
+                                                                                        >
+                                                                                        </el-table-column>
+                                                                                        <el-table-column
+                                                                                                prop="lastHeartbeatTime"
+                                                                                                label="lastHeartbeatTime"
+                                                                                                >
+                                                                                        </el-table-column>
+                                                                                        <el-table-column
+                                                                                                prop="createTime"
+                                                                                                label="createTime"
+                                                                                                >
+                                                                                        </el-table-column>-->
+                                            <el-table-column
+                                                    label="操作"
+                                                    align="center"
+                                                    min-width="100"
+                                            >
+                                                <template slot-scope="scope">
+                                                    <el-button type="primary" @click="changeForm(scope)">更换</el-button>
+<!--                                                    <el-button type="success" @click="testAlive(scope)">停止</el-button>-->
+                                                    <el-button type="danger" @click="deleteProxyPort(scope)">删除
+                                                    </el-button>
+
+
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                        <el-dialog title="更换代理IP" :visible.sync="dialogVisible" width="30%">
+                                            <el-form ref="form" :model="form" label-width="120px">
+                                                <el-form-item label="名称">
+                                                    <el-input v-model="form.name"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="国家">
+                                                    <el-input v-model="form.country"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="州">
+                                                    <el-input v-model="form.state"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="城市">
+                                                    <el-input v-model="form.city"></el-input>
+                                                </el-form-item>
+<!--                                                <el-form-item label="代理端口">-->
+<!--                                                    <el-input v-model="form.proxyPort"></el-input>-->
+<!--                                                </el-form-item>-->
+                                            </el-form>
+
+                                            <el-button @click="dialogVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="changeProxyIp(scope)">确 定</el-button>
+                                            </span>
+                                        </el-dialog>
+                                    </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <el-pagination
+                                background
+                                :page-sizes="[50, 10, 20, 100]"
+                                :page-size="pageSize"
+                                :current-page="pageNum"
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange"
+                                layout="total, sizes, prev, pager, next"
+                                :total="total">
+                        </el-pagination>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!--body wrapper end-->
+
+        <!--footer section start-->
+        <!--<footer>
+            2020 &copy; AdminEx by ThemeBucket </a>
+        </footer>-->
+        <!--footer section end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/modernizr.min.js"></script>
+<script src="js/jquery.nicescroll.js"></script>
+<!--<script src="js/Date.js"></script>-->
+
+<!--data table-->
+<script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/data-tables/DT_bootstrap.js"></script>
+
+<!--common scripts for all pages-->
+<script src="js/scripts.js"></script>
+
+<script src="js/vue.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<!--script for editable table-->
+<!-- END JAVASCRIPTS -->
+<script>
+
+    /*    jQuery(document).ready(function() {
+            EditableTable.init();
+        });*/
+    // let baseUrl = "http://192.168.100.119:8080";
+    var app = new Vue({
+        el: '#app',
+        data: {
+            name:'',
+            ip: '',
+            country: '',
+            region: '',
+            city: '',
+            postalCode: '',
+            remark: '',
+            state: '',
+            tz: '',
+            proxyPort: '',
+            form: {
+                id: '',
+                name: '',
+                country: '',
+                state: '',
+                city: '',
+                proxyPort: ''
+            },
+            createTimeRange: '',
+            heartbeatTimeRange: '',
+            manualHeartbeatTimeRange: '',
+            reports: [],
+            summary: '',
+            total: 0,
+            pageNum: 1,
+            pageSize: 50000,
+            pickerOptions: {
+                shortcuts: [{
+                    text: '最近一周',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近一个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近三个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }]
+            },
+            getIpTimes: '',
+            requestId: '',
+            intervalMinute: '',
+            executorPararm: '',
+            timeStamp: '',
+            dialogVisible: false,
+            options: [{
+                value: 0,
+                label: '否'
+            }, {
+                value: 1,
+                label: '是'
+            }],
+        },
+        methods: {
+            onSubmit() {
+                axios.get(baseUrl + '/rola/listProxyPortsPage',
+                    {
+                        params: {
+                            // ip: this.ip,
+                            // name: this.name,
+                            // country: this.country.toLowerCase(),
+                            // region: this.region.toLowerCase(),
+                            // city: this.city.toLowerCase(),
+                            // postalCode: this.postalCode,
+                            // tz: this.tz,
+                            // state: this.state,
+                            // proxyPort: this.proxyPort,
+                            // startCreateTime: this.createTimeRange[0],
+                            // endCreateTime: this.createTimeRange[1],
+                            // startHeartbeatTime: this.heartbeatTimeRange[0],
+                            // endHeartbeatTime: this.heartbeatTimeRange[1],
+                            pageNum: this.pageNum,
+                            pageSize: this.pageSize
+                        }
+                    })
+                    .then((response) => {
+                        console.log("responose是：" + response.data);
+                        this.reports = response.data.data.rows
+                        if (response.data != null) {
+                            this.total = response.data.data.total
+                        }
+                    })
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.pageNum = 1;
+                this.onSubmit();
+            },
+            handleCurrentChange(val) {
+                this.pageNum = val;
+                this.onSubmit();
+            },
+            timeFormatter(row, column) {
+                return this.timestampToTime(row.confirmedTimestamp);
+            },
+            /**
+             * 计算时间返回 yyyy-MM-dd h:m:s 格式的⽅法
+             * timestamp 时间戳
+             */
+            timestampToTime(timestamp) {
+                // 计算年⽉⽇时分的函数
+                var date = new Date(timestamp * 1000)
+                console.log(date);
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1) + '-'
+                var D = date.getDate() + ' '
+                var h = date.getHours() + ':'
+                var m = date.getMinutes() + ':'
+                var s = date.getSeconds()
+                return Y + M + D + h + m + s
+            },
+            redCharacter(row, column, rowIndex, columnIndex) {
+                if (row.columnIndex == 8 && row.state == 0) {
+                    return 'color:red';
+                }
+            },
+            cellclick(row, column, cell, event) {
+                /*    if(column.label === 'remark'){
+                        this.$set(row, 'isOK', true)
+                    }
+                    this.$nextTick(() => {
+                        this.$refs.gain.focus()
+                    })*/
+            },
+            /*
+            blurClick({row,column}){
+                if(column.label === 'remark'){
+                    this.$set(row, 'isOK', false)
+                    axios.post(baseUrl + '/ipAddr/updateRemark', {
+
+                    },{
+                        headers: {
+                            'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                            'Access-Control-Allow-Credentials':'true', //解决session问题
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                        },
+                        withCredentials : true,
+                        params: {
+                            id: row.id,
+                            remark: row.remark
+                        }
+                    })
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+            },*/
+            tableRowClassName({row, rowIndex}) {
+                console.log("tableRowClassName 方法触发了！！！！")
+                if (row.result === true) {
+                    return 'primary-row';
+                } else if (row.result === false) {
+                    return 'danger-row';
+                }
+
+
+                /*if (row.state === 0) {
+                    return 'danger-row';
+                } else if (row.state === 1) {
+                    return 'primary-row';
+                }*/
+                return '';
+            },
+            getLuminatiIpAddr() {
+                axios.post(baseUrl + '/ipAddr/getLuminatiIpAddr', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        number: this.getIpTimes
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            deleteProxyPort({row, column}) {
+                //保存Vue指针
+                let that = this;
+                axios.post(baseUrl + '/rola/deleteProxyPortById', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        id: row.id
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                        //重新查询一边，刷新页面
+                        that.onSubmit()
+                        that.$message({
+                            message: '删除成功！',
+                            type: 'success'
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            manualHeartbeat() {
+                axios.post(baseUrl + '/ipAddr/manualHeartbeat', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        startHeartbeatTime: this.manualHeartbeatTimeRange[0],
+                        endHeartbeatTime: this.manualHeartbeatTimeRange[1]
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            search() {
+                this.onSubmit();
+            },
+            testAlive({row, column}) {
+                //保存Vue指针
+                var that = this;
+                axios.get(baseUrl + '/ipAddr/manualHeartbeat',
+                    {
+                        params: {
+                            idList: row.id
+                        }
+                    })
+                    .then((response) => {
+                        console.log(response)
+                        let arr = that.reports;
+                        for (let j = 0; j < response.data.data.length; j++) {
+                            for (let i = 0; i < arr.length; i++) {
+                                console.log(arr[i].id);
+                                console.log(response.data.data[j].id);
+                                if (arr[i].id == response.data.data[j].id) {
+                                    arr[i].result = response.data.data[j].result;
+                                    break;
+                                }
+                            }
+                        }
+                        that.reports = arr;
+                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                        this.timeStamp = new Date().getTime();
+                    })
+                this.$set(this.reports);
+            },
+            active({row, column}) {
+                //保存Vue指针
+                var that = this;
+                axios.post(baseUrl + '/ipAddr/startProxy', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        id: row.id
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response.data);
+                        that.$alert(response.data.data, '启用结果', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message({
+                                    type: 'info',
+                                    message: response.data.message
+                                });
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            startProxyPort() {
+                //保存Vue指针
+                var that = this;
+                const loading = this.$loading({
+                    lock: true,
+                    text: '启动代理中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                axios.post(baseUrl + '/rola/startProxyPort', {
+                    country: that.country,
+                    state: that.region,
+                    city:that.city,
+                    proxyPort:that.proxyPort,
+                    name:that.name
+                }, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true
+                })
+                    .then(function (response) {
+                        console.log("response.data.status 是：" + response.data.status);
+                        loading.close();
+                        if (response.data.status == 100) {
+                            that.$message({
+                                message: '启动成功！',
+                                type: 'success'
+                            });
+                            that.onSubmit()
+                        } else {
+                            that.$message({
+                                message: response.data.message,
+                                type: 'error'
+                            });
+                            that.onSubmit()
+                        }
+
+                    })
+                    .catch(function (error) {
+                        loading.close();
+                        that.$message({
+                            message: error.data.message,
+                            type: 'error'
+                        });
+                        console.log(error);
+                        that.onSubmit()
+                    });
+
+            },
+            batchDelete() {
+                console.log(this.$refs.table.selection);
+                console.log(this.$refs.table.selection[0].proxyPort);
+                let ports = [];
+                for (let i = 0; i < this.$refs.table.selection.length; i++) {
+                    ports.push(this.$refs.table.selection[i].proxyPort);
+                }
+
+                axios.post(baseUrl + '/rola/deleteBatchSocksPorts',
+
+                            JSON.stringify(ports)
+                        ,{
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                            'Access-Control-Allow-Credentials': 'true', //解决session问题
+                            'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为form-data类型
+                        },
+                        withCredentials: true
+                    }).then((response) => {
+
+                    console.log(response)
+                    this.$message({
+                        message: response.data.message,
+                        type: 'success'
+                    });
+                    this.onSubmit();
+                })
+            },
+            deleteAll() {
+                axios.post(baseUrl + '/rola/deleteAllSocksPort', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true
+                })
+                    .then((response) => {
+                        this.$message({
+                            message: response.data.message,
+                            type: 'success'
+                        });
+                        console.log(response);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            },
+            changeForm({row, column}) {
+                    this.form.id = row.id,
+                    this.form.country = row.country,
+                    this.form.state = row.region,
+                    this.form.city = row.city,
+                    this.form.proxyPort = row.proxyPort,
+                    this.form.name = row.name,
+                    this.dialogVisible = true;
+            },
+            changeProxyIp() {
+
+                //保存Vue指针
+                var that = this;
+                const loading = this.$loading({
+                    lock: true,
+                    text: '更换代理信息中...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+
+                axios.post(baseUrl + '/rola/changeProxyIp', {
+                    country: that.form.country,
+                    state: that.form.state,
+                    city: that.form.city,
+                    proxyPort: that.form.proxyPort,
+                    name:that.form.name
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                            'Access-Control-Allow-Credentials': 'true', //解决session问题
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true
+                })
+                    .then(function (response) {
+
+                        loading.close();
+
+                        if (response.data.status == 100) {
+                            console.log(response.data.status);
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'success'
+                            });
+                            that.onSubmit()
+                        } else {
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'warning'
+                            });
+                            that.onSubmit()
+                        }
+                        that.dialogVisible = false;
+                    })
+                    .catch(function (error) {
+
+                        loading.close();
+
+                        that.$message({
+                            showClose: true,
+                            offset: 250,
+                            message: error.data.message,
+                            type: 'warning'
+                        });
+                        that.onSubmit()
+                        that.dialogVisible = false;
+                    });
+
+            },
+
+        },
+        mounted() {
+            this.onSubmit();
+        }
+    })
+</script>
+
+</body>
+</html>

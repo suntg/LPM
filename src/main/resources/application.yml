@@ -1,0 +1,61 @@
+server:
+  shutdown: graceful
+  port: 18081
+
+spring:
+  application:
+    name: lpm
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    name: LPM
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  profiles:
+    active: prod
+  sa-token:
+    # token名称 (同时也是cookie名称)
+    token-name: QTD-Token
+    # token有效期，单位s 默认30天, -1代表永不过期
+    timeout: 2592000
+    # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
+    activity-timeout: -1
+    # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+    allow-concurrent-login: false
+    # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
+    is-share: false
+    # token风格
+    token-style: simple-uuid
+    # 是否输出操作日志
+    is-log: false
+  main:
+    allow-circular-references: true
+  mvc:
+    async:
+      request-timeout: 50000
+
+mybatis-plus:
+  type-aliases-package: com.example.lpm
+  mapper-locations: classpath:/mapper/**.xml
+  configuration:
+    default-enum-type-handler: org.apache.ibatis.type.EnumOrdinalTypeHandler
+
+
+luminati:
+  proxy-host: zproxy.lum-superproxy.io
+  proxy-port: 22225
+  proxy-username: lum-customer-c_99c3c376-zone-zone5-dns-remote-route_err-pass_dyn-country-us
+  proxy-password: jekszis5wjgx
+  test-url: http://lumtest.com/myip.json
+  socks-username: hotkingda
+  socks-password: 209209us
+  customer: c_99c3c376
+  zone: zone5
+  country: us
+
+pagehelper:
+  params: count=countSql
+  helper-dialect: mysql

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.lpm.mapper.UsedPortMapper">
+    <resultMap type="com.example.lpm.domain.entity.UsedPortDO" id="usedPortMap">
+        <result property="id" column="id"/>
+        <result property="serverId" column="server_ip"/>
+        <result property="serverPort" column="server_port"/>
+        <result property="ipAddrId" column="ip_addr_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <select id="selectMaxPort" resultType="java.lang.Integer">
+        SELECT MAX(t_used_port.server_port)
+        FROM t_used_port
+        WHERE t_used_port.server_id
+    </select>
+</mapper>

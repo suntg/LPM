@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="#" type="image/png">
+
+    <title>LuminatiIP收录</title>
+    <!--data table-->
+    <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css" />
+    <style>
+        .inputStyle {
+            width:250px;
+        }
+        .el-table .danger-row {
+            background: #FF8C69;
+        }
+        .el-table .primary-row {
+            background: #98F5FF;
+        }
+    </style>
+    <div th:include="common :: commonheader"></div>
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    <div th:replace="common :: #leftmenu"></div>
+
+    <!-- main content start-->
+    <div class="main-content" >
+
+        <div th:replace="common :: headermenu"></div>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                LuminatiIP收录
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active"> 收录设置 </li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper" id="app">
+            <div class="row">
+                <div class="col-sm-12">
+                    <section class="panel">
+                        <header class="panel-heading">
+                            收录任务
+                        </header>
+
+                        <div class="panel-body">
+                            <div class="adv-table editable-table ">
+
+                                <hr>
+<!--                                <div style="margin-bottom:25px;margin-top:25px;">-->
+<!--                                    <span>手工入库IP数量：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入数字"-->
+<!--                                            v-model.trim="getIpTimes"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <span>Country：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入"-->
+<!--                                            v-model.trim="country"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <span>State：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入"-->
+<!--                                            v-model.trim="state"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <span>City：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入"-->
+<!--                                            v-model.trim="city"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <el-button type="success" @click="getLuminatiIpAddr">执行</el-button>-->
+<!--                                </div>-->
+<!--                                <hr>-->
+<!--                                <div style="margin-bottom:25px;margin-top:25px;">-->
+<!--                                    <span>选择任务：</span>-->
+<!--                                    <el-select v-model="requestId" placeholder="状态">-->
+<!--                                        <el-option-->
+<!--                                                v-for="item in jobOptions"-->
+<!--                                                :key="item.value"-->
+<!--                                                :label="item.label"-->
+<!--                                                :value="item.value">-->
+<!--                                        </el-option>-->
+<!--                                    </el-select>-->
+<!--                                    <span style="margin-left:30px;">执行任务间隔时间，分钟：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入内容"-->
+<!--                                            v-model.trim="intervalMinute"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <span style="margin-left:35px;">执行次数：</span>-->
+<!--                                    <el-input-->
+<!--                                            placeholder="请输入内容"-->
+<!--                                            v-model.trim="executorPararm"-->
+<!--                                            style="width:10%;margin-right:20px;"-->
+<!--                                            clearable>-->
+<!--                                    </el-input>-->
+<!--                                    <el-button type="warning" @click="updateJob">更新任务</el-button>-->
+<!--                                    <el-button type="primary" @click="startJob">启动任务</el-button>-->
+<!--                                    <el-button type="danger" @click="stopJob">停止任务</el-button>-->
+<!--                                </div>-->
+<!--                                <hr>-->
+<!--                                <div style="margin-bottom:25px;margin-top:25px;">
+                                    <span>选择测活时间范围数据进行心跳：</span>
+                                    <el-date-picker
+                                            v-model="manualHeartbeatTimeRange"
+                                            type="datetimerange"
+                                            value-format="yyyy-MM-dd HH:mm:ss"
+                                            :picker-options="pickerOptions"
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            align="right">
+                                    </el-date-picker>
+                                </div>
+                                <el-button type="primary" @click="manualHeartbeat">手动进行心跳</el-button>-->
+
+                                <!--<div class="block">
+                                    <span>心跳定时任务执行日志：</span>
+                                    <div class="radio">
+                                        排序：
+                                        <el-radio-group v-model="reverse">
+                                            <el-radio :label="true">正序</el-radio>
+                                            <el-radio :label="false">倒序</el-radio>
+                                        </el-radio-group>
+                                    </div>
+
+                                    <el-timeline :reverse="reverse">
+                                        <el-timeline-item
+                                                v-for="(jobLog, index) in heartbeatsJobLogs"
+                                                :key="index"
+                                                :timestamp="jobLog.timestamp">
+                                            {{jobLog.content}}
+                                        </el-timeline-item>
+                                    </el-timeline>
+                                </div>-->
+<!--                                <div style="margin-top:35px;">-->
+<!--                                    <span>获取IP定时任务执行日志：</span>-->
+<!--                                    <div class="radio">-->
+<!--                                        排序：-->
+<!--                                        <el-radio-group v-model="reverse2">-->
+<!--                                            <el-radio :label="true">正序</el-radio>-->
+<!--                                            <el-radio :label="false">倒序</el-radio>-->
+<!--                                        </el-radio-group>-->
+<!--                                    </div>-->
+
+<!--                                    <el-timeline :reverse="reverse2">-->
+<!--                                        <el-timeline-item-->
+<!--                                                v-for="(jobLog, index) in ipJobLogs"-->
+<!--                                                :key="index"-->
+<!--                                                :timestamp="jobLog.timestamp">-->
+<!--                                            {{jobLog.content}}-->
+<!--                                        </el-timeline-item>-->
+<!--                                    </el-timeline>-->
+<!--                                </div>-->
+
+
+
+                                <div style="margin-bottom:25px;margin-top:25px;">
+                                    <span>国家：</span>
+                                    <el-input
+                                            placeholder="请输入"
+                                            v-model.trim="country"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>州：</span>
+                                    <el-input
+                                            placeholder="请输入"
+                                            v-model.trim="state"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>城市：</span>
+                                    <el-input
+                                            placeholder="请输入"
+                                            v-model.trim="city"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>数量：</span>
+                                    <el-input
+                                            placeholder="请输入"
+                                            v-model.trim="number"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <el-button type="success" @click="collect">执行</el-button>
+                                    <el-button type="warning" @click="pauseCollect">暂停</el-button>
+                                    <el-button type="danger" @click="endCollect">结束</el-button>
+                                    <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
+                                </div>
+                                <hr>
+
+                                <div style="margin-top:35px;">
+                                    <span>Luminati收录进度：</span>
+                                    <el-progress type="circle" :percentage="percentage"
+                                                 :status="progressStatus"></el-progress>
+                                    <br/>
+                                    <br/>
+                                    <span>当前收录： {{currentNum}}</span>
+                                    <span>&nbsp;    当前失败： {{currentFailNum}}</span>
+                                    <span>&nbsp;    当前抛弃： {{currentRepeatNum}}</span>
+                                    <span>&nbsp;    成功收录： {{totalNum}}</span>
+                                    <span>&nbsp;    今日收录： {{todayNum}}</span>
+                                    <span>&nbsp;    总收录： {{completedNum}}</span>
+                                    </br>
+                                    </br>
+                                    <span v-if="errorMessage != null" style="color:#fff;font-weight: bold;background-color: red;">错误信息： {{errorMessage}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!--body wrapper end-->
+
+        <!--footer section start-->
+        <!--<footer>
+            2020 &copy; AdminEx by ThemeBucket </a>
+        </footer>-->
+        <!--footer section end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/modernizr.min.js"></script>
+<script src="js/jquery.nicescroll.js"></script>
+<script src="js/Date.js"></script>
+
+<!--data table-->
+<script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/data-tables/DT_bootstrap.js"></script>
+
+<!--common scripts for all pages-->
+<script src="js/scripts.js"></script>
+
+<script src="js/vue.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<!--script for editable table-->
+<!-- END JAVASCRIPTS -->
+<script>
+
+    /*    jQuery(document).ready(function() {
+            EditableTable.init();
+        });*/
+    // let baseUrl = "http://192.168.100.119:8080";
+    var app = new Vue({
+        el: '#app',
+        data: {
+            ip:'',
+            country:'',
+            state: '',
+            region:'',
+            city:'',
+            number: '',
+            percentage: 0,
+            progressStatus: null,
+            currentNum: '',
+            totalNum: '',
+            todayNum: '',
+            completedNum: '',
+            currentFailNum: 0,
+            currentRepeatNum: 0,
+            intervalFlag: null,
+            errorMessage:null,
+            remark:'',
+            form: {
+                startTime: '',
+                endTime: ''
+            },
+            createTimeRange:'',
+            heartbeatTimeRange:'',
+            manualHeartbeatTimeRange:'',
+            reports: [],
+            summary:'',
+            total: 0,
+            pageNum: 1,
+            pageSize: 10,
+            pickerOptions: {
+                shortcuts: [{
+                    text: '最近一周',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近一个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近三个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }]
+            },
+            getIpTimes:'',
+            jobOptions: [{
+                value: 2,
+                label: '获取Luminati IP'
+            }],
+            requestId: 2,
+            intervalMinute:'',
+            executorPararm:'',
+            reverse: false,
+            heartbeatsJobLogs: [],
+            reverse2: false,
+            ipJobLogs: []
+        },
+        methods: {
+            timeFormatter(row, column) {
+                return this.timestampToTime(row.confirmedTimestamp);
+            },
+            /**
+             * 计算时间返回 yyyy-MM-dd h:m:s 格式的⽅法
+             * timestamp 时间戳
+             */
+            timestampToTime (timestamp) {
+                // 计算年⽉⽇时分的函数
+                var date = new Date(timestamp*1000)
+                console.log(date);
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1) + '-'
+                var D = date.getDate() + ' '
+                var h = date.getHours() + ':'
+                var m = date.getMinutes() + ':'
+                var s = date.getSeconds()
+                return Y + M + D + h + m + s
+            },
+            cellclick(row, column, cell, event){
+                if(column.label === 'remark'){
+                    this.$set(row, 'isOK', true)
+                }
+                this.$nextTick(() => {
+                    this.$refs.gain.focus()
+                })
+            },
+            blurClick({row,column}){
+                if(column.label === 'remark'){
+                    this.$set(row, 'isOK', false)
+                    axios.post(baseUrl + '/ipAddr/updateRemark', {
+
+                    },{
+                        headers: {
+                            'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                            'Access-Control-Allow-Credentials':'true', //解决session问题
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                        },
+                        withCredentials : true,
+                        params: {
+                            id: row.id,
+                            remark: row.remark
+                        }
+                    })
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+            },
+            getLuminatiIpAddr() {
+                axios.post(baseUrl + '/ipAddr/getLuminatiIpAddr', {
+
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials':'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials : true,
+                    params: {
+                        number: this.getIpTimes.toLowerCase(),
+                        country: this.country.toLowerCase(),
+                        state: this.state.toLowerCase(),
+                        city: this.city.toLowerCase()
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            updateJob() {
+                axios.post(baseUrl + '/ipAddr/updateJob', {
+
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials':'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials : true,
+                    params: {
+                        id: this.requestId,
+                        intervalMinute: this.intervalMinute,
+                        executorPararm: this.executorPararm
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            startJob() {
+                axios.post(baseUrl + '/ipAddr/startJob', {
+
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials':'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials : true,
+                    params: {
+                        id: this.requestId
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            stopJob() {
+                axios.post(baseUrl + '/ipAddr/stopJob', {
+
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials':'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials : true,
+                    params: {
+                        id: this.requestId
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            manualHeartbeat() {
+                axios.post(baseUrl + '/ipAddr/manualHeartbeat', {
+
+                },{
+                    headers: {
+                        'Access-Control-Allow-Origin':'*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials':'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials : true,
+                    params:{
+                        startHeartbeatTime: this.manualHeartbeatTimeRange[0],
+                        endHeartbeatTime: this.manualHeartbeatTimeRange[1]
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            getJobLog() {
+                //保存Vue指针
+                var that=this;
+                axios.get(baseUrl + '/ipAddr/getLogList',
+                    {
+                        params:{
+                            id: this.requestId
+                        }
+                    })
+                    .then(function (response) {
+                        console.log(response);
+                        let jobsLogs = [];
+                        let logs = eval(response.data.data);
+                        for(let i=0;i < logs.length;i++){
+                            if (logs[i].handleCode == 200 && logs[i].triggerCode == 200){
+                                jobsLogs.push(
+                                    {
+                                        content: '地址 ID: ' + logs[i].id + " 触发执行成功！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+                            } else {
+                                jobsLogs.push(
+                                    {
+                                        content: '地址 ID: ' + logs[i].id + " 触发执行失败！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+                            }
+
+                        }
+                        that.jobLogs = jobsLogs;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            /**
+             * 计算时间返回 yyyy-MM-dd h:m:s 格式的⽅法
+             * timestamp 时间戳
+             */
+            timestampToTime (timestamp) {
+                // 计算年⽉⽇时分的函数
+                var date = new Date(timestamp)
+                console.log(date);
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1) + '-'
+                var D = date.getDate() + ' '
+                var h = date.getHours() + ':'
+                var m = date.getMinutes() + ':'
+                var s = date.getSeconds()
+                return Y + M + D + h + m + s
+            },
+            collectProgress() {
+                //保存Vue指针
+                var that = this;
+                // 每隔 1s 请求接口，获取进度条 进度，如果达到 100% 则取消 定时请求任务
+                this.intervalFlag = setInterval(() => {
+                    axios.get(baseUrl + '/ipAddr/collectProgress',
+                        {
+                            params: {}
+                        })
+                        .then((response) => {
+                            that.currentNum = response.data.data.currentNum;
+                            that.totalNum = response.data.data.completedNum;
+                            that.todayNum = response.data.data.todayNum;
+                            that.completedNum = response.data.data.totalNum;
+                            that.errorMessage = response.data.data.error;
+
+                            if (response.data != null) {
+                                console.log("currentNum:" + response.data.data.currentNum);
+                                console.log("totalNum:" + response.data.data.totalNum);
+                                this.percentage = (response.data.data.completedNum / response.data.data.currentNum * 100).toFixed(2);
+                            }
+
+                            if (response.data.data.error != null) {
+                                this.collectError(response.data.data.error);
+                                return;
+                            }
+
+                            //从90自增到100
+                            if (this.percentage == 100) {
+                                //自增到100后把进度条status变为success
+                                clearInterval(this.intervalFlag)
+                                this.progressStatus = 'success'
+
+                                setTimeout(() =>{
+                                    axios.get(baseUrl + '/ipAddr/collectProgress',
+                                        {
+                                            params: {}
+                                        })
+                                        .then((response) => {
+                                            that.currentNum = response.data.data.currentNum;
+                                            that.totalNum = response.data.data.completedNum;
+                                            that.todayNum = response.data.data.todayNum;
+                                            that.completedNum = response.data.data.totalNum;
+                                            that.errorMessage = response.data.data.error;
+                                            if (response.data.data.error != null) {
+                                                this.collectError(response.data.data.error);
+                                                return;
+                                            }
+
+                                            that.$alert('当前收录：' + response.data.data.currentNum
+                                                + '   成功收录：' + response.data.data.completedNum
+                                                + '   今日收录：' + response.data.data.todayNum
+                                                + '   总收录：' + response.data.data.totalNum
+                                                , '收录提示', {
+                                                    confirmButtonText: '确定',
+                                                    type: 'success',
+                                                    callback: action => {
+                                                        that.$message({
+                                                            type: 'success',
+                                                            message: '收录成功！'
+                                                        });
+                                                    }
+                                                });
+                                        })
+                                },2500)
+
+                            }
+
+                        }).catch(function (error) {
+                        that.$alert(response.data.data, '收录结果', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message.error('异常错误：' + response.data.message);
+                            }
+                        });
+                        that.progressStatus = 'exception'
+                        //出现异常，停止定时任务
+                        clearInterval(that.intervalFlag)
+                    });
+
+                }, 1000);
+            },
+            collect() {
+                //保存Vue指针
+                let that = this;
+                let errorData = null;
+                axios.post(baseUrl + '/ipAddr/collect', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        number: this.number,
+                        country: this.country.toLowerCase(),
+                        state: this.state.toLowerCase(),
+                        city: this.city.toLowerCase()
+                    }
+                })
+                    .then(function (response) {
+                        that.$alert('', '收录提示', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message({
+                                    type: 'info',
+                                    message: '开始收录！'
+                                });
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log("异常提示为：" + error);
+                        that.$alert(error, '开始收录', {
+                            confirmButtonText: '确定',
+                            type: 'error',
+                            callback: action => {
+                                that.$message.error('异常错误：' + error);
+                            }
+                        });
+                        errorData = error;
+                    });
+                //出现异常，不再执行接下来的操作
+                if (errorData != null) {
+                    return;
+                }
+
+                this.collectProgress();
+            },
+            pauseCollect() {
+                //保存Vue指针
+                let that = this;
+                //暂停收集进度查询
+                clearInterval(this.intervalFlag)
+                axios.get(baseUrl + '/ipAddr/pauseCollect',
+                    {
+                        params: {}
+                    })
+                    .then((response) => {
+                        that.$alert('暂停成功！', '操作提示', {
+                            confirmButtonText: '确定',
+                            type: 'success',
+                            callback: action => {
+                                that.$message({
+                                    type: 'success',
+                                    message: '暂停收集成功！'
+                                });
+                            }
+                        });
+                    })
+
+            },
+            endCollect() {
+                //保存Vue指针
+                let that = this;
+                //暂停收集进度查询
+                clearInterval(this.intervalFlag)
+                axios.get(baseUrl + '/ipAddr/endCollect',
+                    {
+                        params: {}
+                    })
+                    .then((response) => {
+                        that.$alert('已结束收集！', '操作提示', {
+                            confirmButtonText: '确定',
+                            type: 'success',
+                            callback: action => {
+                                that.$message({
+                                    type: 'success',
+                                    message: '结束收集成功！'
+                                });
+                            }
+                        });
+                    })
+            },
+            collectError(error){
+                    this.$alert(error, '错误提示', {
+                        confirmButtonText: '确定',
+                        type: 'error',
+                        callback: action => {
+                            this.$message.error('异常错误：' + error);
+                        }
+                    });
+                    this.progressStatus = 'exception'
+                    //出现异常，停止定时任务
+                    clearInterval(this.intervalFlag)
+            }
+
+        },
+        mounted(){
+/*            let heartbeatTimer = setInterval(() => {
+                var that=this;
+                axios.get(baseUrl + '/ipAddr/getLogList',
+                    {
+                        params:{
+                            id: 3
+                        }
+                    })
+                    .then(function (response) {
+                        let jobsLogs = [];
+                        let logs = eval(response.data.data);
+                        for(let i=0;i < logs.length;i++){
+                            if (logs[i].handleCode == 200 && logs[i].triggerCode == 200){
+                                jobsLogs.push(
+                                    {
+                                        content: 'ID: ' + logs[i].id + " 心跳定时任务 触发执行成功！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+                            } else {
+                                jobsLogs.push(
+                                    {
+                                        content: 'ID: ' + logs[i].id + " 心跳定时任务 触发执行失败！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+
+                            }
+
+                        }
+                        that.heartbeatsJobLogs = jobsLogs;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },10000)
+
+            let ipJobTimer = setInterval(() => {
+                var that=this;
+                axios.get(baseUrl + '/ipAddr/getLogList',
+                    {
+                        params:{
+                            id: 2
+                        }
+                    })
+                    .then(function (response) {
+                        let jobsLogs = [];
+                        let logs = eval(response.data.data);
+                        for(let i=0;i < logs.length;i++){
+                            if (logs[i].handleCode == 200 && logs[i].triggerCode == 200){
+                                jobsLogs.push(
+                                    {
+                                        content: 'ID: ' + logs[i].id + " 获取Ip定时任务 触发执行成功！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+                            } else {
+                                jobsLogs.push(
+                                    {
+                                        content: 'ID: ' + logs[i].id + " 获取Ip定时任务 触发执行失败！",
+                                        timestamp: that.timestampToTime(logs[i].triggerTime)
+                                    }
+                                )
+
+                            }
+                        }
+                        that.ipJobLogs = jobsLogs;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },10000)*/
+
+            this.collectProgress();
+        }
+    })
+</script>
+
+</body>
+</html>

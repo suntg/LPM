@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lpm.mapper.RolaProxyPortMapper">
+    <resultMap id="BaseResultMap" type="com.example.lpm.domain.entity.RolaProxyPortDO">
+        <!--@mbg.generated-->
+        <!--@Table t_rola_proxy_port-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="rola_ip" jdbcType="VARCHAR" property="rolaIp"/>
+        <result column="proxy_port" jdbcType="INTEGER" property="proxyPort"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id,
+        rola_ip,
+        proxy_port,
+        create_time,
+        update_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from t_rola_proxy_port
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        <!--@mbg.generated-->
+        delete
+        from t_rola_proxy_port
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <!--<insert id="insert" parameterType="com.example.lpm.domain.entity.RolaProxyPortDO">
+        &lt;!&ndash;@mbg.generated&ndash;&gt;
+        insert into t_rola_proxy_port (id, rola_ip, proxy_port,
+                                       create_time, update_time)
+        values (#{id,jdbcType=BIGINT}, #{rolaIp,jdbcType=VARCHAR}, #{proxyPort,jdbcType=INTEGER},
+                #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>-->
+    <insert id="insertSelective" parameterType="com.example.lpm.domain.entity.RolaProxyPortDO">
+        <!--@mbg.generated-->
+        insert into t_rola_proxy_port
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="rolaIp != null">
+                rola_ip,
+            </if>
+            <if test="proxyPort != null">
+                proxy_port,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="rolaIp != null">
+                #{rolaIp,jdbcType=VARCHAR},
+            </if>
+            <if test="proxyPort != null">
+                #{proxyPort,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.domain.entity.RolaProxyPortDO">
+        <!--@mbg.generated-->
+        update t_rola_proxy_port
+        <set>
+            <if test="rolaIp != null">
+                rola_ip = #{rolaIp,jdbcType=VARCHAR},
+            </if>
+            <if test="proxyPort != null">
+                proxy_port = #{proxyPort,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.lpm.domain.entity.RolaProxyPortDO">
+        <!--@mbg.generated-->
+        update t_rola_proxy_port
+        set rola_ip     = #{rolaIp,jdbcType=VARCHAR},
+            proxy_port  = #{proxyPort,jdbcType=INTEGER},
+            create_time = #{createTime,jdbcType=TIMESTAMP},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="listPorts" resultType="com.example.lpm.domain.entity.RolaProxyPortDO">
+        SELECT p.id,
+               p.proxy_port,
+               p.rola_ip,
+               p.name,
+               p.create_time,
+               i.country,
+               i.city,
+               i.region
+        FROM t_rola_proxy_port AS p
+                 LEFT JOIN t_rola_ip AS i ON p.rola_ip = i.ip
+        <where>
+            <if test="proxyPort != null">
+                AND p.proxy_port = #{proxyPort}
+            </if>
+        </where>
+        ORDER BY p.create_time DESC
+    </select>
+</mapper>
