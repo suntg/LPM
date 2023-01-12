@@ -160,7 +160,7 @@
                                 </div>-->
 
 <!--                               <el-button type="primary" @click="startProxyPort">启动代理</el-button>-->
-<!--                               <el-button type="warning" @click="batchDelete">批量删除</el-button>-->
+                               <el-button type="warning" @click="batchDelete">批量删除</el-button>
                                <el-button type="danger" @click="deleteAll">全部删除</el-button>
                                 <hr>
                                 <table class="table table-striped table-hover table-bordered"
@@ -744,10 +744,10 @@
                 console.log(this.$refs.table.selection[0].proxyPort);
                 let ports = [];
                 for (let i = 0; i < this.$refs.table.selection.length; i++) {
-                    ports.push(this.$refs.table.selection[i].proxyPort);
+                    ports.push(this.$refs.table.selection[i].id);
                 }
 
-                axios.post(baseUrl + '/rola/deleteBatchSocksPorts',
+                axios.post(baseUrl + '/proxyPort/deleteBatchProxyPorts',
 
                             JSON.stringify(ports)
                         ,{
