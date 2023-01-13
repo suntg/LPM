@@ -281,7 +281,7 @@
                                                     min-width="100"
                                             >
                                                 <template slot-scope="scope">
-<!--                                                    <el-button type="primary" @click="changeForm(scope)">更换</el-button>-->
+                                                    <el-button type="primary" @click="changeForm(scope)">更换</el-button>
 <!--                                                    <el-button type="success" @click="testAlive(scope)">停止</el-button>-->
                                                     <el-button type="danger" @click="deleteProxyPort(scope)">删除
                                                     </el-button>
@@ -396,7 +396,8 @@
                 country: '',
                 state: '',
                 city: '',
-                proxyPort: ''
+                proxyPort: '',
+                typeName:''
             },
             createTimeRange: '',
             heartbeatTimeRange: '',
@@ -788,12 +789,13 @@
                     });
             },
             changeForm({row, column}) {
-                    this.form.id = row.id,
-                    this.form.country = row.country,
-                    this.form.state = row.region,
-                    this.form.city = row.city,
-                    this.form.proxyPort = row.proxyPort,
-                    this.form.name = row.name,
+                    this.form.id = row.id;
+                    this.form.country = row.country;
+                    this.form.state = row.region;
+                    this.form.city = row.city;
+                    this.form.proxyPort = row.proxyPort;
+                    this.form.name = row.name;
+                    this.form.typeName = row.typeName
                     this.dialogVisible = true;
             },
             changeProxyIp() {
@@ -807,7 +809,7 @@
                     background: 'rgba(0, 0, 0, 0.7)'
                 });
 
-                axios.post(baseUrl + '/rola/changeProxyIp', {
+                axios.post(baseUrl + '/proxyPort/changeProxyIp', {
                     country: that.form.country,
                     state: that.form.state,
                     city: that.form.city,
@@ -817,7 +819,7 @@
                     headers: {
                         'Access-Control-Allow-Origin': '*',  //解决cors头问题
                             'Access-Control-Allow-Credentials': 'true', //解决session问题
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                            'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为form-data类型
                     },
                     withCredentials: true
                 })
