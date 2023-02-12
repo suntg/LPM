@@ -1,11 +1,6 @@
 package com.example.lpm.v3.common;
 
-import java.util.stream.Collectors;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -15,7 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -57,19 +55,19 @@ public class GlobalExceptionHandler {
         ResultData<String> resp = null;
         if (e instanceof MethodArgumentNotValidException) {
             // BeanValidation exception
-            MethodArgumentNotValidException ex = (MethodArgumentNotValidException)e;
+            MethodArgumentNotValidException ex = (MethodArgumentNotValidException) e;
             resp = ResultData.fail(HttpStatus.BAD_REQUEST.value(), ex.getBindingResult().getAllErrors().stream()
-                .map(ObjectError::getDefaultMessage).collect(Collectors.joining("; ")));
+                    .map(ObjectError::getDefaultMessage).collect(Collectors.joining("; ")));
         } else if (e instanceof ConstraintViolationException) {
             // BeanValidation GET simple param
-            ConstraintViolationException ex = (ConstraintViolationException)e;
+            ConstraintViolationException ex = (ConstraintViolationException) e;
             resp = ResultData.fail(HttpStatus.BAD_REQUEST.value(), ex.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage).collect(Collectors.joining("; ")));
+                    .map(ConstraintViolation::getMessage).collect(Collectors.joining("; ")));
         } else if (e instanceof BindException) {
             // BeanValidation GET object param
-            BindException ex = (BindException)e;
+            BindException ex = (BindException) e;
             resp = ResultData.fail(HttpStatus.BAD_REQUEST.value(),
-                ex.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; ")));
+                    ex.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; ")));
         }
 
         log.error("参数校验异常:{}", resp.getMessage());

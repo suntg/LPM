@@ -440,6 +440,8 @@ public class RolaProxyStrategy implements ProxyStrategy {
                 proxyPortDO.setCity(proxyIpDO.getCity());
                 proxyPortDO.setRegion(proxyIpDO.getRegion());
                 proxyPortService.updateById(proxyPortDO);
+            } else {
+                throw new BizException(ReturnCode.RC999.getCode(), "更换失败");
             }
 
         }
