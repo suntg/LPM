@@ -1,32 +1,22 @@
 package com.example.lpm.service.impl;
 
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import org.redisson.api.RAtomicLong;
-import org.redisson.api.RBlockingQueue;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.text.csv.CsvData;
+import cn.hutool.core.text.csv.CsvReader;
+import cn.hutool.core.text.csv.CsvRow;
+import cn.hutool.core.text.csv.CsvUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.common.BizException;
-import com.example.lpm.v3.config.GzipRequestInterceptor;
 import com.example.lpm.constant.ProxyConstant;
 import com.example.lpm.constant.RedisKeyConstant;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
 import com.example.lpm.domain.entity.RolaIpDO;
 import com.example.lpm.domain.query.FindSocksPortQuery;
-import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.domain.query.RolaQuery;
 import com.example.lpm.domain.query.ZipCodeQuery;
 import com.example.lpm.domain.request.RolaIpActiveRequest;
@@ -36,20 +26,36 @@ import com.example.lpm.domain.vo.PageVO;
 import com.example.lpm.domain.vo.RolaProgressVO;
 import com.example.lpm.mapper.RolaIpMapper;
 import com.example.lpm.service.RolaIpService;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.config.GzipRequestInterceptor;
+import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.redisson.api.RAtomicLong;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -67,9 +73,53 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     @Override
     public void collect(RolaIpRequest rolaIpRequest) {
 
+        // 在收录代理的时候,先判断城市列表是存在.如果存在在进行收录(网页上)
+        // 如果不存在情况下,网页提示该州不在收录范围内.
+        if ("us".equalsIgnoreCase(rolaIpRequest.getCountry())) {
+            ClassPathResource classPathResource = new ClassPathResource("country-state-city.csv");
+            try {
+                InputStream inputStream = classPathResource.getInputStream();
+                CsvReader reader = CsvUtil.getReader();
+                CsvData data = reader.read(new InputStreamReader(inputStream, "UTF-8"));
+                List<CsvRow> rows = data.getRows();
+
+                String state = null;
+                if (StrUtil.isNotBlank(rolaIpRequest.getState())) {
+                    state = StrUtil.replace(rolaIpRequest.getState(), " ", "").toLowerCase();
+                }
+
+                String city = null;
+                if (StrUtil.isNotBlank(rolaIpRequest.getCity())) {
+                    city = StrUtil.replace(rolaIpRequest.getCity(), " ", "").toLowerCase();
+                }
+
+
+                Integer stateFlag = 0;
+                Integer cityFlag = 0;
+
+                for (CsvRow row : rows) {
+                    List<String> list = row.getRawList();
+                    if (StrUtil.isNotBlank(state) && list.contains(state)) {
+                        stateFlag = 1;
+                    }
+                    if (StrUtil.isNotBlank(city) && list.contains(city)) {
+                        cityFlag = 1;
+                    }
+                }
+                if (StrUtil.isNotBlank(state) && stateFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+                if (StrUtil.isNotBlank(city) && cityFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+            } catch (IOException e) {
+                throw new BizException(ReturnCode.RC999.getCode(), "打开罗拉代理的州和城市列表失败");
+            }
+        }
+
         // 判断 队列数量，>0拒绝任务
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
         if (queue.size() > 0) {
             throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
         }
@@ -94,7 +144,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     @Override
     public void phoneCollect(RolaIpRequest rolaIpRequest) {
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_PHONE_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_PHONE_COLLECT_IP_QUEUE_KEY);
         for (int i = 0; i < rolaIpRequest.getNumber(); i++) {
             queue.offer(rolaIpRequest);
         }
@@ -105,7 +155,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         RAtomicLong collectFlag = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_COLLECT_FLAG_KEY);
         collectFlag.set(11L);
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
         queue.clear();
     }
 
@@ -125,7 +175,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         RAtomicLong todayNum = redissonClient.getAtomicLong("#ROLA_" + today);
 
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
 
         RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_REPEAT_KEY);
 
@@ -160,14 +210,14 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
 
         List<RolaIpDO> rolaIpDOList =
-            rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda().ne(RolaIpDO::getStatus, 0)
-                .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCountry()), RolaIpDO::getCountry, rolaQuery.getCountry())
-                .eq(CharSequenceUtil.isNotBlank(rolaQuery.getState()), RolaIpDO::getRegion, rolaQuery.getState())
-                .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCity()), RolaIpDO::getCity, rolaQuery.getCity())
-                .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getIp()), RolaIpDO::getIp, rolaQuery.getIp())
-                .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getZipCode()), RolaIpDO::getPostalCode,
-                    rolaQuery.getZipCode())
-                .orderByDesc(RolaIpDO::getCreateTime));
+                rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda().ne(RolaIpDO::getStatus, 0)
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCountry()), RolaIpDO::getCountry, rolaQuery.getCountry())
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getState()), RolaIpDO::getRegion, rolaQuery.getState())
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCity()), RolaIpDO::getCity, rolaQuery.getCity())
+                        .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getIp()), RolaIpDO::getIp, rolaQuery.getIp())
+                        .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getZipCode()), RolaIpDO::getPostalCode,
+                                rolaQuery.getZipCode())
+                        .orderByDesc(RolaIpDO::getCreateTime));
         if (CollUtil.isNotEmpty(rolaIpDOList)) {
             for (RolaIpDO rolaIpDO : rolaIpDOList) {
                 if (CharSequenceUtil.isNotBlank(rolaIpDO.getCity())) {
@@ -222,11 +272,11 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             // 返回
             List<ZipCodeQuery> zipCodeQueryList = findSocksPortQuery.getZipCodeList();
             List<String> zipCodeList =
-                zipCodeQueryList.stream().sorted(Comparator.comparingDouble(ZipCodeQuery::getDistance))
-                    .map(ZipCodeQuery::getZipCode).collect(Collectors.toList());
+                    zipCodeQueryList.stream().sorted(Comparator.comparingDouble(ZipCodeQuery::getDistance))
+                            .map(ZipCodeQuery::getZipCode).collect(Collectors.toList());
 
             List<RolaIpDO> rolaIpDOList = rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda()
-                .eq(RolaIpDO::getStatus, 1).in(RolaIpDO::getPostalCode, zipCodeList).le(RolaIpDO::getRisk, 80));
+                    .eq(RolaIpDO::getStatus, 1).in(RolaIpDO::getPostalCode, zipCodeList).le(RolaIpDO::getRisk, 80));
 
             if (CollUtil.isEmpty(rolaIpDOList)) {
                 rLock.unlock();
@@ -244,36 +294,36 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         }
 
         long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getStatus, 1)
-            .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCountry()), RolaIpDO::getCountry,
-                findSocksPortQuery.getCountry())
-            .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getState()), RolaIpDO::getRegion,
-                findSocksPortQuery.getState())
-            .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCity()), RolaIpDO::getCity,
-                findSocksPortQuery.getCity())
-            .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getFileType()), RolaIpDO::getFileType,
-                findSocksPortQuery.getFileType())
-            .le(RolaIpDO::getRisk, 80)
-            .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getIp()), RolaIpDO::getIp,
-                findSocksPortQuery.getIp())
-            .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getZipCode()), RolaIpDO::getPostalCode,
-                findSocksPortQuery.getZipCode()));
-        if (count > 0) {
-            int c = RandomUtil.randomInt(0, (int)count);
-            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getStatus, 1)
                 .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCountry()), RolaIpDO::getCountry,
-                    findSocksPortQuery.getCountry())
+                        findSocksPortQuery.getCountry())
                 .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getState()), RolaIpDO::getRegion,
-                    findSocksPortQuery.getState())
+                        findSocksPortQuery.getState())
                 .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCity()), RolaIpDO::getCity,
-                    findSocksPortQuery.getCity())
+                        findSocksPortQuery.getCity())
                 .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getFileType()), RolaIpDO::getFileType,
-                    findSocksPortQuery.getFileType())
+                        findSocksPortQuery.getFileType())
                 .le(RolaIpDO::getRisk, 80)
                 .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getIp()), RolaIpDO::getIp,
-                    findSocksPortQuery.getIp())
+                        findSocksPortQuery.getIp())
                 .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getZipCode()), RolaIpDO::getPostalCode,
-                    findSocksPortQuery.getZipCode())
-                .last("limit " + c + " , 1"));
+                        findSocksPortQuery.getZipCode()));
+        if (count > 0) {
+            int c = RandomUtil.randomInt(0, (int) count);
+            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getStatus, 1)
+                    .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCountry()), RolaIpDO::getCountry,
+                            findSocksPortQuery.getCountry())
+                    .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getState()), RolaIpDO::getRegion,
+                            findSocksPortQuery.getState())
+                    .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getCity()), RolaIpDO::getCity,
+                            findSocksPortQuery.getCity())
+                    .eq(CharSequenceUtil.isNotBlank(findSocksPortQuery.getFileType()), RolaIpDO::getFileType,
+                            findSocksPortQuery.getFileType())
+                    .le(RolaIpDO::getRisk, 80)
+                    .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getIp()), RolaIpDO::getIp,
+                            findSocksPortQuery.getIp())
+                    .likeRight(CharSequenceUtil.isNotBlank(findSocksPortQuery.getZipCode()), RolaIpDO::getPostalCode,
+                            findSocksPortQuery.getZipCode())
+                    .last("limit " + c + " , 1"));
 
             rolaIpDO.setStatus(4);
             rolaIpMapper.updateById(rolaIpDO);
@@ -291,19 +341,19 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     @Override
     public void submitIpLock(RolaIpLockRequest rolaIpLockRequest) {
         rolaIpMapper.update(new RolaIpDO(),
-            new UpdateWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpLockRequest.getSocksAddressIp())
-                .set(CharSequenceUtil.isNotBlank(rolaIpLockRequest.getFileFlag()), RolaIpDO::getFileFlag,
-                    rolaIpLockRequest.getFileFlag())
-                .set(CharSequenceUtil.isNotBlank(rolaIpLockRequest.getFileType()), RolaIpDO::getFileType,
-                    rolaIpLockRequest.getFileType())
-                .set(RolaIpDO::getStatus, rolaIpLockRequest.getStatus()));
+                new UpdateWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpLockRequest.getSocksAddressIp())
+                        .set(CharSequenceUtil.isNotBlank(rolaIpLockRequest.getFileFlag()), RolaIpDO::getFileFlag,
+                                rolaIpLockRequest.getFileFlag())
+                        .set(CharSequenceUtil.isNotBlank(rolaIpLockRequest.getFileType()), RolaIpDO::getFileType,
+                                rolaIpLockRequest.getFileType())
+                        .set(RolaIpDO::getStatus, rolaIpLockRequest.getStatus()));
     }
 
     @Override
     public RolaIpDO checkIpActive(RolaIpActiveRequest rolaIpActiveRequest) throws Exception {
 
         RolaIpDO rolaIpDO = rolaIpMapper.selectOne(
-            new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpActiveRequest.getSocksAddressIp()));
+                new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpActiveRequest.getSocksAddressIp()));
         if (rolaIpDO == null) {
             throw new BizException(ReturnCode.RC999.getCode(), "IP不存在");
         }
@@ -322,7 +372,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("gate2.rola.info", 2042));
         java.net.Authenticator.setDefault(new java.net.Authenticator() {
             private final PasswordAuthentication authentication =
-                new PasswordAuthentication(rolaUsername, rolaIpActiveRequest.getRolaPassword().toCharArray());
+                    new PasswordAuthentication(rolaUsername, rolaIpActiveRequest.getRolaPassword().toCharArray());
 
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -331,7 +381,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         });
 
         OkHttpClient client =
-            new OkHttpClient().newBuilder().proxy(proxy).addInterceptor(new GzipRequestInterceptor()).build();
+                new OkHttpClient().newBuilder().proxy(proxy).addInterceptor(new GzipRequestInterceptor()).build();
         Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
 
         okhttp3.Response response = client.newCall(request).execute();
@@ -365,13 +415,13 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     @Override
     public List<RolaIpDO> listByFileFlag(String fileFlag, String fileType) {
         return rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda().like(RolaIpDO::getFileFlag, fileFlag)
-            .like(CharSequenceUtil.isNotBlank(fileType), RolaIpDO::getFileType, fileType));
+                .like(CharSequenceUtil.isNotBlank(fileType), RolaIpDO::getFileType, fileType));
     }
 
     @Override
     public RolaIpDO checkIpLock(RolaIpLockRequest rolaIpLockRequest) {
         RolaIpDO rolaIpDO = rolaIpMapper.selectOne(
-            new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpLockRequest.getSocksAddressIp()));
+                new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, rolaIpLockRequest.getSocksAddressIp()));
         if (rolaIpDO != null) {
             return rolaIpDO;
         } else {
