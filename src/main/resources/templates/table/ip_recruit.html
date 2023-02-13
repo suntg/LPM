@@ -332,7 +332,7 @@
                     })
                     .catch(function (error) {
                         console.log("异常提示为：" + error);
-                        that.$alert(error, '开始收录', {
+                        that.$alert(error.response.data.message, '开始收录', {
                             confirmButtonText: '确定',
                             type: 'error',
                             callback: action => {

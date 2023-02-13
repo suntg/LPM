@@ -304,12 +304,12 @@
                         });
                     })
                     .catch(function (error) {
-                        console.log("异常提示为：" + error);
-                        that.$alert(error, '开始收录', {
+                        console.log("异常提示为：" + error.response.data.message);
+                        that.$alert(error.response.data.message, '开始收录', {
                             confirmButtonText: '确定',
                             type: 'error',
                             callback: action => {
-                                that.$message.error('异常错误：' + error);
+                                that.$message.error('异常错误：' + error.response.data.message);
                             }
                         });
                         errorData = error;
