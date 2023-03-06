@@ -211,6 +211,19 @@ public class IndexController {
     }
 
     /**
+     * 去operation_log页面
+     *
+     * @return
+     */
+    @GetMapping("/operation_log")
+    public String operationLog(HttpSession session, Model model) {
+        if (!StpUtil.isLogin()) {
+            return "login";
+        }
+        return "table/operation_log";
+    }
+
+    /**
      * 从Cookie中获取频道编码channelCode
      *
      * @param cookies

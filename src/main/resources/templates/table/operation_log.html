@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="#" type="image/png">
+
+    <title>Operation List</title>
+    <!--data table-->
+    <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css" />
+    <style>
+        .inputStyle {
+            width:250px;
+        }
+        .el-table .danger-row {
+            background: #FF8C69;
+        }
+        .el-table .primary-row {
+            background: #98F5FF;
+        }
+         body{
+             padding-right: 0px !important;
+             overflow: hidden;
+         }
+    </style>
+    <div th:include="common :: commonheader"></div>
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    <div th:replace="common :: #leftmenu"></div>
+
+    <!-- main content start-->
+    <div class="main-content" >
+
+        <div th:replace="common :: headermenu"></div>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                操作日志 列表
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active"> Operation List </li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper" id="app">
+            <div class="row">
+                <div class="col-sm-12">
+                    <section class="panel">
+                        <header class="panel-heading">
+                            Operation List
+                        </header>
+
+                        <div class="panel-body">
+                            <div class="adv-table editable-table ">
+
+                                <div style="margin-bottom:25px;">
+                                    <span>访问IP：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="ip"
+                                            clearable
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            >
+                                    </el-input>
+                                    <span>请求的URL：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="requestUri"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+
+                                    <el-button type="primary" @click="onSubmit">查询</el-button>
+                                </div>
+                                <hr>
+                                <table class="table table-striped table-hover table-bordered"
+                                       id="editable-sample"
+                                >
+                                    <tbody>
+                                    <template>
+                                        <el-table
+                                                :data="reports"
+                                                border
+                                                style="width: 100%"
+                                                :cell-style = "redCharacter"
+                                                @cell-click="cellclick"
+                                                ref="table"
+                                                row-key="id"
+                                                :key="timeStamp"
+                                        >
+                                            <el-table-column type="selection" width="55" :reserve-selection="true">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="id"
+                                                    label="ID"
+                                            >
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="requestUri"
+                                                    label="请求的URL">
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                            <el-pagination
+                                                    background
+                                                    :page-sizes="[50, 10, 20, 100]"
+                                                    :page-size="pageSize"
+                                                    :current-page="pageNum"
+                                                    @size-change="handleSizeChange"
+                                                    @current-change="handleCurrentChange"
+                                                    layout="total, sizes, prev, pager, next"
+                                                    :total="total">
+                                            </el-pagination>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!--body wrapper end-->
+
+        <!--footer section start-->
+        <!--<footer>
+            2020 &copy; AdminEx by ThemeBucket </a>
+        </footer>-->
+        <!--footer section end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/modernizr.min.js"></script>
+<script src="js/jquery.nicescroll.js"></script>
+<!--<script src="js/Date.js"></script>-->
+
+<!--data table-->
+<script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/data-tables/DT_bootstrap.js"></script>
+
+<!--common scripts for all pages-->
+<script src="js/scripts.js"></script>
+
+<script src="js/vue.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<!--script for editable table-->
+<!-- END JAVASCRIPTS -->
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            ip:'',
+            requestUri:'',
+            reports: [],
+            total: 0,
+            pageNum: 1,
+            pageSize: 50,
+        },
+        methods: {
+            onSubmit() {
+                axios.get(baseUrl + '/operateLog/listPage',
+                    {
+                        params:{
+                            ip: this.ip,
+                            requestUri: this.requestUri.toLowerCase(),
+                            pageNum: this.pageNum,
+                            pageSize: this.pageSize
+                        }
+                    })
+                    .then((response) => {
+                        console.log("responose是：" + response.data);
+                        this.reports = response.data.data.rows
+                        if (response.data != null) {
+                            this.total = response.data.data.total
+                        }
+                    })
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.pageNum = 1;
+                this.onSubmit();
+            },
+            handleCurrentChange(val) {
+                this.pageNum = val;
+                this.onSubmit();
+            },
+            search(){
+                    this.onSubmit();
+            },
+
+        },
+        mounted(){
+            this.onSubmit();
+        }
+    })
+</script>
+
+</body>
+</html>

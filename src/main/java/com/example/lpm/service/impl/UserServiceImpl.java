@@ -2,6 +2,9 @@ package com.example.lpm.service.impl;
 
 import javax.annotation.Resource;
 
+import com.example.lpm.util.IpUtil;
+import com.example.lpm.v3.domain.entity.OperationLogDO;
+import com.example.lpm.v3.service.OperationLogService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private OperationLogService operationLogService;
+
     @Override
     public String login(String username, String password, String ip) {
         UserDO userDO = userMapper.selectOne(new QueryWrapper<UserDO>().lambda().eq(UserDO::getUsername, username)
@@ -40,6 +46,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (matchResult) {
              StpUtil.login(userDO.getId());
             SaTokenInfo saTokenInfo = StpUtil.getTokenInfo();
+
+            //登陆操作记录到操作日志表中
+            OperationLogDO operationLogDO = new OperationLogDO();
+            operationLogDO.setRequestUri("/login");
+            operationLogDO.setIp(ip);
+            operationLogService.save(operationLogDO);
+
             return saTokenInfo.getTokenValue();
         } else {
             throw new BizException(10001, "用户名或密码错误");
