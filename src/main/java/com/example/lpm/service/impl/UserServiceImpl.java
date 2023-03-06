@@ -19,6 +19,8 @@ import com.example.lpm.service.UserService;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
 
@@ -47,6 +49,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
              StpUtil.login(userDO.getId());
             SaTokenInfo saTokenInfo = StpUtil.getTokenInfo();
 
+            //登陆操作记录到操作日志表中
+            OperationLogDO operationLogDO = new OperationLogDO();
+            operationLogDO.setRequestUri("登陆");
+            operationLogDO.setIp(ip);
+            operationLogDO.setCreateTime(LocalDateTime.now());
             return saTokenInfo.getTokenValue();
         } else {
             throw new BizException(10001, "用户名或密码错误");
