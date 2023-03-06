@@ -1,5 +1,8 @@
 package com.example.lpm.v3.controller;
 
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.util.PortUtil;
 import org.springframework.web.bind.annotation.*;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -53,6 +56,9 @@ public class ProxyIpController {
     @Operation(summary = "启动代理端口 【合并】")
     @PostMapping("/startProxyPort")
     public void startProxyPort(@RequestBody StartProxyPortRequest startProxyPortRequest) {
+        if (PortUtil.contains(startProxyPortRequest.getProxyPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
         ProxyStrategy proxyStrategy = proxyStrategyFactory.findStrategy(startProxyPortRequest.getProxyIpType());
         proxyStrategy.startProxyPort(startProxyPortRequest);
     }
