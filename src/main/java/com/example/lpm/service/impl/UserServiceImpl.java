@@ -47,12 +47,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
              StpUtil.login(userDO.getId());
             SaTokenInfo saTokenInfo = StpUtil.getTokenInfo();
 
-            //登陆操作记录到操作日志表中
-            OperationLogDO operationLogDO = new OperationLogDO();
-            operationLogDO.setRequestUri("/login");
-            operationLogDO.setIp(ip);
-            operationLogService.save(operationLogDO);
-
             return saTokenInfo.getTokenValue();
         } else {
             throw new BizException(10001, "用户名或密码错误");
