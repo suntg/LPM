@@ -12,19 +12,20 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Component
 // 定义filterName 和过滤的url
-@WebFilter(filterName = "myFilter", urlPatterns = {"/login", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
+@WebFilter(filterName = "myFilter", urlPatterns = {"/signIn", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
 public class IpFilter implements Filter {
 
     /**
      * "/luminati/getProxyPort", "/lua/createProxyPort",
      */
-    private List<String> urlPatterns = Arrays.asList("/login", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort");
+    private List<String> urlPatterns = Arrays.asList("/signIn", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort");
 
     @Resource
     private OperationLogService operationLogService;
@@ -41,6 +42,7 @@ public class IpFilter implements Filter {
             OperationLogDO operationLogDO = new OperationLogDO();
             operationLogDO.setRequestUri(requestURI);
             operationLogDO.setIp(IpUtil.getIpAddr(httpRequest));
+            operationLogDO.setCreateTime(LocalDateTime.now());
             operationLogService.save(operationLogDO);
         }
         chain.doFilter(request, response);
