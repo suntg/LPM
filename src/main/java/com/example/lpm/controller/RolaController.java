@@ -2,6 +2,9 @@ package com.example.lpm.controller;
 
 import java.util.List;
 
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.util.PortUtil;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.lpm.domain.entity.RolaIpDO;
@@ -91,6 +94,10 @@ public class RolaController {
     @Operation(summary = "启动端口")
     @PostMapping("/startSocksPort")
     public boolean startSocksPort(@RequestBody RolaStartSocksPortRequest startSocksPortRequest) {
+
+        if (PortUtil.contains(startSocksPortRequest.getSocksPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
         return rolaProxyPortService.startSocksPort(startSocksPortRequest);
     }
 

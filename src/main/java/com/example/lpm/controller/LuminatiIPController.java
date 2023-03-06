@@ -1,19 +1,20 @@
 package com.example.lpm.controller;
 
-import javax.annotation.Resource;
-
-import org.springframework.web.bind.annotation.*;
-
 import com.alibaba.fastjson2.JSONArray;
 import com.example.lpm.domain.entity.LuminatiIPDO;
 import com.example.lpm.domain.request.DeleteProxyPortRequest;
 import com.example.lpm.domain.request.LuminatiIPRequest;
 import com.example.lpm.domain.request.LuminatiProxyRequest;
 import com.example.lpm.service.LuminatiIPService;
-
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.util.PortUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 @Tag(name = "Luminati")
 @Slf4j
@@ -39,6 +40,11 @@ public class LuminatiIPController {
     @Operation(summary = "通过调用 /api/proxies 接口启动代理端口")
     @PostMapping("/getProxyPort")
     public void getProxyPort(@RequestBody LuminatiProxyRequest luminatiProxyRequest) {
+
+        if (PortUtil.contains(luminatiProxyRequest.getProxyPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
+
         luminatiIPService.getProxyPort(luminatiProxyRequest);
     }
 

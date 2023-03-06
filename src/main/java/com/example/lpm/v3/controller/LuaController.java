@@ -1,34 +1,33 @@
 package com.example.lpm.v3.controller;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.addIp.strategy.LuminatiAddIpStrategy;
 import com.example.lpm.v3.addIp.strategy.RolaAddIpStrategy;
+import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.constant.ProxyIpType;
+import com.example.lpm.v3.domain.entity.ProxyIpDO;
+import com.example.lpm.v3.domain.query.LuaGetProxyIpQuery;
+import com.example.lpm.v3.domain.query.ProxyFileQuery;
+import com.example.lpm.v3.domain.request.CheckIpSurvivalRequest;
 import com.example.lpm.v3.domain.request.CollectionTaskRequest;
+import com.example.lpm.v3.domain.request.StartProxyPortRequest;
+import com.example.lpm.v3.domain.request.UpdateProxyIpRequest;
+import com.example.lpm.v3.service.ProxyIpService;
+import com.example.lpm.v3.strategy.ProxyStrategy;
+import com.example.lpm.v3.strategy.ProxyStrategyFactory;
+import com.example.lpm.v3.util.PortUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lpm.v3.common.BizException;
-import com.example.lpm.v3.domain.entity.ProxyIpDO;
-import com.example.lpm.v3.domain.query.LuaGetProxyIpQuery;
-import com.example.lpm.v3.domain.query.ProxyFileQuery;
-import com.example.lpm.v3.domain.request.CheckIpSurvivalRequest;
-import com.example.lpm.v3.domain.request.StartProxyPortRequest;
-import com.example.lpm.v3.domain.request.UpdateProxyIpRequest;
-import com.example.lpm.v3.service.ProxyIpService;
-import com.example.lpm.v3.strategy.ProxyStrategy;
-import com.example.lpm.v3.strategy.ProxyStrategyFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 @Tag(name = "Lua")
 @Slf4j
@@ -100,7 +99,7 @@ public class LuaController {
     public void saveProxyIp(@RequestBody ProxyIpDO proxyIpDO) {
 
         long result = this.proxyIpService.count(new QueryWrapper<ProxyIpDO>().lambda()
-            .eq(ProxyIpDO::getIp, proxyIpDO.getIp()).eq(ProxyIpDO::getTypeName, proxyIpDO.getTypeName()));
+                .eq(ProxyIpDO::getIp, proxyIpDO.getIp()).eq(ProxyIpDO::getTypeName, proxyIpDO.getTypeName()));
         if (result < 1) {
             this.proxyIpService.save(proxyIpDO);
         } else {
@@ -125,7 +124,7 @@ public class LuaController {
         } else if (ProxyIpType.LUMINATI.getTypeName().equals(collectionTaskRequest.getProxyIpType().getTypeName())) {
             luminatiAddIpStrategy.addProxyIpTask(collectionTaskRequest);
         } else {
-            throw new BizException(ReturnCode.RC500.getCode(),"失败");
+            throw new BizException(ReturnCode.RC500.getCode(), "失败");
         }
 
     }
@@ -133,6 +132,11 @@ public class LuaController {
     @Operation(summary = "lua创建代理端口 【合并】")
     @PostMapping("/createProxyPort")
     public void createProxyPort(@RequestBody StartProxyPortRequest startProxyPortRequest) {
+
+        if (PortUtil.contains(startProxyPortRequest.getProxyPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
+
         ProxyStrategy proxyStrategy = proxyStrategyFactory.findStrategy(startProxyPortRequest.getProxyIpType());
         proxyStrategy.startProxyPort(startProxyPortRequest);
     }
