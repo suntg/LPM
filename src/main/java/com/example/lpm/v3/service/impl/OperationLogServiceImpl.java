@@ -10,4 +10,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, OperationLogDO> implements OperationLogService {
+
+
 }

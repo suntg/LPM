@@ -5,11 +5,11 @@ import com.example.lpm.util.IpUtil;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.service.OperationLogService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,6 +17,8 @@ import java.util.List;
 
 @Slf4j
 @Component
+// 定义filterName 和过滤的url
+@WebFilter(filterName = "myFilter", urlPatterns = {"/luminati/getProxyPort", "/lua/createProxyPort", "/proxyIp/createProxyPort", "/rola/startSocksPort"})
 public class IpFilter implements Filter {
 
     private List<String> urlPatterns = Arrays.asList("/luminati/getProxyPort", "/lua/createProxyPort",
@@ -38,8 +40,7 @@ public class IpFilter implements Filter {
             operationLogDO.setRequestUri(requestURI);
             operationLogDO.setIp(IpUtil.getIpAddr(httpRequest));
             operationLogService.save(operationLogDO);
-        } else {
-            chain.doFilter(request, response);
         }
+        chain.doFilter(request, response);
     }
 }
