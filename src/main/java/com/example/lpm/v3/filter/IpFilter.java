@@ -19,13 +19,13 @@ import java.util.List;
 @Slf4j
 @Component
 // 定义filterName 和过滤的url
-@WebFilter(filterName = "myFilter", urlPatterns = {"/signIn", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
+@WebFilter(filterName = "myFilter", urlPatterns = {"/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
 public class IpFilter implements Filter {
 
     /**
      * "/luminati/getProxyPort", "/lua/createProxyPort",
      */
-    private List<String> urlPatterns = Arrays.asList("/signIn", "/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort");
+    private List<String> urlPatterns = Arrays.asList("/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort");
 
     @Resource
     private OperationLogService operationLogService;
@@ -40,7 +40,7 @@ public class IpFilter implements Filter {
         if (urlPatterns.stream().anyMatch(requestURI::contains)) {
             // 执行您需要的过滤操作
             OperationLogDO operationLogDO = new OperationLogDO();
-            operationLogDO.setRequestUri(requestURI);
+            operationLogDO.setRequestUri("建立端口");
             operationLogDO.setIp(IpUtil.getIpAddr(httpRequest));
             operationLogDO.setCreateTime(LocalDateTime.now());
             operationLogService.save(operationLogDO);
