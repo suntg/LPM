@@ -40,7 +40,7 @@ public class IndexController {
         return "login";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/signIn")
     public String main(LoginVO user, HttpSession session, Model model) { // RedirectAttributes
         String ip = IpUtil.getIpAddr(request);
         try {
