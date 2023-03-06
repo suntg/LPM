@@ -1,21 +1,23 @@
 package com.example.lpm.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import cn.dev33.satoken.stp.StpUtil;
+import com.example.lpm.domain.vo.LoginVO;
+import com.example.lpm.service.UserService;
+import com.example.lpm.util.IpUtil;
+import com.example.lpm.v3.common.BizException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.example.lpm.service.UserService;
-
-import cn.dev33.satoken.stp.StpUtil;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Slf4j
 @Controller
@@ -35,11 +37,10 @@ public class IndexController {
      */
     @GetMapping(value = {"/", "/login"})
     public String loginPage() {
-        return "redirect:/main.html";
-        /*return "login";*/
+        return "login";
     }
 
-    /*@PostMapping("/login")
+    @PostMapping("/login")
     public String main(LoginVO user, HttpSession session, Model model) { // RedirectAttributes
         String ip = IpUtil.getIpAddr(request);
         try {
@@ -49,11 +50,11 @@ public class IndexController {
             session.setAttribute("token", token);
             return "redirect:/main.html";
         } catch (BizException e) {
-            model.addAttribute("msg", e.getErrorMsg());
+            model.addAttribute("msg", e.getMessage());
             // 回到登录页面
             return "login";
         }
-    }*/
+    }
 
     /**
      * 登出
@@ -76,18 +77,18 @@ public class IndexController {
      */
     @GetMapping("/main.html")
     public String mainPage(HttpSession session, Model model) {
-        // try {
-        // if (!StpUtil.isLogin()) {
-        // return "redirect:login";
-        // }
-        // } catch (QueryTimeoutException e) {
-        // return "redirect:login";
-        // } catch (Exception e) {
-        // return "redirect:login";
-        // }
-        /*        if (!StpUtil.isLogin()) {
+         try {
+         if (!StpUtil.isLogin()) {
+         return "redirect:login";
+         }
+         } catch (QueryTimeoutException e) {
+         return "redirect:login";
+         } catch (Exception e) {
+         return "redirect:login";
+         }
+         if (!StpUtil.isLogin()) {
             return "redirect:login";
-        }*/
+        }
         return "main";
 
     }
@@ -99,9 +100,9 @@ public class IndexController {
      */
     @GetMapping("/ipaddr_list")
     public String ipaddrList(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/ipaddr_list";
     }
 
@@ -112,9 +113,9 @@ public class IndexController {
      */
     @GetMapping("/job_set")
     public String jobSet(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/job_set";
     }
 
@@ -125,9 +126,9 @@ public class IndexController {
      */
     @GetMapping("/log_query")
     public String logQuery(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/log_query";
     }
 
@@ -138,9 +139,9 @@ public class IndexController {
      */
     @GetMapping("/rola_ip")
     public String rolaIp(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/rola_ip";
     }
 
@@ -151,9 +152,9 @@ public class IndexController {
      */
     @GetMapping("/rola_proxy")
     public String rolaProxy(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/rola_proxy";
     }
 
@@ -164,9 +165,9 @@ public class IndexController {
      */
     @GetMapping("/ip_include")
     public String ipInclude(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/ip_include";
     }
 
@@ -177,9 +178,9 @@ public class IndexController {
      */
     @GetMapping("/ip_query")
     public String ipQuery(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             return "login";
-        }*/
+        }
         return "table/ip_query";
     }
 
@@ -190,8 +191,9 @@ public class IndexController {
      */
     @GetMapping("/ip_recruit")
     public String ipRecruit(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {            return "login";
-        }*/
+        if (!StpUtil.isLogin()) {
+            return "login";
+        }
         return "table/ip_recruit";
     }
 
@@ -202,8 +204,9 @@ public class IndexController {
      */
     @GetMapping("/ip_proxy")
     public String ipProxy(HttpSession session, Model model) {
-        /*        if (!StpUtil.isLogin()) {            return "login";
-        }*/
+        if (!StpUtil.isLogin()) {
+            return "login";
+        }
         return "table/ip_proxy";
     }
 

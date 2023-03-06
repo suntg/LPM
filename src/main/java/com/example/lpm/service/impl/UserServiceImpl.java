@@ -38,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         // 校验密码
         boolean matchResult = passwordEncoder.matches(password, userDO.getPassword());
         if (matchResult) {
-            // StpUtil.setLoginId(userDO.getId());
+             StpUtil.login(userDO.getId());
             SaTokenInfo saTokenInfo = StpUtil.getTokenInfo();
             return saTokenInfo.getTokenValue();
         } else {

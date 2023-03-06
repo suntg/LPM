@@ -1,5 +1,9 @@
 package com.example.lpm.config;
 
+import cn.dev33.satoken.context.SaHolder;
+import cn.dev33.satoken.filter.SaServletFilter;
+import com.example.lpm.v3.common.ReturnCode;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +15,6 @@ public class SaTokenConfigure {
     /**
      * 注册 [sa-token全局过滤器]
      */
-    /*
     @Bean
     public SaServletFilter getSaServletFilter() {
         return new SaServletFilter()
@@ -51,6 +54,5 @@ public class SaTokenConfigure {
                     ;
                 });
     }
-    */
 
 }
