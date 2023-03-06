@@ -51,9 +51,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
             //登陆操作记录到操作日志表中
             OperationLogDO operationLogDO = new OperationLogDO();
-            operationLogDO.setRequestUri("登陆");
+            operationLogDO.setRequestUri("登录");
             operationLogDO.setIp(ip);
             operationLogDO.setCreateTime(LocalDateTime.now());
+            operationLogService.save(operationLogDO);
+
             return saTokenInfo.getTokenValue();
         } else {
             throw new BizException(10001, "用户名或密码错误");
