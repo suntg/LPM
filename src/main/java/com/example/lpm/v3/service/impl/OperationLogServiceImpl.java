@@ -3,6 +3,7 @@ package com.example.lpm.v3.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.lpm.domain.entity.FileLogDO;
 import com.example.lpm.domain.vo.PageVO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.domain.query.OperationQuery;
@@ -30,6 +31,11 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         List<OperationLogDO> operationLogDOList = operationLogMapper.selectList(new QueryWrapper<OperationLogDO>().lambda()
                 .eq(ObjectUtil.isNotEmpty(operationQuery.getIp()), OperationLogDO::getIp,operationQuery.getIp())
                 .like(ObjectUtil.isNotEmpty(operationQuery.getRequestUri()), OperationLogDO::getRequestUri,operationQuery.getRequestUri())
+                .ge(ObjectUtil.isNotNull(operationQuery.getStartCreateTime()), OperationLogDO::getCreateTime,
+                        operationQuery.getStartCreateTime())
+                .le(ObjectUtil.isNotNull(operationQuery.getEndCreateTime()), OperationLogDO::getCreateTime,
+                        operationQuery.getEndCreateTime())
+                .orderByDesc(OperationLogDO::getCreateTime)
         );
         return new PageVO<>(page.getTotal(), operationLogDOList);
     }
