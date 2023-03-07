@@ -18,5 +18,4 @@ public class OperationLogDO extends BaseEntity {
 
     private String deviceInfo;
 
-    private LocalDateTime createTime;
 }
