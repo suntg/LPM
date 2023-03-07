@@ -30,6 +30,8 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
         List<OperationLogDO> operationLogDOList = operationLogMapper.selectList(new QueryWrapper<OperationLogDO>().lambda()
                 .eq(ObjectUtil.isNotEmpty(operationQuery.getIp()), OperationLogDO::getIp,operationQuery.getIp())
+                .eq(ObjectUtil.isNotEmpty(operationQuery.getDeviceName()), OperationLogDO::getDeviceName,operationQuery.getDeviceName())
+                .like(ObjectUtil.isNotEmpty(operationQuery.getDeviceInfo()), OperationLogDO::getDeviceInfo,operationQuery.getDeviceInfo())
                 .like(ObjectUtil.isNotEmpty(operationQuery.getRequestUri()), OperationLogDO::getRequestUri,operationQuery.getRequestUri())
                 .ge(ObjectUtil.isNotNull(operationQuery.getStartCreateTime()), OperationLogDO::getCreateTime,
                         operationQuery.getStartCreateTime())

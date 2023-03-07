@@ -16,6 +16,10 @@ public class OperationQuery {
 
     private String ip;
 
+    private String deviceName;
+
+    private String deviceInfo;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startCreateTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

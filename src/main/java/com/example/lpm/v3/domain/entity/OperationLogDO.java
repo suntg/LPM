@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.lpm.v3.common.BaseEntity;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @TableName("t_operation_log")
 public class OperationLogDO extends BaseEntity {
@@ -15,4 +17,5 @@ public class OperationLogDO extends BaseEntity {
     private String deviceName;
 
     private String deviceInfo;
+
 }
