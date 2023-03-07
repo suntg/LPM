@@ -78,7 +78,7 @@
                                             style="width:10%;margin-right:20px;"
                                             >
                                     </el-input>
-                                    <span>请求的URL：</span>
+                                    <span>请求地址：</span>
                                     <el-input
                                             placeholder="请输入内容"
                                             v-model.trim="requestUri"
@@ -86,7 +86,22 @@
                                             style="width:10%;margin-right:20px;"
                                             clearable>
                                     </el-input>
-
+                                    <span>设备名称：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="deviceName"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>设备信息：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="deviceInfo"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
                                     <div style="margin-bottom:25px;margin-top:25px;">
                                         <span class="demonstration">选择创建时间区间：</span>
                                         <el-date-picker
@@ -125,12 +140,19 @@
             </el-table-column>
             <el-table-column
                     prop="ip"
-                    label="访问IP"
-            >
+                    label="访问IP">
             </el-table-column>
             <el-table-column
                     prop="requestUri"
                     label="请求地址">
+            </el-table-column>
+            <el-table-column
+                    prop="deviceName"
+                    label="设备名称">
+            </el-table-column>
+            <el-table-column
+                    prop="deviceInfo"
+                    label="设备信息">
             </el-table-column>
             <el-table-column
                     prop="createTime"
@@ -202,6 +224,8 @@
         data: {
             ip:'',
             requestUri:'',
+            deviceName:'',
+            deviceInfo:'',
             reports: [],
             total: 0,
             pageNum: 1,
@@ -242,6 +266,8 @@
                         params:{
                             ip: this.ip,
                             requestUri: this.requestUri.toLowerCase(),
+                            deviceName: this.deviceName.toLowerCase(),
+                            deviceInfo: this.deviceInfo.toLowerCase(),
                             startCreateTime: this.createTimeRange[0],
                             endCreateTime: this.createTimeRange[1],
                             pageNum: this.pageNum,
