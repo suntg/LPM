@@ -180,7 +180,7 @@ public class RolaCollectRunner implements CommandLineRunner {
                     Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(usAddress, usPort));
                     java.net.Authenticator.setDefault(new java.net.Authenticator() {
                         private final PasswordAuthentication authentication =
-                            new PasswordAuthentication(user, "209209us".toCharArray());
+                            new PasswordAuthentication(user, "Su902902".toCharArray());
 
                         @Override
                         protected PasswordAuthentication getPasswordAuthentication() {

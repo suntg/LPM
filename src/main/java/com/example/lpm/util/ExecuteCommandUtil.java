@@ -56,7 +56,7 @@ public class ExecuteCommandUtil {
     public static String executeRolaProxySps(int port, int userNum, String ip) {
 
         String spsCom = CharSequenceUtil.format(
-            "proxy sps -p :{} -a hotkingda:209209us -P socks5://skyescn_{}-ip-{}:209209us@gate2.rola.info:2042", port,
+            "proxy sps -p :{} -a hotkingda:209209us -P socks5://skyescn_{}-ip-{}:Su902902@gate2.rola.info:2042", port,
             userNum, ip);
 
         String command = CharSequenceUtil.format("nohup " + spsCom + "  >/dev/null 2>&1 &", port);
