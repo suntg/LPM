@@ -56,6 +56,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 @Service
 public class IpAddrServiceImpl extends ServiceImpl<IpAddrMapper, IpAddrDO> implements IpAddrService {

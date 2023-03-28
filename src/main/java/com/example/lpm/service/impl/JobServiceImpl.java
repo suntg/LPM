@@ -9,6 +9,7 @@ import com.example.lpm.service.JobService;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Service
 @Slf4j
 public class JobServiceImpl extends ServiceImpl<JobMapper, JobDO> implements JobService {

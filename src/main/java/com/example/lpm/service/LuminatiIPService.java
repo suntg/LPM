@@ -6,6 +6,7 @@ import com.example.lpm.domain.request.DeleteProxyPortRequest;
 import com.example.lpm.domain.request.LuminatiIPRequest;
 import com.example.lpm.domain.request.LuminatiProxyRequest;
 
+@Deprecated
 public interface LuminatiIPService {
 
     LuminatiIPDO getIPAndStartProxy(LuminatiIPRequest luminatiIPRequest);

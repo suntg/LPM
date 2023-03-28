@@ -3,6 +3,7 @@ package com.example.lpm.domain.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+@Deprecated
 @Data
 @Schema(description = "LuminatiIP入参")
 public class LuminatiIPRequest {

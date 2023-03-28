@@ -53,6 +53,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 @Service
 public class LuminatiIPServiceImpl implements LuminatiIPService {

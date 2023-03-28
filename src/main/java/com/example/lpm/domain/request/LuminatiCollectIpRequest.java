@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import lombok.Data;
 
+@Deprecated
 @Data
 public class LuminatiCollectIpRequest implements Serializable {
 

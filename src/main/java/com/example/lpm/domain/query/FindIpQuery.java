@@ -5,6 +5,7 @@ import java.util.List;
 import com.example.lpm.v3.domain.query.ZipCodeQuery;
 import lombok.Data;
 
+@Deprecated
 @Data
 public class FindIpQuery {
 

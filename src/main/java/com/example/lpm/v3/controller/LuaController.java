@@ -2,7 +2,7 @@ package com.example.lpm.v3.controller;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import com.example.lpm.constant.RedisKeyConstant;
-import com.example.lpm.domain.request.FileRequest;
+import com.example.lpm.v3.domain.request.FileRequest;
 import com.example.lpm.util.IpUtil;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;

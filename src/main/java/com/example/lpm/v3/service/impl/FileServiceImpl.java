@@ -18,7 +18,7 @@ import com.example.lpm.v3.domain.entity.FileIpDO;
 import com.example.lpm.v3.domain.entity.FileLogDO;
 import com.example.lpm.v3.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
-import com.example.lpm.domain.request.FileRequest;
+import com.example.lpm.v3.domain.request.FileRequest;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.mapper.FileIpMapper;
 import com.example.lpm.v3.mapper.FileLogMapper;

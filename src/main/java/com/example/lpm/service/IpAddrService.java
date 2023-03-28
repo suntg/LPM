@@ -12,6 +12,7 @@ import com.example.lpm.domain.request.LuminatiCollectIpRequest;
 import com.example.lpm.domain.vo.LuminatiProgressVO;
 import com.example.lpm.v3.domain.vo.PageVO;
 
+@Deprecated
 public interface IpAddrService extends IService<IpAddrDO> {
     PageVO<IpAddrDO> listPage(IpAddrQuery ipAddrQuery, PageQuery pageQuery);
 
