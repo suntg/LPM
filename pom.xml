@@ -130,7 +130,7 @@
             <version>${okio.version}</version>
         </dependency>
         <!-- https://ok.zhxu.cn/v3/getstart.html -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.ejlchina</groupId>
             <artifactId>okhttps</artifactId>
             <version>${okhttps-ejlchina.version}</version>
@@ -145,7 +145,7 @@
             <groupId>com.ejlchina</groupId>
             <artifactId>okhttps-jackson</artifactId>
             <version>${okhttps-ejlchina.version}</version>
-        </dependency>
+        </dependency>-->
         <!-- xxl-job-core -->
         <dependency>
             <groupId>com.xuxueli</groupId>
