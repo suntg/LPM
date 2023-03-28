@@ -45,6 +45,7 @@ public class ExecuteCommandUtil {
         return spsCom;
     }
 
+    @Deprecated
     public static String executeLumProxySps(Integer socksPort, String socksUsername, String socksPassword,
                                             String username, String password, String server, String serverPort) {
 
