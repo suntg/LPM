@@ -21,8 +21,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.config.LuminatiProperties;
 import com.example.lpm.constant.RedisKeyConstant;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
-import com.example.lpm.domain.entity.RolaProxyPortDO;
-import com.example.lpm.mapper.RolaProxyPortMapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.constant.ProxyIpType;

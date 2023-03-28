@@ -2,6 +2,7 @@ package com.example.lpm.domain.query;
 
 import java.util.List;
 
+import com.example.lpm.v3.domain.query.ZipCodeQuery;
 import lombok.Data;
 
 @Data

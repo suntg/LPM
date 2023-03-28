@@ -1,4 +1,4 @@
-package com.example.lpm.mapper;
+package com.example.lpm.v3.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.lpm.domain.entity.FileLogDO;

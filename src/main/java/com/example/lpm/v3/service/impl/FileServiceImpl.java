@@ -1,64 +1,65 @@
-/*
 package com.example.lpm.v3.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
+
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.domain.entity.FileDO;
-import com.example.lpm.v3.domain.entity.FileIpDO;
-import com.example.lpm.v3.domain.entity.FileLogDO;
-import com.example.lpm.v3.domain.query.FileQuery;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.domain.dto.FileDTO;
+import com.example.lpm.domain.entity.FileDO;
+import com.example.lpm.domain.entity.FileIpDO;
+import com.example.lpm.domain.entity.FileLogDO;
+import com.example.lpm.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
-import com.example.lpm.v3.domain.request.FileRequest;
-import com.example.lpm.v3.domain.vo.FileVO;
+import com.example.lpm.domain.request.FileRequest;
+import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.mapper.FileIpMapper;
 import com.example.lpm.v3.mapper.FileLogMapper;
 import com.example.lpm.v3.mapper.FileMapper;
-import com.example.lpm.v3.service.FileIpService;
-import com.example.lpm.v3.service.FileLogService;
 import com.example.lpm.v3.service.FileService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements FileService {
 
-    private final FileMapper fileMapper;
+    @Resource
+    private FileMapper fileMapper;
 
-    private final FileLogMapper fileLogMapper;
-    private final FileLogService fileLogService;
+    @Resource
+    private FileLogMapper fileLogMapper;
 
-    private final FileIpMapper fileIpMapper;
-    private final FileIpService fileIpService;
+    @Resource
+    private FileIpMapper fileIpMapper;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
-    public Page<FileVO> listFilesByPage(FileQuery fileQuery, PageQuery pageQuery) {
+    public PageVO<FileDTO> listPage(FileQuery fileQuery, PageQuery pageQuery) {
         // 文件名 & 文件路径 & 日志内容（模糊查询） xlumip、ip
         if (CharSequenceUtil.isAllBlank(fileQuery.getLogContent(), fileQuery.getXLuminatiIp(), fileQuery.getIp())) {
+            Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
+            List<FileDO> fileDOList = fileMapper.selectList(new QueryWrapper<FileDO>().lambda()
+                .eq(CharSequenceUtil.isNotBlank(fileQuery.getFileName()), FileDO::getName, fileQuery.getFileName())
+                .eq(CharSequenceUtil.isNotBlank(fileQuery.getFilePath()), FileDO::getPath, fileQuery.getFilePath())
+                .orderByDesc(FileDO::getCreateTime));
+            List<FileDTO> fileDTOList = new ArrayList<>();
 
-            Page<FileDO> page = this.page(new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize()),
-                new QueryWrapper<FileDO>().lambda()
-                    .eq(CharSequenceUtil.isNotBlank(fileQuery.getFileName()), FileDO::getName, fileQuery.getFileName())
-                    .eq(CharSequenceUtil.isNotBlank(fileQuery.getFilePath()), FileDO::getPath, fileQuery.getFilePath())
-                    .orderByDesc(FileDO::getCreateTime));
-
-            List<FileVO> fileVOList = new ArrayList<>();
-
-            for (FileDO fileDO : page.getRecords()) {
-                FileVO fileDTO = new FileVO();
+            for (FileDO fileDO : fileDOList) {
+                FileDTO fileDTO = new FileDTO();
                 fileDTO.setFile(fileDO);
 
                 FileLogDO fileLogDO = fileLogMapper.selectOne(new QueryWrapper<FileLogDO>().lambda()
@@ -70,31 +71,25 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
                 fileDTO.setLastFileLog(fileLogDO);
                 fileDTO.setLastFileIp(fileIpDO);
 
-                fileVOList.add(fileDTO);
+                fileDTOList.add(fileDTO);
             }
-
-            Page<FileVO> result = new Page<>();
-            result.setTotal(page.getTotal());
-            result.setRecords(fileVOList);
-            return result;
+            return new PageVO<>(page.getTotal(), fileDTOList);
         }
 
         if (CharSequenceUtil.isAllBlank(fileQuery.getFileName(), fileQuery.getFilePath())
             && CharSequenceUtil.isNotBlank(fileQuery.getLogContent())
             && CharSequenceUtil.isAllBlank(fileQuery.getIp(), fileQuery.getXLuminatiIp())) {
-
-            Page<
-                FileLogDO> page =
-                    this.fileLogService.page(new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize()),
-                        new QueryWrapper<FileLogDO>()
+            Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
+            List<
+                FileLogDO> fileLogDOList =
+                    fileLogMapper
+                        .selectList(new QueryWrapper<FileLogDO>()
                             .lambda().like(CharSequenceUtil.isNotBlank(fileQuery.getLogContent()),
                                 FileLogDO::getContent, fileQuery.getLogContent())
                             .orderByDesc(FileLogDO::getCreateTime));
-
-            List<FileVO> fileVOList = new ArrayList<>();
-
-            for (FileLogDO fileLogDO : page.getRecords()) {
-                FileVO fileDTO = new FileVO();
+            List<FileDTO> fileDTOList = new ArrayList<>();
+            for (FileLogDO fileLogDO : fileLogDOList) {
+                FileDTO fileDTO = new FileDTO();
                 fileDTO.setLastFileLog(fileLogDO);
 
                 FileDO fileDO = fileMapper.selectById(fileLogDO.getFileId());
@@ -105,55 +100,44 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
                 fileDTO.setFile(fileDO);
                 fileDTO.setLastFileIp(fileIpDO);
 
-                fileVOList.add(fileDTO);
+                fileDTOList.add(fileDTO);
 
             }
-
-            Page<FileVO> result = new Page<>();
-            result.setTotal(page.getTotal());
-            result.setRecords(fileVOList);
-            return result;
+            return new PageVO<>(page.getTotal(), fileDTOList);
         }
 
         if (CharSequenceUtil.isAllBlank(fileQuery.getFileName(), fileQuery.getFilePath())
             && CharSequenceUtil.isBlank(fileQuery.getLogContent()) && (CharSequenceUtil.isNotBlank(fileQuery.getIp())
                 || CharSequenceUtil.isNotBlank(fileQuery.getXLuminatiIp()))) {
+            Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
 
-            Page<FileIpDO> page = this.fileIpService.page(new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize()),
-                new QueryWrapper<FileIpDO>().lambda()
-                    .eq(CharSequenceUtil.isNotBlank(fileQuery.getIp()), FileIpDO::getIp, fileQuery.getIp())
-                    .eq(CharSequenceUtil.isNotBlank(fileQuery.getXLuminatiIp()), FileIpDO::getXLuminatiIp,
-                        fileQuery.getXLuminatiIp())
-                    .orderByDesc(FileIpDO::getCreateTime));
+            List<FileIpDO> fileIpDOList = fileIpMapper.selectList(new QueryWrapper<FileIpDO>().lambda()
+                .eq(CharSequenceUtil.isNotBlank(fileQuery.getIp()), FileIpDO::getIp, fileQuery.getIp())
+                .eq(CharSequenceUtil.isNotBlank(fileQuery.getXLuminatiIp()), FileIpDO::getXLuminatiIp,
+                    fileQuery.getXLuminatiIp())
+                .orderByDesc(FileIpDO::getCreateTime));
 
-            List<FileVO> fileVOList = new ArrayList<>();
-
-            for (FileIpDO fileIpDO : page.getRecords()) {
+            List<FileDTO> fileDTOList = new ArrayList<>();
+            for (FileIpDO fileIpDO : fileIpDOList) {
                 FileDO fileDO = fileMapper.selectById(fileIpDO.getFileId());
 
                 FileLogDO fileLogDO = fileLogMapper.selectOne(new QueryWrapper<FileLogDO>().lambda()
                     .eq(FileLogDO::getFileId, fileDO.getId()).orderByDesc(FileLogDO::getCreateTime).last("limit 1"));
 
-                FileVO fileDTO = new FileVO();
+                FileDTO fileDTO = new FileDTO();
                 fileDTO.setFile(fileDO);
                 fileDTO.setLastFileLog(fileLogDO);
                 fileDTO.setLastFileIp(fileIpDO);
-                fileVOList.add(fileDTO);
+                fileDTOList.add(fileDTO);
             }
-
-            Page<FileVO> result = new Page<>();
-            result.setTotal(page.getTotal());
-            result.setRecords(fileVOList);
-            return result;
+            return new PageVO<>(page.getTotal(), fileDTOList);
         }
-
-        IPage<FileDO> page =
-            fileMapper.listByPage(new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize()), fileQuery.getFileName(),
-                fileQuery.getFilePath(), fileQuery.getLogContent(), fileQuery.getXLuminatiIp(), fileQuery.getIp());
-
-        List<FileVO> fileVOList = new ArrayList<>();
-        for (FileDO fileDO : page.getRecords()) {
-            FileVO fileDTO = new FileVO();
+        Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
+        List<FileDO> fileDOList = fileMapper.list(fileQuery.getFileName(), fileQuery.getFilePath(),
+            fileQuery.getLogContent(), fileQuery.getXLuminatiIp(), fileQuery.getIp());
+        List<FileDTO> fileDTOList = new ArrayList<>();
+        for (FileDO fileDO : fileDOList) {
+            FileDTO fileDTO = new FileDTO();
             fileDTO.setFile(fileDO);
 
             FileLogDO fileLogDO = new FileLogDO();
@@ -166,14 +150,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
             fileIpDO.setXLuminatiIp(fileDO.getXLuminatiIp());
 
             fileDTO.setLastFileIp(fileIpDO);
-            fileVOList.add(fileDTO);
+            fileDTOList.add(fileDTO);
 
         }
-
-        Page<FileVO> result = new Page<>();
-        result.setTotal(page.getTotal());
-        result.setRecords(fileVOList);
-        return result;
+        return new PageVO<>(page.getTotal(), fileDTOList);
     }
 
     @Override
@@ -228,7 +208,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
     }
 
     @Override
-    public FileVO getFile(String fileName, Long fileId) {
+    public FileDTO getFile(String fileName, Long fileId) {
         if (CharSequenceUtil.isBlank(fileName) && ObjectUtil.isNull(fileId)) {
             throw new BizException(ReturnCode.RC500.getCode(), "传参不能同时为空");
         }
@@ -236,7 +216,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
             new QueryWrapper<FileDO>().lambda().eq(CharSequenceUtil.isNotBlank(fileName), FileDO::getName, fileName)
                 .eq(ObjectUtil.isNotNull(fileId), FileDO::getId, fileId));
         if (ObjectUtil.isNotNull(file)) {
-            FileVO fileDTO = new FileVO();
+            FileDTO fileDTO = new FileDTO();
             fileDTO.setFile(file);
 
             List<FileLogDO> fileLogDOList =
@@ -252,19 +232,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
     }
 
     @Override
-    public List<FileVO> listFiles(List<Long> fileIds) {
+    public List<FileDTO> listFiles(List<Long> fileIds) {
         List<Long> newList = new ArrayList<>();
         for (Long fileId : fileIds) {
             if (!newList.contains(fileId)) {
                 newList.add(fileId);
             }
         }
-        List<FileVO> fileDTOList = new ArrayList<>();
+        List<FileDTO> fileDTOList = new ArrayList<>();
         for (Long fileId : newList) {
-            FileVO fileDTO = getFile(null, fileId);
+            FileDTO fileDTO = getFile(null, fileId);
             fileDTOList.add(fileDTO);
         }
         return fileDTOList;
     }
 }
-*/

@@ -1,17 +1,17 @@
-package com.example.lpm.service;
+package com.example.lpm.v3.service;
 
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.lpm.domain.entity.RolaIpDO;
-import com.example.lpm.domain.query.FindSocksPortQuery;
+import com.example.lpm.v3.domain.entity.RolaIpDO;
+import com.example.lpm.v3.domain.query.FindSocksPortQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
-import com.example.lpm.domain.query.RolaQuery;
-import com.example.lpm.domain.request.RolaIpActiveRequest;
-import com.example.lpm.domain.request.RolaIpLockRequest;
-import com.example.lpm.domain.request.RolaIpRequest;
-import com.example.lpm.domain.vo.PageVO;
-import com.example.lpm.domain.vo.RolaProgressVO;
+import com.example.lpm.v3.domain.query.RolaQuery;
+import com.example.lpm.v3.domain.request.RolaIpActiveRequest;
+import com.example.lpm.v3.domain.request.RolaIpLockRequest;
+import com.example.lpm.v3.domain.request.RolaIpRequest;
+import com.example.lpm.v3.domain.vo.PageVO;
+import com.example.lpm.v3.domain.vo.RolaProgressVO;
 
 public interface RolaIpService extends IService<RolaIpDO> {
 

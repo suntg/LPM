@@ -5,7 +5,7 @@ import com.example.lpm.v3.constant.ProxyIpType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+@Deprecated
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

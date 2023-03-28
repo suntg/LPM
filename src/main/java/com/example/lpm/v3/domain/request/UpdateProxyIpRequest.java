@@ -3,7 +3,7 @@ package com.example.lpm.v3.domain.request;
 import com.example.lpm.v3.constant.ProxyIpType;
 
 import lombok.Data;
-
+@Deprecated
 @Data
 public class UpdateProxyIpRequest {
 

@@ -6,15 +6,15 @@ import javax.annotation.Resource;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.example.lpm.domain.dto.FileDTO;
+import com.example.lpm.v3.domain.dto.FileDTO;
 import com.example.lpm.domain.entity.FileIpDO;
 import com.example.lpm.domain.entity.FileLogDO;
 import com.example.lpm.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
-import com.example.lpm.domain.vo.PageVO;
-import com.example.lpm.service.FileIpService;
-import com.example.lpm.service.FileLogService;
-import com.example.lpm.service.FileService;
+import com.example.lpm.v3.domain.vo.PageVO;
+import com.example.lpm.v3.service.FileIpService;
+import com.example.lpm.v3.service.FileLogService;
+import com.example.lpm.v3.service.FileService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

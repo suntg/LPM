@@ -1,4 +1,4 @@
-package com.example.lpm.mapper;
+package com.example.lpm.v3.mapper;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.lpm.domain.entity.RolaProxyPortDO;
+import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
 
 @Mapper
 public interface RolaProxyPortMapper extends BaseMapper<RolaProxyPortDO> {

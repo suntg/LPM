@@ -11,13 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.constant.RedisKeyConstant;
-import com.example.lpm.domain.dto.FileDTO;
-import com.example.lpm.domain.dto.LuminatiIPDTO;
-import com.example.lpm.domain.entity.IpAddrDO;
-import com.example.lpm.domain.query.FindIpQuery;
+import com.example.lpm.v3.domain.dto.FileDTO;
 import com.example.lpm.domain.request.FileRequest;
-import com.example.lpm.service.FileService;
-import com.example.lpm.service.IpAddrService;
+import com.example.lpm.v3.service.FileService;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import io.swagger.v3.oas.annotations.Operation;

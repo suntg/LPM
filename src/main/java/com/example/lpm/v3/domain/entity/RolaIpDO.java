@@ -1,4 +1,4 @@
-package com.example.lpm.domain.entity;
+package com.example.lpm.v3.domain.entity;
 
 import java.time.LocalDateTime;
 

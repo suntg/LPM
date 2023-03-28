@@ -1,15 +1,15 @@
-/*
 package com.example.lpm.v3.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.lpm.v3.domain.entity.FileIpDO;
-import com.example.lpm.v3.domain.query.FileQuery;
+import com.example.lpm.domain.entity.FileIpDO;
+import com.example.lpm.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
+import com.example.lpm.v3.domain.vo.PageVO;
 
 public interface FileIpService extends IService<FileIpDO> {
 
-    Page<FileIpDO> listFileIpsByPage(FileQuery fileQuery, PageQuery pageQuery);
+    PageVO<FileIpDO> listIpsPage(@RequestParam FileQuery fileQuery, PageQuery pageQuery);
 
 }
-*/

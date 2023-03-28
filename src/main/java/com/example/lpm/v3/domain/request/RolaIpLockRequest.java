@@ -1,4 +1,4 @@
-package com.example.lpm.domain.request;
+package com.example.lpm.v3.domain.request;
 
 import java.io.Serializable;
 

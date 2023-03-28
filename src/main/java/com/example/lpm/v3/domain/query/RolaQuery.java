@@ -1,4 +1,4 @@
-package com.example.lpm.domain.query;
+package com.example.lpm.v3.domain.query;
 
 import lombok.Data;
 

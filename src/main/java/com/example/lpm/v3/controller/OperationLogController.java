@@ -1,6 +1,6 @@
 package com.example.lpm.v3.controller;
 
-import com.example.lpm.domain.vo.PageVO;
+import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.domain.query.OperationQuery;
 import com.example.lpm.v3.domain.query.PageQuery;

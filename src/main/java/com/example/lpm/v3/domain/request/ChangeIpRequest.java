@@ -4,7 +4,7 @@ import com.example.lpm.v3.constant.ProxyIpType;
 import lombok.Data;
 
 import java.io.Serializable;
-
+@Deprecated
 @Data
 public class ChangeIpRequest implements Serializable {
 

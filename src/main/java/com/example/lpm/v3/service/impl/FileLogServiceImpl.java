@@ -1,33 +1,38 @@
-/*
 package com.example.lpm.v3.service.impl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.v3.domain.entity.FileLogDO;
-import com.example.lpm.v3.domain.query.FileQuery;
+import com.example.lpm.domain.entity.FileLogDO;
+import com.example.lpm.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
+import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.mapper.FileLogMapper;
 import com.example.lpm.v3.service.FileLogService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class FileLogServiceImpl extends ServiceImpl<FileLogMapper, FileLogDO> implements FileLogService {
 
-    private final FileLogMapper fileLogMapper;
+    @Resource
+    private FileLogMapper fileLogMapper;
 
     @Override
-    public Page<FileLogDO> listFileLogsByPage(FileQuery fileQuery, PageQuery pageQuery) {
-        return this.page(new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize()),
-            new QueryWrapper<FileLogDO>().lambda().eq(FileLogDO::getFileId, fileQuery.getFileId())
+    public PageVO<FileLogDO> listLogsPage(FileQuery fileQuery, PageQuery pageQuery) {
+        Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
+        List<FileLogDO> fileLogDOList = fileLogMapper
+            .selectList(new QueryWrapper<FileLogDO>().lambda().eq(FileLogDO::getFileId, fileQuery.getFileId())
                 .like(CharSequenceUtil.isNotBlank(fileQuery.getLogContent()), FileLogDO::getContent,
                     fileQuery.getLogContent())
                 .eq(ObjectUtil.isNotNull(fileQuery.getLogType()), FileLogDO::getType, fileQuery.getLogType())
@@ -36,6 +41,7 @@ public class FileLogServiceImpl extends ServiceImpl<FileLogMapper, FileLogDO> im
                 .le(ObjectUtil.isNotNull(fileQuery.getEndCreateTime()), FileLogDO::getCreateTime,
                     fileQuery.getEndCreateTime())
                 .orderByDesc(FileLogDO::getCreateTime));
+        return new PageVO<>(page.getTotal(), fileLogDOList);
     }
 
     @Override
@@ -53,4 +59,3 @@ public class FileLogServiceImpl extends ServiceImpl<FileLogMapper, FileLogDO> im
         fileLogMapper.deleteById(id);
     }
 }
-*/

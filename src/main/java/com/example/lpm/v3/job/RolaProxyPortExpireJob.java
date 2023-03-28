@@ -1,9 +1,9 @@
-package com.example.lpm.job;
+package com.example.lpm.v3.job;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lpm.domain.entity.RolaProxyPortDO;
-import com.example.lpm.service.RolaProxyPortService;
+import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
+import com.example.lpm.v3.service.RolaProxyPortService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;

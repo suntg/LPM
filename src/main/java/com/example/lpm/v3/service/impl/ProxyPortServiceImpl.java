@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.domain.vo.PageVO;
+import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.entity.ProxyPortDO;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.ProxyPortQuery;

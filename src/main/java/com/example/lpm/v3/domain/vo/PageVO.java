@@ -1,4 +1,4 @@
-package com.example.lpm.domain.vo;
+package com.example.lpm.v3.domain.vo;
 
 import java.io.Serializable;
 import java.util.List;

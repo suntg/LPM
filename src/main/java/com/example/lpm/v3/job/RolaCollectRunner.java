@@ -1,4 +1,4 @@
-package com.example.lpm.job;
+package com.example.lpm.v3.job;
 
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
@@ -23,9 +23,9 @@ import com.example.lpm.constant.RedisKeyConstant;
 import com.example.lpm.v3.domain.dto.Ip123FraudDTO;
 import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
-import com.example.lpm.domain.entity.RolaIpDO;
-import com.example.lpm.domain.request.RolaIpRequest;
-import com.example.lpm.mapper.RolaIpMapper;
+import com.example.lpm.v3.domain.entity.RolaIpDO;
+import com.example.lpm.v3.domain.request.RolaIpRequest;
+import com.example.lpm.v3.mapper.RolaIpMapper;
 import com.example.lpm.util.ExecuteCommandUtil;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.domain.request.RolaIpRequest;
+import com.example.lpm.v3.domain.request.RolaIpRequest;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.constant.ProxyIpType;
 import com.example.lpm.v3.constant.RedisKeyConstant;

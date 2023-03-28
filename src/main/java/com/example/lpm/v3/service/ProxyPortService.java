@@ -1,7 +1,7 @@
 package com.example.lpm.v3.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.lpm.domain.vo.PageVO;
+import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.entity.ProxyPortDO;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.ProxyPortQuery;

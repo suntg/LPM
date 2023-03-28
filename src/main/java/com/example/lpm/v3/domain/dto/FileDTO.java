@@ -1,4 +1,4 @@
-package com.example.lpm.domain.dto;
+package com.example.lpm.v3.domain.dto;
 
 import java.util.List;
 
