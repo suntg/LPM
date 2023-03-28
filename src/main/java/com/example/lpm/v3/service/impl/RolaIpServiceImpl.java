@@ -363,7 +363,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             rolaIpActiveRequest.setRolaUsername(user);
         }
         if (CharSequenceUtil.isBlank(rolaIpActiveRequest.getRolaPassword())) {
-            rolaIpActiveRequest.setRolaPassword("209209us");
+            rolaIpActiveRequest.setRolaPassword("Su902902");
         }
 
         String rolaUsername = rolaIpActiveRequest.getRolaUsername() + "-ip-" + rolaIpDO.getIp();
