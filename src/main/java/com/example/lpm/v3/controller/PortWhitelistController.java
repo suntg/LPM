@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PortWhitelistController {
 
 
-    private PortWhitelistService portWhitelistService;
+    private final PortWhitelistService portWhitelistService;
 
 
     @Operation(summary = "分页查询")

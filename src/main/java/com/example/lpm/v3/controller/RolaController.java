@@ -1,12 +1,9 @@
 package com.example.lpm.v3.controller;
 
-import java.util.List;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.util.PortUtil;
-import org.springframework.web.bind.annotation.*;
-
+import com.example.lpm.v3.domain.entity.PortWhitelistDO;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
@@ -18,13 +15,17 @@ import com.example.lpm.v3.domain.request.RolaIpRequest;
 import com.example.lpm.v3.domain.request.RolaStartSocksPortRequest;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
+import com.example.lpm.v3.service.PortWhitelistService;
 import com.example.lpm.v3.service.RolaIpService;
 import com.example.lpm.v3.service.RolaProxyPortService;
-
+import com.example.lpm.v3.util.ExecuteCommandUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Rola")
 @Slf4j
@@ -91,13 +92,21 @@ public class RolaController {
         return rolaIpService.findSocksPort(findSocksPortQuery);
     }
 
+
+    private final PortWhitelistService portWhitelistService;
+
     @Operation(summary = "启动端口")
     @PostMapping("/startSocksPort")
     public boolean startSocksPort(@RequestBody RolaStartSocksPortRequest startSocksPortRequest) {
 
-        if (PortUtil.contains(startSocksPortRequest.getSocksPort())) {
+        long count = portWhitelistService.count(new QueryWrapper<PortWhitelistDO>().lambda().eq(PortWhitelistDO::getPort, startSocksPortRequest.getSocksPort()));
+        if (count > 0) {
             throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
         }
+        if (ExecuteCommandUtil.portOccupancy(startSocksPortRequest.getSocksPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
+
         return rolaProxyPortService.startSocksPort(startSocksPortRequest);
     }
 
@@ -140,7 +149,7 @@ public class RolaController {
     @Operation(summary = "查询fileFlag所有数据")
     @GetMapping("/listByFileFlag")
     public List<RolaIpDO> listByFileFlag(@RequestParam() String fileFlag,
-        @RequestParam(required = false) String fileType) {
+                                         @RequestParam(required = false) String fileType) {
         return rolaIpService.listByFileFlag(fileFlag, fileType);
     }
 

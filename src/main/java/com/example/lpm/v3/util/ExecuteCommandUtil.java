@@ -74,4 +74,14 @@ public class ExecuteCommandUtil {
         log.info(" rolaLocalLumtest curl:{}", JSON.toJSONString(stringList));
         return stringList.get(stringList.size() - 1);
     }
+
+
+    public static Boolean portOccupancy(int port) {
+        String result = RuntimeUtil.execForStr("/bin/bash", "-c", "lsof -i:" + port);
+        if (StrUtil.isBlank(result)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
