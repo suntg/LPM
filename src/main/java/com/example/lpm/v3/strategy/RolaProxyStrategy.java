@@ -47,7 +47,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+@Deprecated
 @Slf4j
 @RequiredArgsConstructor
 @Component

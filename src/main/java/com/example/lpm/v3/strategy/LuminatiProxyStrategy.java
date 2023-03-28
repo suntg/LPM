@@ -48,7 +48,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+@Deprecated
 @Slf4j
 @RequiredArgsConstructor
 @Component

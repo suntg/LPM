@@ -11,6 +11,7 @@ import com.example.lpm.v3.constant.ProxyIpType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Deprecated
 @EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value = "t_proxy_ip", autoResultMap = true)

@@ -11,7 +11,7 @@ import com.example.lpm.v3.domain.query.ProxyFileQuery;
 import com.example.lpm.v3.domain.query.ProxyIpQuery;
 import com.example.lpm.v3.domain.request.UpdateProxyIpRequest;
 import com.example.lpm.v3.domain.vo.CollectionProgressVO;
-
+@Deprecated
 public interface ProxyIpService extends IService<ProxyIpDO> {
 
     Page<ProxyIpDO> listProxyIpsByPage(PageQuery pageQuery, ProxyIpQuery proxyIpQuery);

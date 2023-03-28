@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.lpm.v3.constant.ProxyIpType;
-
+@Deprecated
 @Component
 public class ProxyStrategyFactory {
 

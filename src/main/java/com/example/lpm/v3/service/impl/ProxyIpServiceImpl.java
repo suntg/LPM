@@ -30,7 +30,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+@Deprecated
 @Service
 @Slf4j
 @RequiredArgsConstructor

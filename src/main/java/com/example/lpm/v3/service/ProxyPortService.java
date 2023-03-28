@@ -8,7 +8,7 @@ import com.example.lpm.v3.domain.query.ProxyPortQuery;
 import com.example.lpm.v3.domain.request.DeleteProxyPortRequest;
 
 import java.util.List;
-
+@Deprecated
 public interface ProxyPortService extends IService<ProxyPortDO> {
 
     PageVO<ProxyPortDO> listProxyPortsByPage(ProxyPortQuery proxyPortQuery, PageQuery pageQuery);

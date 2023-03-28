@@ -1,7 +1,8 @@
-package com.example.lpm.v3.addIp.strategy;
+package com.example.lpm.v3.strategy;
 
 import com.example.lpm.v3.domain.request.CollectionTaskRequest;
 
+@Deprecated
 public interface AddProxyIp {
 
     /**

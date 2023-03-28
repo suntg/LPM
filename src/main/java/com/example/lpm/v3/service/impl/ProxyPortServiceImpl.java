@@ -26,7 +26,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+@Deprecated
 @Service
 @Slf4j
 @RequiredArgsConstructor

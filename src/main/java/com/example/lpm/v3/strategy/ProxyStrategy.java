@@ -7,7 +7,7 @@ import com.example.lpm.v3.domain.request.ChangeIpRequest;
 import com.example.lpm.v3.domain.request.CheckIpSurvivalRequest;
 import com.example.lpm.v3.domain.request.CollectionTaskRequest;
 import com.example.lpm.v3.domain.request.StartProxyPortRequest;
-
+@Deprecated
 public interface ProxyStrategy {
 
     ProxyIpDO getProxyIp(LuaGetProxyIpQuery luaGetProxyIpQuery);

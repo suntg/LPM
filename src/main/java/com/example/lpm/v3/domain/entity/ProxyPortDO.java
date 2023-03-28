@@ -9,6 +9,7 @@ import com.example.lpm.v3.constant.ProxyIpType;
 
 import lombok.Data;
 
+@Deprecated
 @Data
 @TableName("t_proxy_port")
 public class ProxyPortDO extends BaseEntity {
