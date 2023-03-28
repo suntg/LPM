@@ -36,20 +36,20 @@ public class XxlJobConfig {
     // @Value("${xxl.job.executor.logretentiondays}")
     // private int logRetentionDays;
 
-    @Bean
-    public XxlJobSpringExecutor xxlJobExecutor() {
-        log.info(">>>>>>>>>>> xxl-job config init.");
-        XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
-        xxlJobSpringExecutor.setAdminAddresses(adminAddresses);
-        xxlJobSpringExecutor.setAppname(appname);
-        // xxlJobSpringExecutor.setAddress(address);
-        xxlJobSpringExecutor.setIp(ip);
-        xxlJobSpringExecutor.setPort(port);
-        xxlJobSpringExecutor.setAccessToken(accessToken);
-        // xxlJobSpringExecutor.setLogPath(logPath);
-        // xxlJobSpringExecutor.setLogRetentionDays(logRetentionDays);
-
-        return xxlJobSpringExecutor;
-    }
+    // @Bean
+    // public XxlJobSpringExecutor xxlJobExecutor() {
+    //     log.info(">>>>>>>>>>> xxl-job config init.");
+    //     XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
+    //     xxlJobSpringExecutor.setAdminAddresses(adminAddresses);
+    //     xxlJobSpringExecutor.setAppname(appname);
+    //     // xxlJobSpringExecutor.setAddress(address);
+    //     xxlJobSpringExecutor.setIp(ip);
+    //     xxlJobSpringExecutor.setPort(port);
+    //     xxlJobSpringExecutor.setAccessToken(accessToken);
+    //     // xxlJobSpringExecutor.setLogPath(logPath);
+    //     // xxlJobSpringExecutor.setLogRetentionDays(logRetentionDays);
+    //
+    //     return xxlJobSpringExecutor;
+    // }
 
 }

@@ -58,33 +58,6 @@ public class LuaController {
         return proxyStrategy.getProxyIp(luaGetProxyIpQuery);
     }
 
-    /*@Operation(summary = "保存IP")
-    @PostMapping("/saveIP")
-    public void saveIp(@RequestBody ProxyIpDO proxyIpDO) {
-        proxyIpService.save(proxyIpDO);
-    }
-    
-    @Operation(summary = "lua获取file所有详情")
-    @GetMapping("/getFile")
-    public FileVO getFile(@RequestParam(required = false) String fileName,
-        @RequestParam(required = false) Long fileId) {
-        return fileService.getFile(fileName, fileId);
-    }
-    
-    @Operation(summary = "lua保存file")
-    @PostMapping("/saveFile")
-    public void saveFile(@RequestBody @Validated FileRequest fileRequest) {
-        RLock rLock = redissonClient.getLock(RedisLockKeyConstants.LUA_SAVE_FILE_KEY + fileRequest.getFileName());
-        if (rLock.isLocked()) {
-            throw new BizException(ReturnCode.RC500.getCode(), "获取锁失败");
-        }
-        rLock.lock(5, TimeUnit.SECONDS);
-        try {
-            fileService.saveFile(fileRequest);
-        } finally {
-            rLock.unlock();
-        }
-    }*/
 
     @Operation(summary = "lua通过File 获取Proxy 【合并】")
     @PostMapping("/getProxyIpByFile")
