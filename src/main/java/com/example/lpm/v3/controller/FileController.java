@@ -7,9 +7,9 @@ import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.lpm.v3.domain.dto.FileDTO;
-import com.example.lpm.domain.entity.FileIpDO;
-import com.example.lpm.domain.entity.FileLogDO;
-import com.example.lpm.domain.query.FileQuery;
+import com.example.lpm.v3.domain.entity.FileIpDO;
+import com.example.lpm.v3.domain.entity.FileLogDO;
+import com.example.lpm.v3.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.service.FileIpService;

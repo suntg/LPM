@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.lpm.domain.entity.FileDO;
+import com.example.lpm.v3.domain.entity.FileDO;
 
 @Mapper
 public interface FileMapper extends BaseMapper<FileDO> {

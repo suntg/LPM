@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.domain.entity.FileLogDO;
-import com.example.lpm.domain.query.FileQuery;
+import com.example.lpm.v3.domain.entity.FileLogDO;
+import com.example.lpm.v3.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.mapper.FileLogMapper;

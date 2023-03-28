@@ -2,9 +2,9 @@ package com.example.lpm.v3.domain.dto;
 
 import java.util.List;
 
-import com.example.lpm.domain.entity.FileDO;
-import com.example.lpm.domain.entity.FileIpDO;
-import com.example.lpm.domain.entity.FileLogDO;
+import com.example.lpm.v3.domain.entity.FileDO;
+import com.example.lpm.v3.domain.entity.FileIpDO;
+import com.example.lpm.v3.domain.entity.FileLogDO;
 
 import lombok.Data;
 

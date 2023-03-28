@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.lpm.v3.domain.dto.FileDTO;
-import com.example.lpm.domain.entity.FileDO;
-import com.example.lpm.domain.query.FileQuery;
+import com.example.lpm.v3.domain.entity.FileDO;
+import com.example.lpm.v3.domain.query.FileQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.domain.request.FileRequest;
 import com.example.lpm.v3.domain.vo.PageVO;
