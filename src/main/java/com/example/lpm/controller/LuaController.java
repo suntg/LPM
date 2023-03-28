@@ -66,30 +66,6 @@ public class LuaController {
     //
     // }
 
-    @Operation(summary = "lua获取file所有详情")
-    @GetMapping("/getFile")
-    public FileDTO getFile(@RequestParam(required = false) String fileName,
-        @RequestParam(required = false) Long fileId) {
-        return fileService.getFile(fileName, fileId);
-    }
 
-    @Operation(summary = "lua保存file")
-    @PostMapping("/saveFile")
-    public void getFile(@RequestBody FileRequest fileRequest) {
-        if (CharSequenceUtil.isBlank(fileRequest.getFileName())) {
-            throw new BizException(ReturnCode.RC500.getCode(), "fileName不能为空");
-        }
-        RLock rLock = redissonClient.getLock(RedisKeyConstant.LOCK_FILE_NAME_KEY + fileRequest.getFileName());
-        if (rLock.isLocked()) {
-            throw new BizException(ReturnCode.RC500.getCode(), "获取锁失败");
-        }
-        rLock.lock(5, TimeUnit.SECONDS);
-        try {
-            fileService.saveFile(fileRequest);
-        } finally {
-            rLock.unlock();
-        }
-
-    }
 
 }

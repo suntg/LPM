@@ -1,4 +1,4 @@
-package com.example.lpm.controller;
+package com.example.lpm.v3.controller;
 
 import java.util.List;
 

@@ -1,19 +1,26 @@
 package com.example.lpm.v3.controller;
 
+import cn.hutool.core.text.CharSequenceUtil;
+import com.example.lpm.constant.RedisKeyConstant;
+import com.example.lpm.domain.request.FileRequest;
 import com.example.lpm.util.IpUtil;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.domain.dto.FileDTO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
+import com.example.lpm.v3.service.FileService;
 import com.example.lpm.v3.service.OperationLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 
 @Tag(name = "Lua")
 @Slf4j
@@ -104,10 +111,40 @@ public class LuaController {
 
     private final HttpServletRequest request;
 
+    @Resource
+    private FileService fileService;
+
     @Operation(summary = "lua保存OperationLog")
     @PostMapping("/saveOperationLog")
     public void createProxyPort(@RequestBody OperationLogDO operationLogDO) {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
         operationLogService.save(operationLogDO);
+    }
+
+
+    @Operation(summary = "lua获取file所有详情")
+    @GetMapping("/getFile")
+    public FileDTO getFile(@RequestParam(required = false) String fileName,
+                           @RequestParam(required = false) Long fileId) {
+        return fileService.getFile(fileName, fileId);
+    }
+
+    @Operation(summary = "lua保存file")
+    @PostMapping("/saveFile")
+    public void getFile(@RequestBody FileRequest fileRequest) {
+        if (CharSequenceUtil.isBlank(fileRequest.getFileName())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "fileName不能为空");
+        }
+        RLock rLock = redissonClient.getLock(RedisKeyConstant.LOCK_FILE_NAME_KEY + fileRequest.getFileName());
+        if (rLock.isLocked()) {
+            throw new BizException(ReturnCode.RC500.getCode(), "获取锁失败");
+        }
+        rLock.lock(5, TimeUnit.SECONDS);
+        try {
+            fileService.saveFile(fileRequest);
+        } finally {
+            rLock.unlock();
+        }
+
     }
 }
