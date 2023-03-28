@@ -30,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/lua")
 public class LuaController {
 
-    @Resource
-    private IpAddrService ipAddrService;
+    // @Resource
+    // private IpAddrService ipAddrService;
 
     @Resource
     private FileService fileService;
@@ -39,36 +39,36 @@ public class LuaController {
     @Resource
     private RedissonClient redissonClient;
 
-    @Operation(summary = "lua测活IP")
-    @GetMapping("/checkIp")
-    public Boolean checkIp(@RequestParam Long id) {
-        return ipAddrService.luaCheckIp(id);
-    }
+    // @Operation(summary = "lua测活IP")
+    // @GetMapping("/checkIp")
+    // public Boolean checkIp(@RequestParam Long id) {
+    //     return ipAddrService.luaCheckIp(id);
+    // }
 
-    @Operation(summary = "lua通过ip和xLuminatiIp测活IP")
-    @GetMapping("/checkXLuminatiIpAndIp")
-    public LuminatiIPDTO checkXLuminatiIpAndIp(@RequestParam String xLuminatiIp,
-        @RequestParam(required = false) String ip) {
-        return ipAddrService.checkXLuminatiIpAndIp(xLuminatiIp, ip);
-    }
+    // @Operation(summary = "lua通过ip和xLuminatiIp测活IP")
+    // @GetMapping("/checkXLuminatiIpAndIp")
+    // public LuminatiIPDTO checkXLuminatiIpAndIp(@RequestParam String xLuminatiIp,
+    //     @RequestParam(required = false) String ip) {
+    //     return ipAddrService.checkXLuminatiIpAndIp(xLuminatiIp, ip);
+    // }
 
-    @Operation(summary = "lua上报IP状态")
-    @PostMapping("/reportIp")
-    public void reportIp(@RequestParam Long id, @RequestParam Integer useState,
-        @RequestParam(required = false) String remark) {
-        ipAddrService.luaReportIp(id, useState, remark);
-    }
+    // @Operation(summary = "lua上报IP状态")
+    // @PostMapping("/reportIp")
+    // public void reportIp(@RequestParam Long id, @RequestParam Integer useState,
+    //     @RequestParam(required = false) String remark) {
+    //     ipAddrService.luaReportIp(id, useState, remark);
+    // }
 
-    @Operation(summary = "lua获取IP")
-    @PostMapping("getIp")
-    public IpAddrDO getIp(@RequestBody FindIpQuery findIpQuery) {
-        /*if (CharSequenceUtil.isAllBlank(findIpQuery.getIp(), findIpQuery.getZipCode(), findIpQuery.getState(),
-            findIpQuery.getCity())) {
-            throw new ServiceException(ReturnCode.RC500.getCode(), "传参不能同时为空");
-        }*/
-        return ipAddrService.luaGetIp(findIpQuery);
-
-    }
+    // @Operation(summary = "lua获取IP")
+    // @PostMapping("getIp")
+    // public IpAddrDO getIp(@RequestBody FindIpQuery findIpQuery) {
+    //     /*if (CharSequenceUtil.isAllBlank(findIpQuery.getIp(), findIpQuery.getZipCode(), findIpQuery.getState(),
+    //         findIpQuery.getCity())) {
+    //         throw new ServiceException(ReturnCode.RC500.getCode(), "传参不能同时为空");
+    //     }*/
+    //     return ipAddrService.luaGetIp(findIpQuery);
+    //
+    // }
 
     @Operation(summary = "lua获取file所有详情")
     @GetMapping("/getFile")
