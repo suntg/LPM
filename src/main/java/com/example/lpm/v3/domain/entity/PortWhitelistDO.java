@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.lpm.v3.common.BaseEntity;
 
 @TableName("t_port_whitelist")
-public class PortWhitlistDO extends BaseEntity {
+public class PortWhitelistDO extends BaseEntity {
 
     private Integer port;
 
