@@ -23,8 +23,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Tag(name = "Rola")
@@ -175,6 +180,14 @@ public class RolaController {
     @PostMapping("/phoneCollect")
     public void phoneCollect(RolaIpRequest rolaIpRequest) {
         rolaIpService.collect(rolaIpRequest);
+    }
+
+    @GetMapping("/country-state-city")
+    public void downloadTextFile(HttpServletResponse response) throws IOException {
+        ClassPathResource classPathResource = new ClassPathResource("country-state-city.txt");
+        InputStream inputStream = classPathResource.getInputStream();
+        IOUtils.copy(inputStream, response.getOutputStream());
+        response.flushBuffer();
     }
 
 }

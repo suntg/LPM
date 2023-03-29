@@ -7,7 +7,7 @@
     <meta name="author" content="ThemeBucket">
     <link rel="shortcut icon" href="#" type="image/png">
 
-    <title>RolaIP收录</title>
+    <title>收录住宅代理</title>
     <!--data table-->
     <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css"/>
     <style>
@@ -40,7 +40,7 @@
         <!-- page heading start-->
         <div class="page-heading">
             <h3>
-                RolaIP收录
+                收录住宅代理
             </h3>
             <ul class="breadcrumb">
                 <li>
@@ -67,27 +67,18 @@
                             <div class="adv-table editable-table ">
 
                                 <div style="margin-bottom:25px;margin-top:25px;">
-                                    <span>国家：</span>
-                                    <el-input
-                                            placeholder="请输入"
-                                            v-model.trim="country"
-                                            style="width:10%;margin-right:20px;"
-                                            clearable>
-                                    </el-input>
-                                    <span>州：</span>
-                                    <el-input
-                                            placeholder="请输入"
-                                            v-model.trim="state"
-                                            style="width:10%;margin-right:20px;"
-                                            clearable>
-                                    </el-input>
-                                    <span>城市：</span>
-                                    <el-input
-                                            placeholder="请输入"
-                                            v-model.trim="city"
-                                            style="width:10%;margin-right:20px;"
-                                            clearable>
-                                    </el-input>
+                                    <span>Country：</span>
+                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange">
+                                        <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
+                                    </el-select>
+                                    <span>State：</span>
+                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange">
+                                        <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
+                                    </el-select>
+                                    <span>City：</span>
+                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市">
+                                        <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
+                                    </el-select>
                                     <span>数量：</span>
                                     <el-input
                                             placeholder="请输入"
@@ -188,7 +179,14 @@
             completedNum: '',
             currentFailNum: 0,
             currentRepeatNum: 0,
-            intervalFlag: null
+            intervalFlag: null,
+            lines: '',
+            selectedCountry: '',
+            selectedState: '',
+            selectedCity: '',
+            countries: [],
+            states: [],
+            cities: [],
 
         },
         methods: {
@@ -287,9 +285,9 @@
                     withCredentials: true,
                     params: {
                         number: this.number,
-                        country: this.country.toLowerCase(),
-                        state: this.state.toLowerCase(),
-                        city: this.city.toLowerCase()
+                        country: this.selectedCountry.toLowerCase(),
+                        state: this.selectedState.toLowerCase(),
+                        city: this.selectedCity.toLowerCase()
                     }
                 })
                     .then(function (response) {
@@ -378,10 +376,55 @@
                         });
                     })
 
+            },
+            async loadData() {
+                try {
+                    // 从 localStorage 中获取文件内容
+                    let data = localStorage.getItem('country-state-city');
+                    // localStorage 没有则从后端拉取
+                    if (data == null) {
+                        const response = await fetch('/rola/country-state-city');
+                        data = await response.text();
+                        localStorage.setItem('country-state-city', data);
+                    }
+
+                    this.lines = data.split('\n');
+                    for (const line of this.lines) {
+                        const [country, stateAbbreviation, stateName, city] = line.split(',');
+                        if (!this.countries.includes(country)) {
+                            this.countries.push(country);
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+            onCountryChange() {
+                this.states = [];
+                this.cities = [];
+                const country = this.selectedCountry;
+                for (const line of this.lines) {
+                    const [c, stateAbbreviation, stateName, city] = line.split(',');
+                    if (c === country && !this.states.includes(stateAbbreviation)) {
+                        this.states.push(stateAbbreviation);
+                    }
+                }
+            },
+            onStateChange() {
+                this.cities = [];
+                const country = this.selectedCountry;
+                const state = this.selectedState;
+                for (const line of this.lines) {
+                    const [c, s, stateName, city] = line.split(',');
+                    if (c === country && s === state) {
+                        this.cities.push(city);
+                    }
+                }
             }
         },
         mounted() {
             this.collectProgress();
+            this.loadData();
         }
     })
 </script>

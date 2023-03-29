@@ -100,15 +100,6 @@
                                             style="width:10%;margin-right:20px;"
                                     >
                                     </el-input>
-                                    <span>xLuminatiIp：</span>
-                                    <el-input
-                                            placeholder="请输入内容"
-                                            v-model.trim="xLuminatiIp"
-                                            clearable
-                                            @keyup.enter.native="search"
-                                            style="width:10%;margin-right:20px;"
-                                    >
-                                    </el-input>
                                     <span>IP：</span>
                                     <el-input
                                             placeholder="请输入内容"
@@ -183,16 +174,18 @@
                                        id="editable-sample"
                                 >
                                     <tbody>
+                                    <div style="height: 100%; width: 100%">
                                     <template>
                                         <el-table
                                                 :data="reports"
                                                 border
-                                                style="width: 100%"
+                                                style="height: 100%; width: 100%"
                                                 @cell-click="cellclick"
                                                 :row-class-name="tableRowClassName"
                                                 ref="table"
                                                 row-key="idx"
                                                 :key="timeStamp"
+                                                :fit="true"
                                         >
                                             <el-table-column type="selection" width="55" :reserve-selection="true">
                                             </el-table-column>
@@ -237,10 +230,6 @@
                                             <el-table-column
                                                     prop="ip"
                                                     label="IP">
-                                            </el-table-column>
-                                            <el-table-column
-                                                    prop="xLuminatiIp"
-                                                    label="xLuminatiIp">
                                             </el-table-column>
                                             <el-table-column
                                                     label="操作"
@@ -406,10 +395,6 @@
                                                         label="IP">
                                                 </el-table-column>
                                                 <el-table-column
-                                                        prop="xLuminatiIp"
-                                                        label="xLuminatiIp">
-                                                </el-table-column>
-                                                <el-table-column
                                                         prop="createTime"
                                                         label="创建时间"
                                                         :formatter="timeReplace"
@@ -482,6 +467,7 @@
                                             </el-table>
                                         </el-dialog>
                                     </template>
+                                    </div>
                                     </tbody>
                                 </table>
                             </div>
@@ -550,12 +536,10 @@
         data: {
             fileName: '',
             filePath: '',
-            xLuminatiIp: '',
             ip: '',
             logContent: '',
             logType: '',
             fileId: '',
-            xLuminatiIp: '',
             form: {
                 startTime: '',
                 endTime: ''
@@ -613,7 +597,6 @@
             batchLogsVisible: false,
             form: {
                 checkIp: '',
-                xLuminatiIp: '',
                 proxyServer: '47.75.52.53',
                 proxyPort: '',
                 timeout: 3600,
@@ -650,7 +633,6 @@
                         params: {
                             fileName: this.fileName.toLowerCase(),
                             filePath: this.filePath.toLowerCase(),
-                            xLuminatiIp: this.xLuminatiIp.toLowerCase(),
                             ip: this.ip.toLowerCase(),
                             logContent: this.logContent,
                             logType: this.logType,
@@ -677,7 +659,6 @@
                                 content: null,
                                 type: null,
                                 ip: null,
-                                xLuminatiIp: null
                             }
                             idx++;
                             if (response.data.data.rows[i].lastFileLog != null) {
@@ -686,7 +667,6 @@
                             }
                             if (response.data.data.rows[i].lastFileIp != null) {
                                 file.ip = response.data.data.rows[i].lastFileIp.ip;
-                                file.xLuminatiIp = response.data.data.rows[i].lastFileIp.xLuminatiIp;
                             }
                             fileList.push(file);
                         }
