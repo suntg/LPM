@@ -23,14 +23,29 @@ public class TrafficReportController {
     @Resource
     private TrafficService trafficService;
 
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @GetMapping("/auth")
+    public void auth(@RequestParam(name = "user") String user, @RequestParam(name = "pass") Long pass,
+                     @RequestParam(name = "client_addr") String clientAddr,
+                     @RequestParam(name = "local_addr") String localAddr, @RequestParam(name = "target") String target,
+                     @RequestParam(name = "service") String service, @RequestParam(name = "sps") String sps) {
+
+        log.info("user:{},pass:{},client_addr:{},local_addr:{},target:{},service:{},sps:{}", user, pass, clientAddr, localAddr, target, service, sps);
+
+    }
+
 
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @GetMapping("/report")
-    public void report(@RequestParam(name = "act") String act, @RequestParam(name = "bytes") Long bytes,
-                       @RequestParam(name = "client_addr") String clientAddr, @RequestParam(name = "id") String id,
-                       @RequestParam(name = "out_local_addr") String outLocalAddr, @RequestParam(name = "out_remote_addr") String outRemoteAddr,
-                       @RequestParam(name = "server_addr") String serverAddr, @RequestParam(name = "target_addr") String targetAddr,
-                       @RequestParam(name = "upstream") String upstream, @RequestParam(name = "username") String username) {
+    public void report(@RequestParam(name = "act", required = false) String act, @RequestParam(name = "bytes", required = false) Long bytes,
+                       @RequestParam(name = "client_addr", required = false) String clientAddr, @RequestParam(name = "id", required = false) String id,
+                       @RequestParam(name = "out_local_addr", required = false) String outLocalAddr, @RequestParam(name = "out_remote_addr", required = false) String outRemoteAddr,
+                       @RequestParam(name = "server_addr", required = false) String serverAddr, @RequestParam(name = "target_addr", required = false) String targetAddr,
+                       @RequestParam(name = "upstream", required = false) String upstream, @RequestParam(name = "username", required = false) String username) {
+
+
+        log.info("act:{},bytes:{},client_addr:{},id:{},out_local_addr:{},out_remote_addr:{},server_addr:{},target_addr:{},upstream:{},username:{}",
+                act, bytes, clientAddr, id, outLocalAddr, outRemoteAddr, serverAddr, targetAddr, upstream, username);
 
         TrafficDO trafficDO = new TrafficDO();
         trafficDO.setBytes(bytes);

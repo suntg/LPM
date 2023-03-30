@@ -1,7 +1,10 @@
 package com.example.lpm.v3.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lpm.v3.domain.entity.TrafficDO;
+import com.example.lpm.v3.domain.query.TrafficStatisticQuery;
 import com.example.lpm.v3.mapper.TrafficMapper;
 import com.example.lpm.v3.service.TrafficService;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,23 @@ public class TrafficServiceImpl extends ServiceImpl<TrafficMapper, TrafficDO> im
     @Override
     public int report(TrafficDO record) {
         return trafficMapper.insert(record);
+    }
+
+    @Override
+    public Long statistic(TrafficStatisticQuery trafficStatisticQuery) {
+
+        QueryWrapper<TrafficDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select(" sum(bytes) as bytes ");
+        queryWrapper.lambda().eq(TrafficDO::getUsername, trafficStatisticQuery.getUsername())
+                .ge(ObjectUtil.isNotNull(trafficStatisticQuery.getStartTime()), TrafficDO::getCreateTime,
+                        trafficStatisticQuery.getStartTime())
+                .le(ObjectUtil.isNotNull(trafficStatisticQuery.getEndTime()), TrafficDO::getCreateTime,
+                        trafficStatisticQuery.getEndTime());
+        TrafficDO trafficDO = trafficMapper.selectOne(queryWrapper);
+        if (trafficDO == null) {
+            return 0L;
+        }
+        return trafficDO.getBytes();
     }
 
     @Override
