@@ -53,7 +53,7 @@ public class ExecuteCommandUtil {
                                              String socksAddressIp, String rolaUsername, String rolaPassword) {
 
         String spsCom =
-                CharSequenceUtil.format("proxy sps -p :{} -a {}:{} -P socks5://{}-ip-{}:{}@gate2.rola.info:2042  ", socksPort,
+                CharSequenceUtil.format("proxy sps -p :{} -a {}:{} -P socks5://{}-ip-{}:{}@gate2.rola.info:2042 --traffic-url http://localhost:21888/traffic/report --traffic-mode fast ", socksPort,
                         socksUsername, socksPassword, rolaUsername, socksAddressIp, rolaPassword);
 
         String command = CharSequenceUtil.format("nohup " + spsCom + "  >/dev/null 2>&1 &", socksPort);

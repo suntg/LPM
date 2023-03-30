@@ -101,7 +101,7 @@ public class RolaCollectRunner implements CommandLineRunner {
                     });*/
                     OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
                         .addInterceptor(new GzipRequestInterceptor()).authenticator(new Authenticator() {
-                            final String credential = Credentials.basic(user, "209209us");
+                            final String credential = Credentials.basic(user, "Su902902");
 
                             @Nullable
                             @Override

@@ -21,9 +21,4 @@ public class TrafficController {
     @Resource
     private TrafficService trafficService;
 
-
-    @GetMapping("/report")
-    public void report() {
-
-    }
 }

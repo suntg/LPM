@@ -1,11 +1,13 @@
 package com.example.lpm.v3.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.lpm.v3.common.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Schema
 @Data
+@TableName("t_traffic")
 public class TrafficDO extends BaseEntity {
     @Schema(description = "")
     private String serverAddr;
