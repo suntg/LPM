@@ -1,13 +1,11 @@
 package com.example.lpm.v3.config;
 
-import java.time.LocalDateTime;
-
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
 
 /**
  * 通用字段自动填充配置
@@ -18,13 +16,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        log.info("start update fill ....");
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
     }
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.info("start insert fill ....");
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
     }
 }
