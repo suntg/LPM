@@ -469,15 +469,11 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
             throw new BizException(ReturnCode.RC999.getCode(), "IP不存在");
         }
 
-        if (CharSequenceUtil.isBlank(startSocksPortRequest.getSocksUsername())) {
-            startSocksPortRequest.setSocksUsername("hotkingda");
+        if (CharSequenceUtil.hasBlank(startSocksPortRequest.getSocksUsername(), startSocksPortRequest.getSocksPassword(),
+                startSocksPortRequest.getRolaPassword())) {
+            throw new BizException(ReturnCode.RC999.getCode(), "参数不能为空");
         }
-        if (CharSequenceUtil.isBlank(startSocksPortRequest.getSocksPassword())) {
-            startSocksPortRequest.setSocksPassword("209209us");
-        }
-        if (CharSequenceUtil.isBlank(startSocksPortRequest.getRolaPassword())) {
-            startSocksPortRequest.setRolaPassword("209209us");
-        }
+
         if (CharSequenceUtil.isBlank(startSocksPortRequest.getRolaUsername())) {
             String user = RolaUtil.randomUsername();
             startSocksPortRequest.setRolaUsername(user);
