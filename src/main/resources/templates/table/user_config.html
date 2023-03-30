@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="#" type="image/png">
+
+    <title>User Config</title>
+    <!--data table-->
+    <link rel="stylesheet" href="js/data-tables/DT_bootstrap.css" />
+    <style>
+        .inputStyle {
+            width:250px;
+        }
+        .el-table .danger-row {
+            background: #FF8C69;
+        }
+        .el-table .primary-row {
+            background: #98F5FF;
+        }
+        body{
+            padding-right: 0px !important;
+            overflow: hidden;
+        }
+        .config-page {
+            padding: 20px;
+        }
+
+    </style>
+    <div th:include="common :: commonheader"></div>
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    <div th:replace="common :: #leftmenu"></div>
+
+    <!-- main content start-->
+    <div class="main-content" >
+
+        <div th:replace="common :: headermenu"></div>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                用户配置
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active"> User Config </li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper" id="app">
+            <div class="row">
+                <div class="col-sm-12">
+                    <section class="panel">
+                        <header class="panel-heading">
+                            User Config
+                        </header>
+
+                        <div class="panel-body">
+                            <div class="adv-table editable-table ">
+                                <div class="config-page">
+                                    <el-form :model="form" ref="form" label-width="120px">
+                                        <el-form-item label="自定义Socks5用户名">
+                                            <el-input v-model="form.socksUsername" style="width:20%;"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="自定义Socks5密码">
+                                            <el-input v-model="form.socksPassword" type="password" style="width:20%;"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="自定义开启本地Socks5端口">
+                                            <el-input-number v-model="form.socksPort" :min="1" :max="65535"></el-input-number>
+                                        </el-form-item>
+                                        <el-form-item label="代理用户名">
+                                            <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="代理用户密码">
+                                            <el-input v-model="form.rolaPassword" type="password" style="width:20%;"></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="saveConfig" style="width:20%;">保存配置</el-button>
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+
+                                <hr>
+                                <div style="margin-bottom:25px;">
+                                    <span>端口：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="queryPort"
+                                            clearable
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                    >
+                                    </el-input>
+                                    <el-button type="primary" @click="onSubmit">查询</el-button>
+                                    <el-button type="success" style="margin-top: 20px" @click="dialogVisible=true">增加端口</el-button>
+                                </div>
+                                <hr>
+                                <table class="table table-striped table-hover table-bordered"
+                                       id="editable-sample"
+                                >
+                                    <tbody>
+                                    <template>
+                                        <el-table
+                                                :data="portList"
+                                                border
+                                                style="width: 100%;margin-top: 20px"
+                                                ref="table"
+                                                row-key="id"
+                                        >
+                                            <el-table-column prop="id" label="ID"></el-table-column>
+                                            <el-table-column prop="port" label="端口"></el-table-column>
+                                            <el-table-column label="操作">
+                                                <template slot-scope="scope">
+                                                    <el-button type="danger" @click="deletePort(scope.row)">删除</el-button>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                    </tbody>
+                                </table>
+                                <el-dialog title="启动代理端口" :visible.sync="dialogVisible" width="30%">
+                                    <el-form ref="portForm" :model="portForm" label-width="120px">
+                                        <el-form-item label="新增端口">
+                                            <el-input-number v-model="portForm.port" :min="1" :max="65535"></el-input-number>
+                                        </el-form-item>
+                                    </el-form>
+
+                                    <el-button @click="dialogVisible = false">取 消</el-button>
+                                    <el-button type="primary" @click="addPort(scope)">确 定</el-button>
+                                    </span>
+                                </el-dialog>
+
+                            </div>
+                        </div>
+                        <el-pagination
+                                background
+                                :page-sizes="[50, 10, 20, 100]"
+                                :page-size="pageSize"
+                                :current-page="pageNum"
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange"
+                                layout="total, sizes, prev, pager, next"
+                                :total="total">
+                        </el-pagination>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <!--body wrapper end-->
+
+        <!--footer section start-->
+        <!--<footer>
+            2020 &copy; AdminEx by ThemeBucket </a>
+        </footer>-->
+        <!--footer section end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/modernizr.min.js"></script>
+<script src="js/jquery.nicescroll.js"></script>
+<!--<script src="js/Date.js"></script>-->
+
+<!--data table-->
+<script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/data-tables/DT_bootstrap.js"></script>
+
+<!--common scripts for all pages-->
+<script src="js/scripts.js"></script>
+
+<script src="js/vue.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<!--script for editable table-->
+<!-- END JAVASCRIPTS -->
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            ip:'',
+            requestUri:'',
+            deviceName:'',
+            deviceInfo:'',
+            reports: [],
+            total: 0,
+            pageNum: 1,
+            pageSize: 50,
+            dialogVisible: false,
+            queryPort:'',
+            form: {
+                socksUsername: '',
+                socksPassword: '',
+                socksPort: '',
+                rolaUsername: '',
+                rolaPassword: '',
+            },
+            portList: [],
+            portForm: {
+                port: ''
+            },
+        },
+        methods: {
+            onSubmit() {
+                axios.get(baseUrl + '/portWhitelist/listPage',
+                    {
+                        params:{
+                            port: this.queryPort,
+                            pageNum: this.pageNum,
+                            pageSize: this.pageSize
+                        }
+                    })
+                    .then((response) => {
+                        console.log("responose是：" + response.data);
+                        this.portList = response.data.data.rows
+                        if (response.data != null) {
+                            this.total = response.data.data.total
+                        }
+                    })
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.pageNum = 1;
+                this.onSubmit();
+            },
+            handleCurrentChange(val) {
+                this.pageNum = val;
+                this.onSubmit();
+            },
+            search(){
+                this.onSubmit();
+            },
+            saveConfig() {
+                localStorage.setItem('config', JSON.stringify(this.form));
+            },
+            deletePort(row) {
+                axios.post(baseUrl + '/portWhitelist/deleteById', {}, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                    },
+                    withCredentials: true,
+                    params: {
+                        id: row.id
+                    }
+                })
+                    .then(function (response) {
+                        if (response.data.status == 100) {
+                            console.log(response.data.status);
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'success'
+                            });
+                        } else {
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'warning'
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        that.$message({
+                            showClose: true,
+                            offset: 250,
+                            message: error.data.message,
+                            type: 'warning'
+                        });
+                    });
+                this.onSubmit();
+
+            },
+            addPort() {
+                //保存Vue指针
+                var that = this;
+                let data = {
+                    port: this.portForm.port
+
+                };
+                axios.post(baseUrl + '/portWhitelist/insert', data)
+                    .then(function (response) {
+                        if (response.data.status == 100) {
+                            console.log(response.data.status);
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'success'
+                            });
+                        } else {
+                            that.$message({
+                                showClose: true,
+                                offset: 250,
+                                message: response.data.message,
+                                type: 'warning'
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        that.$message({
+                            showClose: true,
+                            offset: 250,
+                            message: error.data.message,
+                            type: 'warning'
+                        });
+                    });
+                this.dialogVisible = false;
+                this.onSubmit();
+            },
+
+        },
+        mounted(){
+            this.onSubmit();
+            const config = localStorage.getItem('config');
+            if (config) {
+                this.form = JSON.parse(config);
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

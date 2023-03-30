@@ -210,7 +210,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
 
         List<RolaIpDO> rolaIpDOList =
-                rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda().ne(RolaIpDO::getStatus, 0)
+                rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda()
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCountry()), RolaIpDO::getCountry, rolaQuery.getCountry())
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getState()), RolaIpDO::getRegion, rolaQuery.getState())
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCity()), RolaIpDO::getCity, rolaQuery.getCity())

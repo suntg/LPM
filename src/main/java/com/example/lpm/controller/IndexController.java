@@ -224,6 +224,19 @@ public class IndexController {
     }
 
     /**
+     * 去user_config页面
+     *
+     * @return
+     */
+    @GetMapping("/user_config")
+    public String userConfig(HttpSession session, Model model) {
+        if (!StpUtil.isLogin()) {
+            return "login";
+        }
+        return "table/user_config";
+    }
+
+    /**
      * 从Cookie中获取频道编码channelCode
      *
      * @param cookies

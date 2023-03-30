@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Service
@@ -23,6 +24,7 @@ import java.util.List;
 public class PortWhitelistServiceImpl extends ServiceImpl<PortWhitelistMapper, PortWhitelistDO> implements PortWhitelistService {
 
 
+    @Resource
     private PortWhitelistMapper portWhitelistMapper;
 
 
@@ -33,7 +35,11 @@ public class PortWhitelistServiceImpl extends ServiceImpl<PortWhitelistMapper, P
 
     @Override
     public int insert(PortWhitelistDO record) {
-        return portWhitelistMapper.insert(record);
+        long count = portWhitelistMapper.selectCount(new QueryWrapper<PortWhitelistDO>().lambda().eq(PortWhitelistDO::getPort, record.getPort()));
+        if (count == 0L) {
+            return portWhitelistMapper.insert(record);
+        }
+        return (int) count;
     }
 
     @Override

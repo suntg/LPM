@@ -181,7 +181,7 @@
             currentRepeatNum: 0,
             intervalFlag: null,
             lines: '',
-            selectedCountry: '',
+            selectedCountry: 'us',
             selectedState: '',
             selectedCity: '',
             countries: [],
@@ -425,6 +425,7 @@
         mounted() {
             this.collectProgress();
             this.loadData();
+            this.onCountryChange();
         }
     })
 </script>

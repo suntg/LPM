@@ -327,10 +327,22 @@
                                                         show-icon>
                                                 </el-alert>-->
                                                 <el-form-item label="启动端口">
-                                                    <el-input v-model="form.socksPort"></el-input>
+                                                    <el-input-number v-model="form.socksPort" :min="1" :max="65535"></el-input-number>
                                                 </el-form-item>
                                                 <el-form-item label="设备名称">
                                                     <el-input v-model="form.deviceName"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="自定义Socks5用户名">
+                                                    <el-input v-model="form.socksUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="自定义Socks5密码">
+                                                    <el-input v-model="form.socksPassword" type="password" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户名">
+                                                    <el-input v-model="form.rolaUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户密码">
+                                                    <el-input v-model="form.rolaPassword" type="password"></el-input>
                                                 </el-form-item>
                                             </el-form>
 
@@ -411,7 +423,7 @@
                 city: '',
                 zipCode: '',
                 lines: '',
-                selectedCountry: '',
+                selectedCountry: 'us',
                 selectedState: '',
                 selectedCity: '',
                 countries: [],
@@ -464,16 +476,22 @@
             timeStamp: '',
             dialogVisible: false,
             form: {
-                checkIp: '',
-                proxyServer: '47.75.52.53',
-                apiPort: 58081,
-                proxyPort: '',
-                timeout: 3600,
-                deleteProxyPortFlag: 0,
-                zone: '',
-                zonePassword: '',
+                // checkIp: '',
+                // proxyServer: '47.75.52.53',
+                // apiPort: 58081,
+                // proxyPort: '',
+                // timeout: 3600,
+                // deleteProxyPortFlag: 0,
+                // zone: '',
+                // zonePassword: '',
+
                 socksPort: '',
-                deviceName: ''
+                deviceName: '',
+                socksAddressIp: '',
+                socksUsername: '',
+                socksPassword: '',
+                rolaUsername: '',
+                rolaPassword: '',
             },
             options: [{
                 value: 0,
@@ -899,8 +917,11 @@
             },
             fillForm({row, column}) {
 
+                const config = localStorage.getItem('config');
+                if (config) {
+                    this.form = JSON.parse(config);
+                }
                 this.form.checkIp = row.ip;
-                this.form.proxyPort = '';
                 this.dialogVisible = true;
 
             },
@@ -909,17 +930,14 @@
                 //保存Vue指针
                 var that = this;
                 let data = {
-/*                    proxyServer: that.form.proxyServer,
-                    proxyPort: that.form.proxyPort,
-                    timeout: that.form.timeout,
-                    deleteProxyPortFlag: that.form.deleteProxyPortFlag,
-                    zone: that.form.zone,
-                    zonePassword: that.form.zonePassword,
-                    apiPort: that.form.apiPort,*/
-                    socksAddressIp: that.form.checkIp,
+                    socksAddressIp: this.form.checkIp,
                     socksPort: this.form.socksPort,
+                    socksUsername: this.form.socksUsername,
+                    socksPassword: this.form.socksPassword,
+                    socksPort: this.form.socksPort,
+                    rolaUsername: this.form.rolaUsername,
+                    rolaPassword: this.form.rolaPassword,
                     deviceName: this.form.deviceName
-
                 };
                 axios.post(baseUrl + '/rola/startSocksPort', data)
                     .then(function (response) {
@@ -949,6 +967,15 @@
                         });
                     });
                 this.dialogVisible = false;
+
+                let modifiedForm = {
+                    socksUsername: this.form.socksUsername,
+                    socksPassword: this.form.socksPassword,
+                    socksPort: this.form.socksPort,
+                    rolaUsername: this.form.rolaUsername,
+                    rolaPassword: this.form.rolaPassword,
+                }
+                localStorage.setItem('config', JSON.stringify(modifiedForm));
             },
             async loadData() {
                 try {
@@ -998,6 +1025,7 @@
         mounted() {
             this.onSubmit();
             this.loadData();
+            this.onCountryChange();
         }
     })
 </script>

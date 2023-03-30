@@ -363,7 +363,7 @@
             tz: '',
             proxyPort: '',
             lines: '',
-            selectedCountry: '',
+            selectedCountry: 'us',
             selectedState: '',
             selectedCity: '',
             countries: [],
@@ -869,6 +869,7 @@
         mounted() {
             this.onSubmit();
             this.loadData();
+            this.onCountryChange();
         }
     })
 </script>
