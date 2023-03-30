@@ -123,6 +123,7 @@
                                             clearable>
                                     </el-input>
                                     <el-button type="primary" @click="onSubmit">查询</el-button>
+                                    <el-button type="success" @click="fillForm(scope)">启动端口</el-button>
 
                                 </div>
                                 <!--<div style="margin-bottom:25px;margin-top:25px;">
@@ -291,6 +292,37 @@
                                             <el-button type="primary" @click="changeProxyIp(scope)">确 定</el-button>
                                             </span>
                                         </el-dialog>
+
+                                        <el-dialog title="启动代理端口" :visible.sync="portFormVisible" width="30%">
+                                            <el-form ref="portForm" :model="portForm" label-width="120px" :rules="rules">
+                                                <el-form-item label="启动端口" prop="socksPort" required>
+                                                    <el-input-number v-model="portForm.socksPort" :min="1" :max="65535"></el-input-number>
+                                                </el-form-item>
+                                                <el-form-item label="IP" prop="socksAddressIp" required>
+                                                    <el-input v-model="portForm.socksAddressIp"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="设备名称" prop="deviceName" required>
+                                                    <el-input v-model="portForm.deviceName"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="自定义Socks5用户名" prop="socksUsername" required>
+                                                    <el-input v-model="portForm.socksUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="自定义Socks5密码" prop="socksPassword" required>
+                                                    <el-input v-model="portForm.socksPassword" type="password" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                    <el-input v-model="portForm.rolaUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户密码" prop="rolaPassword" required>
+                                                    <el-input v-model="portForm.rolaPassword" type="password"></el-input>
+                                                </el-form-item>
+                                                <el-form-item>
+                                                    <el-button @click="portFormVisible = false">取 消</el-button>
+                                                    <el-button type="primary" @click="startSocksPort()">确 定</el-button>
+                                                </el-form-item>
+                                            </el-form>
+                                            </span>
+                                        </el-dialog>
                                     </template>
                                     </tbody>
                                 </table>
@@ -431,6 +463,40 @@
                 value: 1,
                 label: '是'
             }],
+            portFormVisible: false,
+            portForm: {
+                socksPort: '',
+                socksAddressIp:'',
+                deviceName: '',
+                socksAddressIp: '',
+                socksUsername: '',
+                socksPassword: '',
+                rolaUsername: '',
+                rolaPassword: '',
+            },
+            rules: {
+                socksPort: [
+                    { required: true, message: '请输入端口号', trigger: 'blur' },
+                ],
+                socksUsername: [
+                    { required: true, message: '请填写 自定义Socks5用户名', trigger: 'blur' }
+                ],
+                socksPassword: [
+                    {required: true, message: '请填写 自定义Socks5密码', trigger: 'blur' }
+                ],
+                socksAddressIp: [
+                    { required: true, message: '请填写 IP', trigger: 'blur' }
+                ],
+                rolaUsername: [
+                    { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                ],
+                rolaPassword: [
+                    { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                ],
+                deviceName: [
+                    { required: true, message: '请填写 设备名称', trigger: 'blur' }
+                ]
+            }
         },
         methods: {
             onSubmit() {
@@ -869,7 +935,77 @@
                         this.cities.push(city);
                     }
                 }
-            }
+            },
+            fillForm() {
+
+                const config = localStorage.getItem('config');
+                if (config) {
+                    this.portForm = JSON.parse(config);
+                    console.log(JSON.parse(config));
+                }
+                this.portFormVisible = true;
+
+            },
+            startSocksPort() {
+
+                this.$refs.portForm.validate((valid) => {
+                    if (valid) {
+                        //保存Vue指针
+                        var that = this;
+                        let data = {
+                            socksAddressIp: this.portForm.socksAddressIp,
+                            socksUsername: this.portForm.socksUsername,
+                            socksPassword: this.portForm.socksPassword,
+                            socksPort: this.portForm.socksPort,
+                            rolaUsername: this.portForm.rolaUsername,
+                            rolaPassword: this.portForm.rolaPassword,
+                            deviceName: this.portForm.deviceName
+                        };
+                        axios.post(baseUrl + '/rola/startSocksPort', data)
+                            .then(function (response) {
+                                if (response.data.status == 100) {
+                                    console.log(response.data.status);
+                                    that.$message({
+                                        showClose: true,
+                                        offset: 250,
+                                        message: response.data.message,
+                                        type: 'success'
+                                    });
+                                } else {
+                                    that.$message({
+                                        showClose: true,
+                                        offset: 250,
+                                        message: response.data.message,
+                                        type: 'warning'
+                                    });
+                                }
+                            })
+                            .catch(function (error) {
+                                that.$message({
+                                    showClose: true,
+                                    offset: 250,
+                                    message: error.data.message,
+                                    type: 'warning'
+                                });
+                            });
+                        this.portFormVisible = false;
+
+                        let modifiedForm = {
+                            socksUsername: this.portForm.socksUsername,
+                            socksPassword: this.portForm.socksPassword,
+                            socksPort: this.portForm.socksPort,
+                            rolaUsername: this.portForm.rolaUsername,
+                            rolaPassword: this.portForm.rolaPassword,
+                            socksAddressIp: this.portForm.socksAddressIp
+                        }
+                        localStorage.setItem('config', JSON.stringify(modifiedForm));
+                    } else {
+
+                        return false;
+                    }
+                });
+
+            },
 
         },
         mounted() {
