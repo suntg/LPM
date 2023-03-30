@@ -13,7 +13,7 @@ public class AsyncConfig {
     @Bean(value = "collectRolaThreadPool")
     public AsyncTaskExecutor collectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(12);
+        taskExecutor.setMaxPoolSize(14);
         taskExecutor.setCorePoolSize(2);
         taskExecutor.setThreadNamePrefix("collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
@@ -23,7 +23,7 @@ public class AsyncConfig {
     @Bean(value = "phoneCollectRolaThreadPool")
     public AsyncTaskExecutor phoneCollectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.setMaxPoolSize(8);
         taskExecutor.setCorePoolSize(2);
         taskExecutor.setThreadNamePrefix("phone-collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.lpm.v3.mapper.TrafficMapper">
+    <resultMap id="BaseResultMap" type="com.example.lpm.v3.domain.entity.TrafficDO">
+        <!--@mbg.generated-->
+        <!--@Table t_traffic-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="server_addr" jdbcType="VARCHAR" property="serverAddr"/>
+        <result column="client_addr" jdbcType="VARCHAR" property="clientAddr"/>
+        <result column="target_addr" jdbcType="VARCHAR" property="targetAddr"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="bytes" jdbcType="BIGINT" property="bytes"/>
+        <result column="out_local_addr" jdbcType="VARCHAR" property="outLocalAddr"/>
+        <result column="out_remote_addr" jdbcType="VARCHAR" property="outRemoteAddr"/>
+        <result column="upstream" jdbcType="VARCHAR" property="upstream"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id,
+        server_addr,
+        client_addr,
+        target_addr,
+        username,
+        bytes,
+        out_local_addr,
+        out_remote_addr,
+        upstream,
+        create_time,
+        update_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from t_traffic
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        <!--@mbg.generated-->
+        delete
+        from t_traffic
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.example.lpm.v3.domain.entity.TrafficDO" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into t_traffic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serverAddr != null">
+                server_addr,
+            </if>
+            <if test="clientAddr != null">
+                client_addr,
+            </if>
+            <if test="targetAddr != null">
+                target_addr,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="bytes != null">
+                bytes,
+            </if>
+            <if test="outLocalAddr != null">
+                out_local_addr,
+            </if>
+            <if test="outRemoteAddr != null">
+                out_remote_addr,
+            </if>
+            <if test="upstream != null">
+                upstream,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serverAddr != null">
+                #{serverAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="clientAddr != null">
+                #{clientAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="targetAddr != null">
+                #{targetAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="bytes != null">
+                #{bytes,jdbcType=BIGINT},
+            </if>
+            <if test="outLocalAddr != null">
+                #{outLocalAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="outRemoteAddr != null">
+                #{outRemoteAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="upstream != null">
+                #{upstream,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.v3.domain.entity.TrafficDO">
+        <!--@mbg.generated-->
+        update t_traffic
+        <set>
+            <if test="serverAddr != null">
+                server_addr = #{serverAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="clientAddr != null">
+                client_addr = #{clientAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="targetAddr != null">
+                target_addr = #{targetAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="bytes != null">
+                bytes = #{bytes,jdbcType=BIGINT},
+            </if>
+            <if test="outLocalAddr != null">
+                out_local_addr = #{outLocalAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="outRemoteAddr != null">
+                out_remote_addr = #{outRemoteAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="upstream != null">
+                upstream = #{upstream,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.lpm.v3.domain.entity.TrafficDO">
+        <!--@mbg.generated-->
+        update t_traffic
+        set server_addr     = #{serverAddr,jdbcType=VARCHAR},
+            client_addr     = #{clientAddr,jdbcType=VARCHAR},
+            target_addr     = #{targetAddr,jdbcType=VARCHAR},
+            username        = #{username,jdbcType=VARCHAR},
+            bytes           = #{bytes,jdbcType=BIGINT},
+            out_local_addr  = #{outLocalAddr,jdbcType=VARCHAR},
+            out_remote_addr = #{outRemoteAddr,jdbcType=VARCHAR},
+            upstream        = #{upstream,jdbcType=VARCHAR},
+            create_time     = #{createTime,jdbcType=TIMESTAMP},
+            update_time     = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

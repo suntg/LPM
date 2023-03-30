@@ -26,7 +26,7 @@ import com.example.lpm.domain.dto.LuminatiIPDTO;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.request.RolaIpRequest;
 import com.example.lpm.v3.mapper.RolaIpMapper;
-import com.example.lpm.util.ExecuteCommandUtil;
+import com.example.lpm.v3.util.ExecuteCommandUtil;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,11 +62,11 @@ public class RolaCollectRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 14; i++) {
             asyncConfig.collectRolaThreadPool().submit(this::collect);
             Thread.sleep(2000);
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             asyncConfig.phoneCollectRolaThreadPool().submit(this::phoneCollect);
             Thread.sleep(2000);
         }

@@ -1,23 +1,19 @@
 package com.example.lpm.v3.service.impl;
 
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.RuntimeUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.common.BizException;
-import com.example.lpm.v3.config.GzipRequestInterceptor;
 import com.example.lpm.constant.ProxyConstant;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.config.GzipRequestInterceptor;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
 import com.example.lpm.v3.domain.query.PageQuery;
@@ -28,29 +24,31 @@ import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.mapper.RolaIpMapper;
 import com.example.lpm.v3.mapper.RolaProxyPortMapper;
 import com.example.lpm.v3.service.RolaProxyPortService;
-import com.example.lpm.util.ExecuteCommandUtil;
+import com.example.lpm.v3.util.ExecuteCommandUtil;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.RuntimeUtil;
-import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, RolaProxyPortDO>
-    implements RolaProxyPortService {
+        implements RolaProxyPortService {
 
     private final ObjectMapper objectMapper;
 
@@ -98,7 +96,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     @Transactional(rollbackFor = Exception.class)
     public void deleteProxyPortByPort(Integer port) {
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper
-            .selectOne(new QueryWrapper<RolaProxyPortDO>().lambda().eq(RolaProxyPortDO::getProxyPort, port));
+                .selectOne(new QueryWrapper<RolaProxyPortDO>().lambda().eq(RolaProxyPortDO::getProxyPort, port));
         if (rolaProxyPortDO != null) {
             rolaProxyPortMapper.deleteByPrimaryKey(rolaProxyPortDO.getId());
             // 端口
@@ -131,11 +129,11 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     @Transactional(rollbackFor = Exception.class)
     public void deleteProxyPortByIp(String ip) {
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper
-            .selectOne(new QueryWrapper<RolaProxyPortDO>().lambda().eq(RolaProxyPortDO::getRolaIp, ip));
+                .selectOne(new QueryWrapper<RolaProxyPortDO>().lambda().eq(RolaProxyPortDO::getRolaIp, ip));
         if (rolaProxyPortDO != null) {
             rolaProxyPortMapper.deleteByPrimaryKey(rolaProxyPortDO.getId());
             // 端口
-            ExecuteCommandUtil.killProxyByPort(String.valueOf(rolaProxyPortDO.getProxyPort()));
+            ExecuteCommandUtil.killProcessByPort(rolaProxyPortDO.getProxyPort());
         }
 
     }
@@ -147,7 +145,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
         }
 
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper.selectOne(new QueryWrapper<RolaProxyPortDO>().lambda()
-            .eq(RolaProxyPortDO::getProxyPort, rolaIpRequest.getProxyPort()));
+                .eq(RolaProxyPortDO::getProxyPort, rolaIpRequest.getProxyPort()));
 
         if (rolaProxyPortDO != null) {
             throw new BizException(997, "端口在使用中");
@@ -166,23 +164,23 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
         }
 
         long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda()
-            .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
-            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion, rolaIpRequest.getState()));
-
-        if (count > 0) {
-            int c = RandomUtil.randomInt(0, (int)count);
-            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda()
                 .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
                 .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
-                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                    rolaIpRequest.getState())
-                .last("limit " + c + " , 1"));
+                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion, rolaIpRequest.getState()));
+
+        if (count > 0) {
+            int c = RandomUtil.randomInt(0, (int) count);
+            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda()
+                    .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
+                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                            rolaIpRequest.getState())
+                    .last("limit " + c + " , 1"));
 
             int userNum = RandomUtil.randomInt(10, 100000);
 
             String spsResult =
-                ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
+                    ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
 
             Thread.sleep(10000);
             try {
@@ -211,7 +209,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                     throw new BizException(ReturnCode.RC999.getCode(), "sps 启动失败");
                 }
             } catch (Exception e) {
-                ExecuteCommandUtil.killProxyByPort(String.valueOf(rolaIpRequest.getProxyPort()));
+                ExecuteCommandUtil.killProcessByPort(rolaIpRequest.getProxyPort());
                 throw e;
             }
         } else {
@@ -219,7 +217,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 int userNum = RandomUtil.randomInt(10, 100000);
                 String user = "skyescn_" + userNum;
                 String result = ExecuteCommandUtil.rolaRefresh(user, rolaIpRequest.getCountry(),
-                    rolaIpRequest.getState(), rolaIpRequest.getCity());
+                        rolaIpRequest.getState(), rolaIpRequest.getCity());
                 if (StrUtil.contains(result, "SUCCESS")) {
 
                     String lumtest = ExecuteCommandUtil.rolaLumtest(user);
@@ -236,26 +234,26 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 }
             }
             count = rolaIpMapper
-                .selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
-                        rolaIpRequest.getCity())
-                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                        rolaIpRequest.getState()));
+                    .selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
+                                    rolaIpRequest.getCity())
+                            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                                    rolaIpRequest.getState()));
 
             if (count > 0) {
-                int c = RandomUtil.randomInt(0, (int)count);
+                int c = RandomUtil.randomInt(0, (int) count);
                 RolaIpDO rolaIpDO = rolaIpMapper.selectOne(
-                    new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-                        .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
-                            rolaIpRequest.getCity())
-                        .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                            rolaIpRequest.getState())
-                        .last("limit " + c + " , 1"));
+                        new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
+                                        rolaIpRequest.getCity())
+                                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                                        rolaIpRequest.getState())
+                                .last("limit " + c + " , 1"));
 
                 int userNum = RandomUtil.randomInt(10, 100000);
 
                 String spsResult =
-                    ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
+                        ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
                 Thread.sleep(10000);
                 try {
                     if (ExecuteCommandUtil.rolaProxyState(spsResult)) {
@@ -289,7 +287,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                         throw new BizException(ReturnCode.RC999.getCode(), "sps 启动失败");
                     }
                 } catch (Exception e) {
-                    ExecuteCommandUtil.killProxyByPort(String.valueOf(rolaIpRequest.getProxyPort()));
+                    ExecuteCommandUtil.killProcessByPort(rolaIpRequest.getProxyPort());
                     throw e;
                 }
             } else {
@@ -303,7 +301,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     public void changeProxyIp(RolaIpRequest rolaIpRequest) throws Exception {
         log.info("rolaIpRequest:{}", objectMapper.writeValueAsString(rolaIpRequest));
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper.selectOne(new QueryWrapper<RolaProxyPortDO>().lambda()
-            .eq(RolaProxyPortDO::getProxyPort, rolaIpRequest.getProxyPort()));
+                .eq(RolaProxyPortDO::getProxyPort, rolaIpRequest.getProxyPort()));
         if (StrUtil.isBlank(rolaIpRequest.getCountry())) {
             rolaIpRequest.setCountry("us");
         }
@@ -317,24 +315,24 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
             rolaIpRequest.setCity(rolaIpRequest.getCity().toLowerCase());
         }
         long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda()
-            .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
-            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion, rolaIpRequest.getState())
-            .ne(RolaIpDO::getIp, rolaProxyPortDO.getRolaIp()));
-
-        if (count > 0) {
-            int c = RandomUtil.randomInt(0, (int)count);
-            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda()
                 .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
                 .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
-                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                    rolaIpRequest.getState())
-                .ne(RolaIpDO::getIp, rolaProxyPortDO.getRolaIp()).last("limit " + c + " , 1"));
+                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion, rolaIpRequest.getState())
+                .ne(RolaIpDO::getIp, rolaProxyPortDO.getRolaIp()));
+
+        if (count > 0) {
+            int c = RandomUtil.randomInt(0, (int) count);
+            RolaIpDO rolaIpDO = rolaIpMapper.selectOne(new QueryWrapper<RolaIpDO>().lambda()
+                    .eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity, rolaIpRequest.getCity())
+                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                            rolaIpRequest.getState())
+                    .ne(RolaIpDO::getIp, rolaProxyPortDO.getRolaIp()).last("limit " + c + " , 1"));
 
             int userNum = RandomUtil.randomInt(10, 100000);
 
             String spsResult =
-                ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
+                    ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
             Thread.sleep(10000);
             try {
                 if (ExecuteCommandUtil.rolaProxyState(spsResult)) {
@@ -367,7 +365,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                     throw new BizException(ReturnCode.RC999.getCode(), "sps 启动失败");
                 }
             } catch (Exception e) {
-                ExecuteCommandUtil.killProxyByPort(String.valueOf(rolaIpRequest.getProxyPort()));
+                ExecuteCommandUtil.killProcessByPort(rolaIpRequest.getProxyPort());
                 throw e;
             }
         } else {
@@ -375,7 +373,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 int userNum = RandomUtil.randomInt(10, 100000);
                 String user = "skyescn_" + userNum;
                 String result = ExecuteCommandUtil.rolaRefresh(user, rolaIpRequest.getCountry(),
-                    rolaIpRequest.getState(), rolaIpRequest.getCity());
+                        rolaIpRequest.getState(), rolaIpRequest.getCity());
                 if (StrUtil.contains(result, "SUCCESS")) {
 
                     String lumtest = ExecuteCommandUtil.rolaLumtest(user);
@@ -392,26 +390,26 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 }
             }
             count = rolaIpMapper
-                .selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
-                        rolaIpRequest.getCity())
-                    .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                        rolaIpRequest.getState()));
+                    .selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
+                                    rolaIpRequest.getCity())
+                            .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                                    rolaIpRequest.getState()));
 
             if (count > 0) {
-                int c = RandomUtil.randomInt(0, (int)count);
+                int c = RandomUtil.randomInt(0, (int) count);
                 RolaIpDO rolaIpDO = rolaIpMapper.selectOne(
-                    new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
-                        .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
-                            rolaIpRequest.getCity())
-                        .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
-                            rolaIpRequest.getState())
-                        .last("limit " + c + " , 1"));
+                        new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getCountry, rolaIpRequest.getCountry())
+                                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getCity()), RolaIpDO::getCity,
+                                        rolaIpRequest.getCity())
+                                .eq(CharSequenceUtil.isNotBlank(rolaIpRequest.getState()), RolaIpDO::getRegion,
+                                        rolaIpRequest.getState())
+                                .last("limit " + c + " , 1"));
 
                 int userNum = RandomUtil.randomInt(10, 100000);
 
                 String spsResult =
-                    ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
+                        ExecuteCommandUtil.executeRolaProxySps(rolaIpRequest.getProxyPort(), userNum, rolaIpDO.getIp());
                 Thread.sleep(10000);
                 try {
                     if (ExecuteCommandUtil.rolaProxyState(spsResult)) {
@@ -445,7 +443,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                         throw new BizException(ReturnCode.RC999.getCode(), "sps 启动失败");
                     }
                 } catch (Exception e) {
-                    ExecuteCommandUtil.killProxyByPort(String.valueOf(rolaIpRequest.getProxyPort()));
+                    ExecuteCommandUtil.killProcessByPort(rolaIpRequest.getProxyPort());
                     throw e;
                 }
             } else {
@@ -459,14 +457,14 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     @Override
     public boolean startSocksPort(RolaStartSocksPortRequest startSocksPortRequest) {
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper.selectOne(new QueryWrapper<RolaProxyPortDO>().lambda()
-            .eq(RolaProxyPortDO::getProxyPort, startSocksPortRequest.getSocksPort()));
+                .eq(RolaProxyPortDO::getProxyPort, startSocksPortRequest.getSocksPort()));
 
         if (rolaProxyPortDO != null) {
             throw new BizException(997, "端口在使用中");
         }
 
         RolaIpDO rolaIpDO = rolaIpMapper.selectOne(
-            new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, startSocksPortRequest.getSocksAddressIp()));
+                new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, startSocksPortRequest.getSocksAddressIp()));
         if (rolaIpDO == null) {
             throw new BizException(ReturnCode.RC999.getCode(), "IP不存在");
         }
@@ -486,13 +484,13 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
         }
 
         String rolaUsername =
-            startSocksPortRequest.getRolaUsername() + "-ip-" + startSocksPortRequest.getSocksAddressIp();
+                startSocksPortRequest.getRolaUsername() + "-ip-" + startSocksPortRequest.getSocksAddressIp();
         try {
             Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("gate2.rola.info", 2042));
             java.net.Authenticator.setDefault(new java.net.Authenticator() {
 
                 private final PasswordAuthentication authentication =
-                    new PasswordAuthentication(rolaUsername, startSocksPortRequest.getRolaPassword().toCharArray());
+                        new PasswordAuthentication(rolaUsername, startSocksPortRequest.getRolaPassword().toCharArray());
 
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -501,7 +499,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
             });
 
             OkHttpClient client =
-                new OkHttpClient().newBuilder().proxy(proxy).addInterceptor(new GzipRequestInterceptor()).build();
+                    new OkHttpClient().newBuilder().proxy(proxy).addInterceptor(new GzipRequestInterceptor()).build();
             Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
 
             okhttp3.Response response = client.newCall(request).execute();
@@ -520,9 +518,9 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
         }
 
         ExecuteCommandUtil.executeRolaProxySps(startSocksPortRequest.getSocksPort(),
-            startSocksPortRequest.getSocksUsername(), startSocksPortRequest.getSocksPassword(),
-            startSocksPortRequest.getSocksAddressIp(), startSocksPortRequest.getRolaUsername(),
-            startSocksPortRequest.getRolaPassword());
+                startSocksPortRequest.getSocksUsername(), startSocksPortRequest.getSocksPassword(),
+                startSocksPortRequest.getSocksAddressIp(), startSocksPortRequest.getRolaUsername(),
+                startSocksPortRequest.getRolaPassword());
 
         RolaProxyPortDO rolaProxyPort = new RolaProxyPortDO();
         rolaProxyPort.setProxyPort(startSocksPortRequest.getSocksPort());
@@ -535,15 +533,15 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     private void saveOrUpdate(LuminatiIPDTO luminatiIPDTO) {
 
         long count =
-            rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
+                rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
         if (count > 0) {
             log.info("已存在IP: {}", luminatiIPDTO.getIp());
             rolaIpMapper.update(new RolaIpDO(),
-                new UpdateWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp())
-                    .set(RolaIpDO::getCountry, luminatiIPDTO.getCountry().toLowerCase())
-                    .set(RolaIpDO::getRegion, luminatiIPDTO.getGeo().getRegion().toLowerCase())
-                    .set(RolaIpDO::getCity, luminatiIPDTO.getGeo().getCity().toLowerCase())
-                    .set(RolaIpDO::getTz, luminatiIPDTO.getGeo().getTz()));
+                    new UpdateWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp())
+                            .set(RolaIpDO::getCountry, luminatiIPDTO.getCountry().toLowerCase())
+                            .set(RolaIpDO::getRegion, luminatiIPDTO.getGeo().getRegion().toLowerCase())
+                            .set(RolaIpDO::getCity, luminatiIPDTO.getGeo().getCity().toLowerCase())
+                            .set(RolaIpDO::getTz, luminatiIPDTO.getGeo().getTz()));
         } else {
             RolaIpDO rolaIpDO = new RolaIpDO();
             rolaIpDO.setIp(luminatiIPDTO.getIp());
