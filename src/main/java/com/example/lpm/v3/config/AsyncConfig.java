@@ -13,8 +13,8 @@ public class AsyncConfig {
     @Bean(value = "collectRolaThreadPool")
     public AsyncTaskExecutor collectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(55);
-        taskExecutor.setCorePoolSize(50);
+        taskExecutor.setMaxPoolSize(110);
+        taskExecutor.setCorePoolSize(100);
         taskExecutor.setThreadNamePrefix("collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
