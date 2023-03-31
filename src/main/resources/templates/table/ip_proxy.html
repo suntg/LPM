@@ -801,7 +801,7 @@
             changeProxyIp() {
 
                 //保存Vue指针
-                var that = this;
+                let that = this;
                 const loading = this.$loading({
                     lock: true,
                     text: '更换代理信息中...',
@@ -828,11 +828,11 @@
                         loading.close();
 
                         if (response.data.status == 100) {
-                            console.log(response.data.status);
+                            console.log(response.response.data.status);
                             that.$message({
                                 showClose: true,
                                 offset: 250,
-                                message: response.data.message,
+                                message: response.response.data.message,
                                 type: 'success'
                             });
                             that.onSubmit()
@@ -840,7 +840,7 @@
                             that.$message({
                                 showClose: true,
                                 offset: 250,
-                                message: response.data.message,
+                                message: response.response.data.message,
                                 type: 'warning'
                             });
                             that.onSubmit()
