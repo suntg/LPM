@@ -20,6 +20,8 @@ public interface RolaIpService extends IService<RolaIpDO> {
      */
     void collect(RolaIpRequest rolaIpRequest);
 
+    void collectV2(RolaIpRequest rolaIpRequest);
+
     void phoneCollect(RolaIpRequest rolaIpRequest);
 
     void endCollect();
