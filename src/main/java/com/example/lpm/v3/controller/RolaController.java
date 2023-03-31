@@ -192,7 +192,7 @@ public class RolaController {
     @Operation(summary = "收集")
     @PostMapping("/phoneCollect")
     public void phoneCollect(RolaIpRequest rolaIpRequest) {
-        rolaIpService.collect(rolaIpRequest);
+        rolaIpService.phoneCollect(rolaIpRequest);
     }
 
     @GetMapping("/country-state-city")
@@ -201,6 +201,12 @@ public class RolaController {
         InputStream inputStream = classPathResource.getInputStream();
         IOUtils.copy(inputStream, response.getOutputStream());
         response.flushBuffer();
+    }
+
+    @Operation(summary = "收集")
+    @PostMapping("/collectV2")
+    public void collectV2(RolaIpRequest rolaIpRequest) {
+        rolaIpService.collectV2(rolaIpRequest);
     }
 
 }

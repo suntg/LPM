@@ -54,10 +54,4 @@ public class IpUtil {
         return ipAddress;
     }
 
-    public static void main(String[] args) {
-        String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + "115.57.136.16");
-        JSONObject jsonObject = JSON.parseObject(result);
-        System.out.println(jsonObject.getString("province"));
-    }
-
 }

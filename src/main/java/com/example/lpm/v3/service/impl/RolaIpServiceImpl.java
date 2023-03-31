@@ -9,6 +9,10 @@ import cn.hutool.core.text.csv.CsvRow;
 import cn.hutool.core.text.csv.CsvUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -139,6 +143,82 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         }
 
         redisTemplate.delete(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY);
+    }
+
+    @Override
+    public void collectV2(RolaIpRequest rolaIpRequest) {
+
+        // 在收录代理的时候,先判断城市列表是存在.如果存在在进行收录(网页上)
+        // 如果不存在情况下,网页提示该州不在收录范围内.
+        if ("us".equalsIgnoreCase(rolaIpRequest.getCountry())) {
+            ClassPathResource classPathResource = new ClassPathResource("country-state-city.csv");
+            try {
+                InputStream inputStream = classPathResource.getInputStream();
+                CsvReader reader = CsvUtil.getReader();
+                CsvData data = reader.read(new InputStreamReader(inputStream, "UTF-8"));
+                List<CsvRow> rows = data.getRows();
+
+                String state = null;
+                if (StrUtil.isNotBlank(rolaIpRequest.getState())) {
+                    state = StrUtil.replace(rolaIpRequest.getState(), " ", "").toLowerCase();
+                }
+
+                String city = null;
+                if (StrUtil.isNotBlank(rolaIpRequest.getCity())) {
+                    city = StrUtil.replace(rolaIpRequest.getCity(), " ", "").toLowerCase();
+                }
+
+
+                Integer stateFlag = 0;
+                Integer cityFlag = 0;
+
+                for (CsvRow row : rows) {
+                    List<String> list = row.getRawList();
+                    if (StrUtil.isNotBlank(state) && list.contains(state)) {
+                        stateFlag = 1;
+                    }
+                    if (StrUtil.isNotBlank(city) && list.contains(city)) {
+                        cityFlag = 1;
+                    }
+                }
+                if (StrUtil.isNotBlank(state) && stateFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+                if (StrUtil.isNotBlank(city) && cityFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+            } catch (IOException e) {
+                throw new BizException(ReturnCode.RC999.getCode(), "打开罗拉代理的州和城市列表失败");
+            }
+        }
+
+        // 判断 队列数量，>0拒绝任务
+        RBlockingQueue<RolaIpRequest> queue =
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+        if (queue.size() > 0) {
+            throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
+        }
+
+        // 暂停，开始
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_COLLECT_FLAG_KEY);
+        // 开始 10
+        collectFlag.set(10L);
+
+        // 当前任务适量
+        RAtomicLong currentNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_KEY);
+        currentNum.set(rolaIpRequest.getNumber());
+
+
+        String result = HttpUtil.get("http://list.rola.info:8088/user_get_ip_list?token=TjyDqCmiXG0NjnOb1659194793009" +
+                "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry() +
+                "&state=" + rolaIpRequest.getState() + "&city=" + rolaIpRequest.getCity() + "&time=1&format=json&protocol=socks5&filter=1");
+        JSONArray jsonArray = JSON.parseArray(result);
+        for (Object o : jsonArray) {
+            queue.offer(rolaIpRequest);
+        }
+
+        redisTemplate.delete(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY);
+
     }
 
     @Override
