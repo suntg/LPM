@@ -147,6 +147,9 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
     @Override
     public void collectV2(RolaIpRequest rolaIpRequest) {
+        if (rolaIpRequest.getNumber() != null && rolaIpRequest.getNumber() > 500) {
+            throw new BizException(ReturnCode.RC999.getCode(), "单次最多500个");
+        }
 
         // 在收录代理的时候,先判断城市列表是存在.如果存在在进行收录(网页上)
         // 如果不存在情况下,网页提示该州不在收录范围内.
@@ -193,8 +196,8 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         }
 
         // 判断 队列数量，>0拒绝任务
-        RBlockingQueue<RolaIpRequest> queue =
-                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+        RBlockingQueue<String> queue =
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY_V2);
         if (queue.size() > 0) {
             throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
         }
@@ -209,12 +212,26 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         currentNum.set(rolaIpRequest.getNumber());
 
 
-        String result = HttpUtil.get("http://list.rola.info:8088/user_get_ip_list?token=TjyDqCmiXG0NjnOb1659194793009" +
-                "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry() +
-                "&state=" + rolaIpRequest.getState() + "&city=" + rolaIpRequest.getCity() + "&time=1&format=json&protocol=socks5&filter=1");
-        JSONArray jsonArray = JSON.parseArray(result);
+        String url = "http://list.rola.info:8088/user_get_ip_list?token=TjyDqCmiXG0NjnOb1659194793009" +
+                "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry();
+
+        StringBuilder urlSb = new StringBuilder(url);
+
+        if (StrUtil.isNotBlank(rolaIpRequest.getState())) {
+            urlSb.append("&state=" + rolaIpRequest.getState());
+        }
+        if (StrUtil.isNotBlank(rolaIpRequest.getCity())) {
+            urlSb.append("&city=" + rolaIpRequest.getCity());
+        }
+        urlSb.append("&time=1&format=json&protocol=socks5&filter=1");
+
+        log.info(String.valueOf(urlSb));
+        String result = HttpUtil.get(String.valueOf(urlSb));
+        log.info(result);
+        JSONObject jsonObject = JSON.parseObject(result);
+        JSONArray jsonArray = jsonObject.getJSONArray("data");
         for (Object o : jsonArray) {
-            queue.offer(rolaIpRequest);
+            queue.offer((String) o);
         }
 
         redisTemplate.delete(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY);
@@ -499,7 +516,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             rolaIpActiveRequest.setRolaUsername(user);
         }
         if (CharSequenceUtil.isBlank(rolaIpActiveRequest.getRolaPassword())) {
-            rolaIpActiveRequest.setRolaPassword("Su902902");
+            throw new BizException(ReturnCode.RC999.getCode(), "代理密码不能为空");
         }
 
         String rolaUsername = rolaIpActiveRequest.getRolaUsername() + "-ip-" + rolaIpDO.getIp();
@@ -536,7 +553,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             throw new BizException(998, "IP不相等");
         }
 
-        Request request1 = new Request.Builder().url("https://www.paypal.com/signin").build();
+        /*Request request1 = new Request.Builder().url("https://www.paypal.com/signin").build();
         okhttp3.Response response1 = client.newCall(request1).execute();
         String responseString1 = response1.body().string();
         log.info("paypal http code:[]", response1.code());
@@ -544,7 +561,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             rolaIpDO.setStatus(0);
             rolaIpMapper.updateById(rolaIpDO);
             throw new BizException(ReturnCode.RC999.getCode(), "调用paypal返回403");
-        }
+        }*/
         return rolaIpDO;
     }
 

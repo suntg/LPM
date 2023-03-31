@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-@Component
+// @Component
 // 定义filterName 和过滤的url
-@WebFilter(filterName = "myFilter", urlPatterns = {"/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
+// @WebFilter(filterName = "myFilter", urlPatterns = {"/luminati/getProxyPort", "/lua/createProxyPort", "/rola/startSocksPort"})
 public class IpFilter implements Filter {
 
     /**

@@ -1,5 +1,6 @@
 package com.example.lpm.v3.util;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -54,4 +55,17 @@ public class IpUtil {
         return ipAddress;
     }
 
+    public static void main(String[] args) {
+        String result = "{\n" +
+                "    \"code\": 0,\n" +
+                "    \"data\": [\n" +
+                "        \"159.138.153.180:9502\"\n" +
+                "    ],\n" +
+                "    \"msg\": \"成功\"\n" +
+                "}";
+        JSONObject jsonObject = JSON.parseObject(result);
+        System.out.println(jsonObject.getJSONArray("data").get(0));
+
+        System.out.println(StrUtil.split("119.8.99.83:9502",":").get(0));;
+    }
 }

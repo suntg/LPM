@@ -1,9 +1,30 @@
 package com.example.lpm.v3.job;
 
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.lpm.constant.ProxyConstant;
+import com.example.lpm.constant.RedisKeyConstant;
+import com.example.lpm.domain.dto.LuminatiIPDTO;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.config.AsyncConfig;
+import com.example.lpm.v3.config.GzipRequestInterceptor;
+import com.example.lpm.v3.domain.dto.Ip123FraudDTO;
+import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
+import com.example.lpm.v3.domain.entity.RolaIpDO;
+import com.example.lpm.v3.domain.request.RolaIpRequest;
+import com.example.lpm.v3.mapper.RolaIpMapper;
+import com.example.lpm.v3.util.ExecuteCommandUtil;
+import com.example.lpm.v3.util.RolaUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RAtomicLong;
@@ -13,31 +34,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.lpm.v3.common.BizException;
-import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.config.AsyncConfig;
-import com.example.lpm.v3.config.GzipRequestInterceptor;
-import com.example.lpm.constant.ProxyConstant;
-import com.example.lpm.constant.RedisKeyConstant;
-import com.example.lpm.v3.domain.dto.Ip123FraudDTO;
-import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
-import com.example.lpm.domain.dto.LuminatiIPDTO;
-import com.example.lpm.v3.domain.entity.RolaIpDO;
-import com.example.lpm.v3.domain.request.RolaIpRequest;
-import com.example.lpm.v3.mapper.RolaIpMapper;
-import com.example.lpm.v3.util.ExecuteCommandUtil;
-import com.example.lpm.v3.util.RolaUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.http.HttpUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -63,7 +64,7 @@ public class RolaCollectRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         for (int i = 0; i < 50; i++) {
-            asyncConfig.collectRolaThreadPool().submit(this::collect);
+            asyncConfig.collectRolaThreadPool().submit(this::collectV2);
             Thread.sleep(2000);
         }
         for (int i = 0; i < 8; i++) {
@@ -74,7 +75,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
     public void phoneCollect() {
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_PHONE_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_PHONE_COLLECT_IP_QUEUE_KEY);
         while (true) {
             RolaIpRequest rolaIpRequest = null;
             try {
@@ -82,7 +83,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
                 String user = RolaUtil.randomUsername();
                 String result = ExecuteCommandUtil.rolaRefresh(user, rolaIpRequest.getCountry(),
-                    rolaIpRequest.getState(), rolaIpRequest.getCity());
+                        rolaIpRequest.getState(), rolaIpRequest.getCity());
 
                 log.info("rola refresh :{}", result);
 
@@ -100,15 +101,15 @@ public class RolaCollectRunner implements CommandLineRunner {
                         }
                     });*/
                     OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
-                        .addInterceptor(new GzipRequestInterceptor()).authenticator(new Authenticator() {
-                            final String credential = Credentials.basic(user, "Su902902");
+                            .addInterceptor(new GzipRequestInterceptor()).authenticator(new Authenticator() {
+                                final String credential = Credentials.basic(user, "Su902902");
 
-                            @Nullable
-                            @Override
-                            public Request authenticate(@Nullable Route route, @NotNull Response response) {
-                                return response.request().newBuilder().header("Authorization", credential).build();
-                            }
-                        }).build();
+                                @Nullable
+                                @Override
+                                public Request authenticate(@Nullable Route route, @NotNull Response response) {
+                                    return response.request().newBuilder().header("Authorization", credential).build();
+                                }
+                            }).build();
                     Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
 
                     okhttp3.Response response = client.newCall(request).execute();
@@ -122,27 +123,27 @@ public class RolaCollectRunner implements CommandLineRunner {
                     // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
 
                     if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
+                            luminatiIPDTO.getGeo().getCity())) {
                         String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
 
                         JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
 
                         Ip123InfoDTO ip123InfoDTO =
-                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
+                                objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
 
                         luminatiIPDTO.getGeo().setRegion(ip123InfoDTO.getRegionCode());
                         luminatiIPDTO.getGeo().setCity(ip123InfoDTO.getCity());
                         luminatiIPDTO.getGeo().setPostalCode(ip123InfoDTO.getPostal());
                     }
                     if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
+                            luminatiIPDTO.getGeo().getCity())) {
                         throw new BizException(ReturnCode.RC999.getCode(), ReturnCode.RC999.getMessage());
                     }
                     String ip123FraudResult =
-                        HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
+                            HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
                     JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
                     Ip123FraudDTO ip123FraudDTO =
-                        objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
+                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
 
                     save(luminatiIPDTO, ip123FraudDTO, usAddress);
                 }
@@ -155,7 +156,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
     public void collect() {
         RBlockingQueue<RolaIpRequest> queue =
-            redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY);
         while (true) {
             RolaIpRequest rolaIpRequest = null;
             try {
@@ -170,7 +171,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
                 String user = RolaUtil.randomUsername();
                 String result = ExecuteCommandUtil.rolaRefresh(user, rolaIpRequest.getCountry(),
-                    rolaIpRequest.getState(), rolaIpRequest.getCity());
+                        rolaIpRequest.getState(), rolaIpRequest.getCity());
 
                 log.info("rola refresh :{}", result);
 
@@ -180,7 +181,7 @@ public class RolaCollectRunner implements CommandLineRunner {
                     Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(usAddress, usPort));
                     java.net.Authenticator.setDefault(new java.net.Authenticator() {
                         private final PasswordAuthentication authentication =
-                            new PasswordAuthentication(user, "Su902902".toCharArray());
+                                new PasswordAuthentication(user, "Su902902".toCharArray());
 
                         @Override
                         protected PasswordAuthentication getPasswordAuthentication() {
@@ -188,7 +189,7 @@ public class RolaCollectRunner implements CommandLineRunner {
                         }
                     });
                     OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
-                        .addInterceptor(new GzipRequestInterceptor()).build();
+                            .addInterceptor(new GzipRequestInterceptor()).build();
                     Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
 
                     okhttp3.Response response = client.newCall(request).execute();
@@ -208,27 +209,27 @@ public class RolaCollectRunner implements CommandLineRunner {
                     // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
 
                     if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
+                            luminatiIPDTO.getGeo().getCity())) {
                         String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
 
                         JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
 
                         Ip123InfoDTO ip123InfoDTO =
-                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
+                                objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
 
                         luminatiIPDTO.getGeo().setRegion(ip123InfoDTO.getRegionCode());
                         luminatiIPDTO.getGeo().setCity(ip123InfoDTO.getCity());
                         luminatiIPDTO.getGeo().setPostalCode(ip123InfoDTO.getPostal());
                     }
                     if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
+                            luminatiIPDTO.getGeo().getCity())) {
                         throw new BizException(ReturnCode.RC999.getCode(), ReturnCode.RC999.getMessage());
                     }
                     String ip123FraudResult =
-                        HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
+                            HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
                     JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
                     Ip123FraudDTO ip123FraudDTO =
-                        objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
+                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
 
                     save(luminatiIPDTO, ip123FraudDTO, usAddress);
 
@@ -250,10 +251,100 @@ public class RolaCollectRunner implements CommandLineRunner {
         }
     }
 
+
+    public void collectV2() {
+        RBlockingQueue<String> queue =
+                redissonClient.getBlockingQueue(RedisKeyConstant.ROLA_COLLECT_IP_QUEUE_KEY_V2);
+        while (true) {
+            String rolaProxy = null;
+            try {
+                RAtomicLong collectFlag = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_COLLECT_FLAG_KEY);
+                if (collectFlag.get() == 11L) {
+                    // 11 停止
+                    Thread.sleep(3000);
+                    continue;
+                }
+                // 10
+                rolaProxy = queue.take();
+
+                // String user = RolaUtil.randomUsername();
+                // String result = ExecuteCommandUtil.rolaRefresh(user, rolaIpRequest.getCountry(),
+                //         rolaIpRequest.getState(), rolaIpRequest.getCity());
+
+                // log.info("rola refresh :{}", result);
+
+                // if (CharSequenceUtil.contains(result, "SUCCESS")) {
+                // Thread.sleep(1500);
+                List<String> ipPort = StrUtil.split(rolaProxy, ":");
+
+                Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(ipPort.get(0), Integer.parseInt(ipPort.get(1))));
+
+                OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
+                        .addInterceptor(new GzipRequestInterceptor()).readTimeout(5, TimeUnit.SECONDS).build();
+                Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
+
+                okhttp3.Response response = client.newCall(request).execute();
+
+                String responseString = response.body().string();
+
+                log.info("lumtest :{}", responseString);
+                if (responseString.contains("No peer available")) {
+                    collectFlag.set(12L);
+                    queue.clear();
+                    redisTemplate.boundValueOps(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY).set("No peer available");
+                    continue;
+                }
+
+                LuminatiIPDTO luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
+
+                // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
+
+                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
+                        luminatiIPDTO.getGeo().getCity())) {
+                    String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
+
+                    JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
+
+                    Ip123InfoDTO ip123InfoDTO =
+                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
+
+                    luminatiIPDTO.getGeo().setRegion(ip123InfoDTO.getRegionCode());
+                    luminatiIPDTO.getGeo().setCity(ip123InfoDTO.getCity());
+                    luminatiIPDTO.getGeo().setPostalCode(ip123InfoDTO.getPostal());
+                }
+                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
+                        luminatiIPDTO.getGeo().getCity())) {
+                    throw new BizException(ReturnCode.RC999.getCode(), ReturnCode.RC999.getMessage());
+                }
+                String ip123FraudResult =
+                        HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
+                JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
+                Ip123FraudDTO ip123FraudDTO =
+                        objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
+
+                save(luminatiIPDTO, ip123FraudDTO, usAddress);
+
+                RAtomicLong totalNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_TOTAL_KEY);
+                totalNum.incrementAndGet();
+
+                String today = DateUtil.today();
+                RAtomicLong todayNum = redissonClient.getAtomicLong("#ROLA_" + today);
+                todayNum.incrementAndGet();
+
+            } catch (Exception e) {
+                RAtomicLong currentFailNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_FAIL_KEY);
+                currentFailNum.incrementAndGet();
+
+                log.error(" ROLA_COLLECT_IP_QUEUE Exception:{}", ExceptionUtil.stacktraceToString(e));
+            }
+
+        }
+    }
+
     private void save(LuminatiIPDTO luminatiIPDTO, Ip123FraudDTO ip123FraudDTO, String source) {
 
         long count =
-            rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
+                rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
         if (count > 0) {
             log.info("已存在IP: {}", luminatiIPDTO.getIp());
 

@@ -40,6 +40,7 @@ public class RedisKeyConstant {
      * 页面收集rola
      */
     public static final String ROLA_COLLECT_IP_QUEUE_KEY = "#ROLA_COLLECT_IP_QUEUE_KEY";
+    public static final String ROLA_COLLECT_IP_QUEUE_KEY_V2 = "#ROLA_COLLECT_IP_QUEUE_KEY_V2";
 
     /**
      * 手机收集rola
