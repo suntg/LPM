@@ -2,6 +2,10 @@ package com.example.lpm.service.impl;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lpm.domain.entity.UserDO;
@@ -10,6 +14,7 @@ import com.example.lpm.service.UserService;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.service.OperationLogService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
 
@@ -49,6 +55,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             OperationLogDO operationLogDO = new OperationLogDO();
             operationLogDO.setRequestUri("登录");
             operationLogDO.setIp(ip);
+
+            try {
+                String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + operationLogDO.getIp());
+                JSONObject jsonObject = JSON.parseObject(result);
+                operationLogDO.setCountry(jsonObject.getString("country"));
+                operationLogDO.setRegion(jsonObject.getString("province"));
+                operationLogDO.setCity(jsonObject.getString("city"));
+            } catch (Exception e) {
+                log.error("ip.useragentinfo.com 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
+            }
+
             operationLogDO.setCreateTime(LocalDateTime.now());
             operationLogService.save(operationLogDO);
             return saTokenInfo.getTokenValue();

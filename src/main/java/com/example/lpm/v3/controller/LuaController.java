@@ -127,14 +127,13 @@ public class LuaController {
     public void createProxyPort(@RequestBody OperationLogDO operationLogDO) {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
         try {
-
-            String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + operationLogDO.getIp());
+            String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip="  + operationLogDO.getIp());
             JSONObject jsonObject = JSON.parseObject(result);
             operationLogDO.setCountry(jsonObject.getString("country"));
             operationLogDO.setRegion(jsonObject.getString("province"));
             operationLogDO.setCity(jsonObject.getString("city"));
-        } catch (Exception e) {
-            log.error("ip123 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
+        }  catch (Exception e) {
+            log.error("ip.useragentinfo.com 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
         }
         operationLogService.save(operationLogDO);
     }
@@ -149,7 +148,7 @@ public class LuaController {
 
     @Operation(summary = "lua保存file")
     @PostMapping("/saveFile")
-    public void getFile(@RequestBody FileRequest fileRequest) {
+    public void saveFile(@RequestBody FileRequest fileRequest) {
         if (CharSequenceUtil.isBlank(fileRequest.getFileName())) {
             throw new BizException(ReturnCode.RC500.getCode(), "fileName不能为空");
         }

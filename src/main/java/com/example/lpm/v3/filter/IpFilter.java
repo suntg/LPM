@@ -58,8 +58,8 @@ public class IpFilter implements Filter {
                 operationLogDO.setCountry(jsonObject.getString("country"));
                 operationLogDO.setRegion(jsonObject.getString("province"));
                 operationLogDO.setCity(jsonObject.getString("city"));
-            } catch (Exception e) {
-                log.error("ip123 查询异常:{}", ExceptionUtil.stacktraceToString(e));
+            }  catch (Exception e) {
+                log.error("ip.useragentinfo.com 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
             }
 
 
