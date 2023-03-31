@@ -62,7 +62,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 110; i++) {
+        for (int i = 0; i < 220; i++) {
             asyncConfig.collectRolaThreadPool().submit(this::collect);
             Thread.sleep(2000);
         }
