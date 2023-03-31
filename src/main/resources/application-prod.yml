@@ -9,7 +9,7 @@ spring:
     password: JGOp&7%XPb
     lettuce:
       pool:
-        max-active: 8
+        max-active: 30
         max-wait: -1
         max-idle: 8
         min-idle: 0

@@ -519,8 +519,10 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 startSocksPortRequest.getRolaPassword());
 
         rolaIpDO.setLastUseTime(LocalDateTime.now());
+        if (rolaIpDO.getUseNumber() == null) {
+            rolaIpDO.setUseNumber(0);
+        }
         rolaIpDO.setUseNumber(rolaIpDO.getUseNumber() + 1);
-
 
         RolaProxyPortDO rolaProxyPort = new RolaProxyPortDO();
         rolaProxyPort.setProxyPort(startSocksPortRequest.getSocksPort());
