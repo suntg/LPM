@@ -518,6 +518,10 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
                 startSocksPortRequest.getSocksAddressIp(), startSocksPortRequest.getRolaUsername(),
                 startSocksPortRequest.getRolaPassword());
 
+        rolaIpDO.setLastUseTime(LocalDateTime.now());
+        rolaIpDO.setUseNumber(rolaIpDO.getUseNumber() + 1);
+
+
         RolaProxyPortDO rolaProxyPort = new RolaProxyPortDO();
         rolaProxyPort.setProxyPort(startSocksPortRequest.getSocksPort());
         rolaProxyPort.setRolaIp(startSocksPortRequest.getSocksAddressIp());

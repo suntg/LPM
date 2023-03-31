@@ -39,6 +39,10 @@ public class RolaIpDO {
 
     private String source;
 
+    private Integer useNumber;
+
+    private LocalDateTime lastUseTime;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
