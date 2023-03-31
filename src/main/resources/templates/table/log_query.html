@@ -517,6 +517,8 @@
 
 <script src="js/vue.js"></script>
 
+<script src="js/qs.min.js"></script>
+
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <!-- 引入样式 -->
 <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
@@ -952,25 +954,16 @@
                 for (let i = 0; i < this.$refs.table.selection.length; i++) {
                     ids.push(this.$refs.table.selection[i].id);
                 }
-
+                console.log(JSON.stringify(ids));
                 axios.get(baseUrl + '/file/listFiles',
                     {
                         params:{
                             fileIds:ids
-                        }
-                        ,paramsSerializer: function (params) {
-                            const keys = Object.keys(params)
-                            const arr = []
-                            keys.forEach(item => {
-                                if (Array.isArray(params[item])) {
-                                    const url = params[item].map(_ => `${item}=${_}`).join('&')
-                                    arr.push(url)
-                                } else {
-                                    arr.push(`${item}=${params[item]}`)
-                                }
-                            })
-                            const result = arr.join('&')
-                            return `${result}`
+                        },
+                        paramsSerializer: {
+                            serialize:function(params) {
+                                return Qs.stringify(params, { arrayFormat: 'repeat' })
+                            }
                         }
                     }).then((response) => {
 
