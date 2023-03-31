@@ -237,6 +237,19 @@ public class IndexController {
     }
 
     /**
+     * 去traffic页面
+     *
+     * @return
+     */
+    @GetMapping("/traffic")
+    public String traffic(HttpSession session, Model model) {
+        if (!StpUtil.isLogin()) {
+            return "login";
+        }
+        return "table/traffic";
+    }
+
+    /**
      * 从Cookie中获取频道编码channelCode
      *
      * @param cookies
