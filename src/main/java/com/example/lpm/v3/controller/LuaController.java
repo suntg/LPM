@@ -3,17 +3,17 @@ package com.example.lpm.v3.controller;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.example.lpm.constant.RedisKeyConstant;
-import com.example.lpm.util.IpUtil;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.domain.dto.FileDTO;
-import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.domain.request.FileRequest;
 import com.example.lpm.v3.service.FileService;
 import com.example.lpm.v3.service.OperationLogService;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.example.lpm.v3.util.IpUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -127,12 +127,12 @@ public class LuaController {
     public void createProxyPort(@RequestBody OperationLogDO operationLogDO) {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
         try {
-            String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + operationLogDO.getIp());
-            JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
-            Ip123InfoDTO ip123InfoDTO = objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
-            operationLogDO.setCountry(ip123InfoDTO.getCountry());
-            operationLogDO.setCity(ip123InfoDTO.getCity());
-            operationLogDO.setRegion(ip123InfoDTO.getRegion());
+
+            String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + operationLogDO.getIp());
+            JSONObject jsonObject = JSON.parseObject(result);
+            operationLogDO.setCountry(jsonObject.getString("country"));
+            operationLogDO.setRegion(jsonObject.getString("province"));
+            operationLogDO.setCity(jsonObject.getString("city"));
         } catch (Exception e) {
             log.error("ip123 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
         }

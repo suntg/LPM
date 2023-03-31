@@ -3,7 +3,9 @@ package com.example.lpm.v3.filter;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.http.HttpUtil;
-import com.example.lpm.util.IpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.example.lpm.v3.util.IpUtil;
 import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.service.OperationLogService;
@@ -51,12 +53,11 @@ public class IpFilter implements Filter {
             operationLogDO.setIp(IpUtil.getIpAddr(httpRequest));
 
             try {
-                String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + operationLogDO.getIp());
-                JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
-                Ip123InfoDTO ip123InfoDTO = objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
-                operationLogDO.setCountry(ip123InfoDTO.getCountry());
-                operationLogDO.setCity(ip123InfoDTO.getCity());
-                operationLogDO.setRegion(ip123InfoDTO.getRegion());
+                String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip="  + operationLogDO.getIp());
+                JSONObject jsonObject = JSON.parseObject(result);
+                operationLogDO.setCountry(jsonObject.getString("country"));
+                operationLogDO.setRegion(jsonObject.getString("province"));
+                operationLogDO.setCity(jsonObject.getString("city"));
             } catch (Exception e) {
                 log.error("ip123 查询异常:{}", ExceptionUtil.stacktraceToString(e));
             }

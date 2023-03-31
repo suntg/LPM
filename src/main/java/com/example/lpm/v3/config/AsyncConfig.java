@@ -1,4 +1,4 @@
-package com.example.lpm.config;
+package com.example.lpm.v3.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +13,8 @@ public class AsyncConfig {
     @Bean(value = "collectRolaThreadPool")
     public AsyncTaskExecutor collectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(14);
-        taskExecutor.setCorePoolSize(2);
+        taskExecutor.setMaxPoolSize(12);
+        taskExecutor.setCorePoolSize(10);
         taskExecutor.setThreadNamePrefix("collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
@@ -24,7 +24,7 @@ public class AsyncConfig {
     public AsyncTaskExecutor phoneCollectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setMaxPoolSize(8);
-        taskExecutor.setCorePoolSize(2);
+        taskExecutor.setCorePoolSize(6);
         taskExecutor.setThreadNamePrefix("phone-collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;

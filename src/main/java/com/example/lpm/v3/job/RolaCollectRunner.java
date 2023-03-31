@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.config.AsyncConfig;
+import com.example.lpm.v3.config.AsyncConfig;
 import com.example.lpm.v3.config.GzipRequestInterceptor;
 import com.example.lpm.constant.ProxyConstant;
 import com.example.lpm.constant.RedisKeyConstant;
@@ -62,7 +62,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 12; i++) {
             asyncConfig.collectRolaThreadPool().submit(this::collect);
             Thread.sleep(2000);
         }
