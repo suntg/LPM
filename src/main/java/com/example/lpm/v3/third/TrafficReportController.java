@@ -44,8 +44,8 @@ public class TrafficReportController {
                        @RequestParam(name = "upstream", required = false) String upstream, @RequestParam(name = "username", required = false) String username) {
 
 
-        log.info("act:{},bytes:{},client_addr:{},id:{},out_local_addr:{},out_remote_addr:{},server_addr:{},target_addr:{},upstream:{},username:{}",
-                act, bytes, clientAddr, id, outLocalAddr, outRemoteAddr, serverAddr, targetAddr, upstream, username);
+        // log.info("act:{},bytes:{},client_addr:{},id:{},out_local_addr:{},out_remote_addr:{},server_addr:{},target_addr:{},upstream:{},username:{}",
+        //         act, bytes, clientAddr, id, outLocalAddr, outRemoteAddr, serverAddr, targetAddr, upstream, username);
 
         TrafficDO trafficDO = new TrafficDO();
         trafficDO.setBytes(bytes);

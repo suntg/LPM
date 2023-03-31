@@ -3,6 +3,9 @@ package com.example.lpm.v3.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.lpm.v3.domain.entity.TrafficDO;
 import com.example.lpm.v3.domain.query.TrafficStatisticQuery;
+import com.example.lpm.v3.domain.vo.TrafficVO;
+
+import java.util.List;
 
 public interface TrafficService extends IService<TrafficDO> {
 
@@ -10,7 +13,8 @@ public interface TrafficService extends IService<TrafficDO> {
     int report(TrafficDO record);
 
 
-    Long statistic(TrafficStatisticQuery trafficStatisticQuery);
+    List<TrafficVO> statistic(TrafficStatisticQuery trafficStatisticQuery);
+
 
     int deleteByPrimaryKey(Long id);
 

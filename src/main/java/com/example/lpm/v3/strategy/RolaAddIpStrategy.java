@@ -11,6 +11,7 @@ import com.example.lpm.v3.domain.request.CollectionTaskRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 @RequiredArgsConstructor
 @Component
