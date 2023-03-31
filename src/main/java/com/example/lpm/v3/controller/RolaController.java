@@ -58,7 +58,7 @@ public class RolaController {
     @Operation(summary = "分页查询Rola IP")
     @GetMapping("/listFilesPage")
     public PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery) {
-        return rolaIpService.listRolaIpsPage(rolaQuery, pageQuery);
+        return rolaIpService.listFilesPage(rolaQuery, pageQuery);
     }
 
 
