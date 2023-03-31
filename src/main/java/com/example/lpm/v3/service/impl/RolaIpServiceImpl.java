@@ -288,6 +288,14 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     }
 
     @Override
+    public void deleteFile(Long id) {
+        RolaIpDO rolaIpDO = new RolaIpDO();
+        rolaIpDO.setId(id);
+        rolaIpDO.setStatus(3);
+        rolaIpMapper.updateById(rolaIpDO);
+    }
+
+    @Override
     public RolaIpDO findSocksPort(FindSocksPortQuery findSocksPortQuery) {
         // 加锁 lock("#ROLA_FIND_LOCK")
         RLock rLock = redissonClient.getLock(RedisKeyConstant.ROLA_FIND_LOCK);

@@ -31,6 +31,7 @@ public interface RolaIpService extends IService<RolaIpDO> {
     PageVO<RolaIpDO> listRolaIpsPage(RolaQuery rolaQuery, PageQuery pageQuery);
     PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery);
 
+    void deleteFile(Long id);
     RolaIpDO findSocksPort(FindSocksPortQuery findSocksPortQuery);
 
     void submitIpLock(RolaIpLockRequest rolaIpLockRequest);

@@ -55,10 +55,16 @@ public class RolaController {
         return rolaIpService.listRolaIpsPage(rolaQuery, pageQuery);
     }
 
-    @Operation(summary = "分页查询Rola IP")
+    @Operation(summary = "分页查询FileName")
     @GetMapping("/listFilesPage")
     public PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery) {
         return rolaIpService.listFilesPage(rolaQuery, pageQuery);
+    }
+
+    @Operation(summary = "分页查询FileName")
+    @PostMapping("/deleteFile")
+    public void deleteFile(Long id) {
+        rolaIpService.deleteFile(id);
     }
 
 
