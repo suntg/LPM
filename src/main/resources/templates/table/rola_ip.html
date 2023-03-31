@@ -280,14 +280,14 @@
                                                     align="center"
                                                     min-width="100">
                                                 <template slot-scope="scope">
-                                                    <el-button type="primary" @click="testAlive(scope)">测活</el-button>
+                                                    <el-button type="primary" @click="openTestAliveForm(scope)">测活</el-button>
                                                     <el-button type="success" @click="fillForm(scope)">启用</el-button>
                                                     <el-button type="danger" @click="deleteByIp(scope)">删除</el-button>
                                                 </template>
                                             </el-table-column>
                                         </el-table>
                                         <el-dialog title="启动代理端口" :visible.sync="dialogVisible" width="30%">
-                                            <el-form ref="form" :model="form" label-width="120px">
+                                            <el-form ref="form" :model="form" label-width="120px" :rules="rules">
 <!--                                                <el-form-item label="IP">-->
 <!--                                                    <el-input v-model="form.checkIp"></el-input>-->
 <!--                                                </el-form-item>-->
@@ -326,28 +326,42 @@
                                                         closable="false"
                                                         show-icon>
                                                 </el-alert>-->
-                                                <el-form-item label="启动端口">
+                                                <el-form-item label="启动端口" prop="socksPort" required>
                                                     <el-input-number v-model="form.socksPort" :min="1" :max="65535"></el-input-number>
                                                 </el-form-item>
-                                                <el-form-item label="设备名称">
+                                                <el-form-item label="设备名称" prop="deviceName" required>
                                                     <el-input v-model="form.deviceName"></el-input>
                                                 </el-form-item>
-                                                <el-form-item label="自定义Socks5用户名">
+                                                <el-form-item label="自定义Socks5用户名" prop="socksUsername" required>
                                                     <el-input v-model="form.socksUsername" ></el-input>
                                                 </el-form-item>
-                                                <el-form-item label="自定义Socks5密码">
+                                                <el-form-item label="自定义Socks5密码" prop="socksPassword" required>
                                                     <el-input v-model="form.socksPassword" type="password" ></el-input>
                                                 </el-form-item>
-                                                <el-form-item label="代理用户名">
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
                                                     <el-input v-model="form.rolaUsername" ></el-input>
                                                 </el-form-item>
-                                                <el-form-item label="代理用户密码">
+                                                <el-form-item label="代理用户密码" prop="rolaPassword" required>
                                                     <el-input v-model="form.rolaPassword" type="password"></el-input>
                                                 </el-form-item>
                                             </el-form>
 
                                             <el-button @click="dialogVisible = false">取 消</el-button>
                                             <el-button type="primary" @click="startSocksPort(scope)">确 定</el-button>
+                                            </span>
+                                        </el-dialog>
+                                        <el-dialog title="IP测活" :visible.sync="testAliveVisible" width="30%">
+                                            <el-form ref="testAliveForm" :model="testAliveForm" label-width="120px" :rules="testAliveRules">
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                    <el-input v-model="testAliveForm.rolaUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户密码" prop="rolaPassword" required>
+                                                    <el-input v-model="testAliveForm.rolaPassword" type="password"></el-input>
+                                                </el-form-item>
+                                            </el-form>
+
+                                            <el-button @click="testAliveVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="testAlive()">确 定</el-button>
                                             </span>
                                         </el-dialog>
                                     </template>
@@ -500,6 +514,44 @@
                 value: 1,
                 label: '是'
             }],
+                rules: {
+                    socksPort: [
+                        { required: true, message: '请输入端口号', trigger: 'blur' },
+                    ],
+                    socksUsername: [
+                        { required: true, message: '请填写 自定义Socks5用户名', trigger: 'blur' }
+                    ],
+                    socksPassword: [
+                        {required: true, message: '请填写 自定义Socks5密码', trigger: 'blur' }
+                    ],
+                    socksAddressIp: [
+                        { required: true, message: '请填写 IP', trigger: 'blur' }
+                    ],
+                    rolaUsername: [
+                        { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                    ],
+                    rolaPassword: [
+                        { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                    ],
+                    deviceName: [
+                        { required: true, message: '请填写 设备名称', trigger: 'blur' }
+                    ]
+                },
+                testAliveVisible: false,
+                testAliveForm: {
+                    socksAddressIp: '',
+                    rolaUsername: '',
+                    rolaPassword: '',
+                    id:''
+                },
+                testAliveRules: {
+                    rolaUsername: [
+                        { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                    ],
+                    rolaPassword: [
+                        { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                    ]
+                },
         }
             data.ip = localStorage.getItem('ip') ? localStorage.getItem('ip') : '';
             data.country = localStorage.getItem('country')? localStorage.getItem('country') : '';
@@ -723,88 +775,101 @@
             search() {
                 this.onSubmit();
             },
-            testAlive({row, column}) {
-                //保存Vue指针
-                let that = this;
-                const loading = this.$loading({
-                    lock: true,
-                    text: '测活中...',
-                    spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.7)'
-                });
-                axios.post(baseUrl + '/rola/checkIPActive', {
-                    socksAddressIp: row.ip,
-                    rolaUsername: row.rolaUsername,
-                    rolaPassword: row.rolaPassword
-                }, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
-                    },
-                    withCredentials: true
-                })
-                    .then((response) => {
-                        loading.close();
-                     /*   that.$alert(response.data.message, '测活结果', {
-                            confirmButtonText: '确定',
-                            callback: action => {
-                                that.$message({
-                                    type: 'info',
-                                    message: response.data.message
+            testAlive() {
+                this.$refs.testAliveForm.validate((valid) => {
+                        if (valid) {
+
+                            //关闭窗口
+                            this.testAliveVisible = false;
+
+                            //保存用户新设的账户&密码
+                            const config = localStorage.getItem('config');
+                            let modifiedForm = {};
+                            if (config) {
+                                modifiedForm = JSON.parse(config);
+                            }
+                            modifiedForm.rolaUsername = this.testAliveForm.rolaUsername;
+                            modifiedForm.rolaPassword = this.testAliveForm.rolaPassword;
+                            localStorage.setItem('config', JSON.stringify(modifiedForm));
+
+                            //保存Vue指针
+                            let that = this;
+                            const loading = this.$loading({
+                                lock: true,
+                                text: '测活中...',
+                                spinner: 'el-icon-loading',
+                                background: 'rgba(0, 0, 0, 0.7)'
+                            });
+                            axios.post(baseUrl + '/rola/checkIPActive', {
+                                socksAddressIp: this.testAliveForm.socksAddressIp,
+                                rolaUsername: this.testAliveForm.rolaUsername,
+                                rolaPassword: this.testAliveForm.rolaPassword
+                            }, {
+                                headers: {
+                                    'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                    'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                    'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                                },
+                                withCredentials: true
+                            })
+                                .then((response) => {
+                                    loading.close();
+                                 /*   that.$alert(response.data.message, '测活结果', {
+                                        confirmButtonText: '确定',
+                                        callback: action => {
+                                            that.$message({
+                                                type: 'info',
+                                                message: response.data.message
+                                            });
+                                        }
+                                    });*/
+                                    let arr = that.reports;
+                                    if (response.data.status == 100) {
+                                        this.testAliveVisible = false;
+                                        for (let i = 0; i < arr.length; i++) {
+                                            if (arr[i].id == response.data.data.id) {
+                                                arr[i].result = true;
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        console.log("测活失败，row.id 是 " + this.testAliveForm.id)
+                                        for (let i = 0; i < arr.length; i++) {
+                                            if (arr[i].id == this.testAliveForm.id) {
+                                                arr[i].result = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    that.reports = arr;
+                                    // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                    this.timeStamp = new Date().getTime();
+                                })
+                                .catch((error) => {
+                                    loading.close();
+            /*                        that.$alert(error.message, '测活结果', {
+                                        confirmButtonText: '确定',
+                                        type: 'error',
+                                        callback: action => {
+                                            that.$message.error('异常错误：' + error.message);
+                                        }
+                                    });*/
+
+                                    let arr = that.reports;
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == this.testAliveForm.id) {
+                                            arr[i].result = false;
+                                            break;
+                                        }
+                                    }
+                                    that.reports = arr;
+                                    // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                    this.timeStamp = new Date().getTime();
                                 });
-                            }
-                        });*/
-                        let arr = that.reports;
-                        if (response.data.status == 100) {
-                            for (let i = 0; i < arr.length; i++) {
-                                if (arr[i].id == response.data.data.id) {
-                                    arr[i].result = true;
-                                    break;
-                                }
-                            }
                         } else {
-                            console.log("测活失败，row.id 是 " + row.id)
-                            for (let i = 0; i < arr.length; i++) {
-                                if (arr[i].id == row.id) {
-                                    arr[i].result = false;
-                                    break;
-                                }
-                            }
+                            return false;
                         }
-                        that.reports = arr;
-                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
-                        this.timeStamp = new Date().getTime();
-
-                        // that.$set(that.reports);
-
-                        // that.$forceUpdate();
-                    })
-                    .catch((error) => {
-                        loading.close();
-/*                        that.$alert(error.message, '测活结果', {
-                            confirmButtonText: '确定',
-                            type: 'error',
-                            callback: action => {
-                                that.$message.error('异常错误：' + error.message);
-                            }
-                        });*/
-
-                        let arr = that.reports;
-                        for (let i = 0; i < arr.length; i++) {
-                            if (arr[i].id == row.id) {
-                                arr[i].result = false;
-                                break;
-                            }
-                        }
-                        that.reports = arr;
-                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
-                        this.timeStamp = new Date().getTime();
-
-                        // that.$set(that.reports);
-
-                        // that.$forceUpdate();
-                    });
+                });
 
             },
             deleteByIp({row, column}) {
@@ -918,58 +983,75 @@
                 this.dialogVisible = true;
 
             },
+            openTestAliveForm({row, column}) {
+
+                const config = localStorage.getItem('config');
+                if (config) {
+                    this.testAliveForm = JSON.parse(config);
+                }
+                this.testAliveForm.socksAddressIp = row.ip;
+                this.testAliveForm.id = row.id;
+                this.testAliveVisible = true;
+
+            },
             startSocksPort() {
 
-                //保存Vue指针
-                var that = this;
-                let data = {
-                    socksAddressIp: this.form.checkIp,
-                    socksPort: this.form.socksPort,
-                    socksUsername: this.form.socksUsername,
-                    socksPassword: this.form.socksPassword,
-                    socksPort: this.form.socksPort,
-                    rolaUsername: this.form.rolaUsername,
-                    rolaPassword: this.form.rolaPassword,
-                    deviceName: this.form.deviceName
-                };
-                axios.post(baseUrl + '/rola/startSocksPort', data)
-                    .then(function (response) {
-                        if (response.data.status == 100) {
-                            console.log(response.data.status);
-                            that.$message({
-                                showClose: true,
-                                offset: 250,
-                                message: response.data.message,
-                                type: 'success'
+                this.$refs.form.validate((valid) => {
+                    if (valid) {
+                        //保存Vue指针
+                        var that = this;
+                        let data = {
+                            socksAddressIp: this.form.checkIp,
+                            socksPort: this.form.socksPort,
+                            socksUsername: this.form.socksUsername,
+                            socksPassword: this.form.socksPassword,
+                            socksPort: this.form.socksPort,
+                            rolaUsername: this.form.rolaUsername,
+                            rolaPassword: this.form.rolaPassword,
+                            deviceName: this.form.deviceName
+                        };
+                        axios.post(baseUrl + '/rola/startSocksPort', data)
+                            .then(function (response) {
+                                if (response.data.status == 100) {
+                                    console.log(response.data.status);
+                                    that.$message({
+                                        showClose: true,
+                                        offset: 250,
+                                        message: response.data.message,
+                                        type: 'success'
+                                    });
+                                } else {
+                                    that.$message({
+                                        showClose: true,
+                                        offset: 250,
+                                        message: response.data.message,
+                                        type: 'warning'
+                                    });
+                                }
+                            })
+                            .catch(function (error) {
+
+                                that.$message({
+                                    showClose: true,
+                                    offset: 250,
+                                    message: error.response.data.message,
+                                    type: 'error'
+                                });
                             });
-                        } else {
-                            that.$message({
-                                showClose: true,
-                                offset: 250,
-                                message: response.data.message,
-                                type: 'warning'
-                            });
+                        this.dialogVisible = false;
+
+                        let modifiedForm = {
+                            socksUsername: this.form.socksUsername,
+                            socksPassword: this.form.socksPassword,
+                            socksPort: this.form.socksPort,
+                            rolaUsername: this.form.rolaUsername,
+                            rolaPassword: this.form.rolaPassword,
                         }
-                    })
-                    .catch(function (error) {
-
-                        that.$message({
-                            showClose: true,
-                            offset: 250,
-                            message: error.response.data.message,
-                            type: 'error'
-                        });
-                    });
-                this.dialogVisible = false;
-
-                let modifiedForm = {
-                    socksUsername: this.form.socksUsername,
-                    socksPassword: this.form.socksPassword,
-                    socksPort: this.form.socksPort,
-                    rolaUsername: this.form.rolaUsername,
-                    rolaPassword: this.form.rolaPassword,
-                }
-                localStorage.setItem('config', JSON.stringify(modifiedForm));
+                        localStorage.setItem('config', JSON.stringify(modifiedForm));
+                    } else {
+                        return false;
+                    }
+                });
             },
             async loadData() {
                 try {

@@ -16,7 +16,7 @@
         }
 
         .el-table .danger-row {
-            background: #ffcdc4;
+            background: #fdeeea;
         }
 
         .el-table .primary-row {
@@ -173,7 +173,7 @@
                                     <div style="margin-bottom:25px;margin-top:25px;">
                                     <el-button type="primary" @click="onSubmit">查询</el-button>
 <!--                                    <el-button type="warning" @click="batchHandle">批量查询文件</el-button>-->
-                                    <el-button type="success" @click="batchTestAlive">批量测活</el-button>
+                                    <el-button type="success" @click="openBatchTestAliveForm">批量测活</el-button>
                                     <el-button type="danger" @click="batchDelete">批量删除</el-button>
                                     </div>
                                 </div>
@@ -294,7 +294,7 @@
                                                     </el-dropdown>
                                                 </template>-->
                                                 <template slot-scope="scope">
-                                                    <el-button type="primary" @click="testAlive(scope)">测活</el-button>
+                                                    <el-button type="primary" @click="openTestAliveForm(scope)">测活</el-button>
                                                     <el-button type="danger" @click="deleteByIp(scope)">删除</el-button>
                                                 </template>
                                             </el-table-column>
@@ -358,13 +358,13 @@
                                                 <el-table-column
                                                         prop="createTime"
                                                         label="创建时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="updateTime"
                                                         label="修改时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                                 <el-table-column
@@ -456,13 +456,13 @@
                                                 <el-table-column
                                                         prop="createTime"
                                                         label="收录时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="lastUseTime"
                                                         label="最后使用时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                                 <el-table-column
@@ -523,16 +523,46 @@
                                                 <el-table-column
                                                         prop="createTime"
                                                         label="创建时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="updateTime"
                                                         label="修改时间"
-                                                        :formatter="timeReplace"
+                                                        :formatter="createTimeReplace"
                                                 >
                                                 </el-table-column>
                                             </el-table>
+                                        </el-dialog>
+
+                                        <el-dialog title="IP测活" :visible.sync="testAliveVisible" width="30%">
+                                            <el-form ref="testAliveForm" :model="testAliveForm" label-width="120px" :rules="testAliveRules">
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                    <el-input v-model="testAliveForm.rolaUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户密码" prop="rolaPassword" required>
+                                                    <el-input v-model="testAliveForm.rolaPassword" type="password"></el-input>
+                                                </el-form-item>
+                                            </el-form>
+
+                                            <el-button @click="testAliveVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="testAlive()">确 定</el-button>
+                                            </span>
+                                        </el-dialog>
+
+                                        <el-dialog title="批量IP测活" :visible.sync="batchTestAliveVisible" width="30%">
+                                            <el-form ref="batchTestAliveForm" :model="batchTestAliveForm" label-width="120px" :rules="batchTestAliveRules">
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                    <el-input v-model="batchTestAliveForm.rolaUsername" ></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="代理用户密码" prop="rolaPassword" required>
+                                                    <el-input v-model="batchTestAliveForm.rolaPassword" type="password"></el-input>
+                                                </el-form-item>
+                                            </el-form>
+
+                                            <el-button @click="batchTestAliveVisible = false">取 消</el-button>
+                                            <el-button type="primary" @click="batchTestAlive()">确 定</el-button>
+                                            </span>
                                         </el-dialog>
                                     </template>
                                     </div>
@@ -702,6 +732,36 @@
             countries: [],
             states: [],
             cities: [],
+            testAliveVisible: false,
+            testAliveForm: {
+                socksAddressIp: '',
+                rolaUsername: '',
+                rolaPassword: '',
+                id:''
+            },
+            batchTestAliveVisible: false,
+            batchTestAliveForm: {
+                rolaUsername: '',
+                rolaPassword: '',
+                socksAddressIps: [],
+                ids:[]
+            },
+            testAliveRules: {
+                rolaUsername: [
+                    { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                ],
+                rolaPassword: [
+                    { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                ]
+            },
+            batchTestAliveRules: {
+                rolaUsername: [
+                    { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                ],
+                rolaPassword: [
+                    { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                ]
+            },
 
         },
         methods: {
@@ -1047,53 +1107,94 @@
 
                 })
             },
-            batchTestAlive() {
+            openBatchTestAliveForm() {
 
-                //保存Vue指针
-                let that=this;
+                const config = localStorage.getItem('config');
+                if (config) {
+                    this.batchTestAliveForm = JSON.parse(config);
+                }
                 let ips = [];
                 let ids = [];
                 for (let i = 0; i < this.$refs.table.selection.length; i++) {
-                    ips.push({
-                        socksAddressIp: this.$refs.table.selection[i].ip
-                    });
+                    ips.push(this.$refs.table.selection[i].ip);
                     ids.push(this.$refs.table.selection[i].id);
                 }
-                console.log(JSON.stringify(ips));
-                axios.post(baseUrl + '/rola/checkIPsActive',
-                     JSON.stringify(ips)
-                , {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
-                    },
-                    withCredentials: true
-                }).then((response) => {
-                    let arr = that.reports;
-                    if (response.data.status == 100) {
-                        //先双循环遍历一遍，将批量测试的数据行.result设为false
-                        for (let i = 0; i < arr.length; i++) {
-                            for (let j = 0; j < ids.length; j++) {
-                                if (arr[i].id == ids[j].id) {
-                                    arr[i].result = false;
-                                }
-                            }
-                        }
-                        console.log("arr一阶段：" + JSON.stringify(arr))
-                        for (let i = 0; i < arr.length; i++) {
-                            for (let j = 0; j < response.data.data.length; j++) {
-                            if (arr[i].id == response.data.data[j].id) {
-                                arr[i].result = true;
-                                }
-                            }
-                        }
-                        console.log("arr二阶段：" + JSON.stringify(arr))
+                this.batchTestAliveForm.socksAddressIps = ips;
+                this.batchTestAliveForm.ids = ids;
+                this.batchTestAliveVisible = true;
+
+            },
+            batchTestAlive() {
+
+               this.$refs.batchTestAliveForm.validate((valid) => {
+                    if (valid) {
+                    //关闭窗口
+                    this.batchTestAliveVisible = false;
+
+                    //保存用户新设的账户&密码
+                    const config = localStorage.getItem('config');
+                    let modifiedForm = {};
+                    if (config) {
+                        modifiedForm = JSON.parse(config);
                     }
-                    that.reports = arr;
-                    // 重设内部 el-table 的 key 值，手动触发组件的重载机制
-                    this.timeStamp = new Date().getTime();
-                })
+                    modifiedForm.rolaUsername = this.batchTestAliveForm.rolaUsername;
+                    modifiedForm.rolaPassword = this.batchTestAliveForm.rolaPassword;
+                    localStorage.setItem('config', JSON.stringify(modifiedForm));
+
+                        if (valid) {
+                            //保存Vue指针
+                            let that=this;
+                            let ips = [];
+                            let ids = this.batchTestAliveForm.ids;
+                            for (let i = 0; i < this.batchTestAliveForm.socksAddressIps.length; i++) {
+                                ips.push({
+                                    socksAddressIp: this.batchTestAliveForm.socksAddressIps[i],
+                                    rolaUsername: this.batchTestAliveForm.rolaUsername,
+                                    rolaPassword: this.batchTestAliveForm.rolaPassword,
+                                });
+                            }
+                            console.log(JSON.stringify(ips));
+                            axios.post(baseUrl + '/rola/checkIPsActive',
+                                 JSON.stringify(ips)
+                            , {
+                                headers: {
+                                    'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                    'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                    'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                                },
+                                withCredentials: true
+                            }).then((response) => {
+                                let arr = that.reports;
+                                if (response.data.status == 100) {
+                                    //先双循环遍历一遍，将批量测试的数据行.result设为false
+                                    for (let i = 0; i < arr.length; i++) {
+                                        for (let j = 0; j < ids.length; j++) {
+                                            if (arr[i].id == ids[j]) {
+                                                arr[i].result = false;
+                                            }
+                                        }
+                                    }
+                                    console.log("arr一阶段：" + JSON.stringify(arr))
+                                    for (let i = 0; i < arr.length; i++) {
+                                        for (let j = 0; j < response.data.data.length; j++) {
+                                        if (arr[i].id == response.data.data[j].id) {
+                                            arr[i].result = true;
+                                            }
+                                        }
+                                    }
+                                    console.log("arr二阶段：" + JSON.stringify(arr))
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                                });
+                            }
+                        }else {
+                            return false;
+                        }
+                });
+
+
             },
             batchDelete() {
                 //保存Vue指针
@@ -1149,83 +1250,111 @@
                 }
 
             },
-            testAlive({row, column}) {
-                //保存Vue指针
-                let that = this;
-                const loading = this.$loading({
-                    lock: true,
-                    text: '测活中...',
-                    spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.7)'
+            openTestAliveForm({row, column}) {
+
+                const config = localStorage.getItem('config');
+                if (config) {
+                    this.testAliveForm = JSON.parse(config);
+                }
+                this.testAliveForm.socksAddressIp = row.ip;
+                this.testAliveForm.id = row.id;
+                this.testAliveVisible = true;
+
+            },
+            testAlive() {
+                this.$refs.testAliveForm.validate((valid) => {
+                    if (valid) {
+
+                        //关闭窗口
+                        this.testAliveVisible = false;
+
+                        //保存用户新设的账户&密码
+                        const config = localStorage.getItem('config');
+                        let modifiedForm = {};
+                        if (config) {
+                            modifiedForm = JSON.parse(config);
+                        }
+                        modifiedForm.rolaUsername = this.testAliveForm.rolaUsername;
+                        modifiedForm.rolaPassword = this.testAliveForm.rolaPassword;
+                        localStorage.setItem('config', JSON.stringify(modifiedForm));
+
+                        //保存Vue指针
+                        let that = this;
+                        const loading = this.$loading({
+                            lock: true,
+                            text: '测活中...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+                        axios.post(baseUrl + '/rola/checkIPActive', {
+                            socksAddressIp: this.testAliveForm.socksAddressIp,
+                            rolaUsername: this.testAliveForm.rolaUsername,
+                            rolaPassword: this.testAliveForm.rolaPassword
+                        }, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                            },
+                            withCredentials: true
+                        })
+                            .then((response) => {
+                                loading.close();
+                                /*   that.$alert(response.data.message, '测活结果', {
+                                       confirmButtonText: '确定',
+                                       callback: action => {
+                                           that.$message({
+                                               type: 'info',
+                                               message: response.data.message
+                                           });
+                                       }
+                                   });*/
+                                let arr = that.reports;
+                                if (response.data.status == 100) {
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == response.data.data.id) {
+                                            arr[i].result = true;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    console.log("测活失败，row.id 是 " + this.testAliveForm.id)
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == this.testAliveForm.id) {
+                                            arr[i].result = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            })
+                            .catch((error) => {
+                                loading.close();
+                                /*                        that.$alert(error.message, '测活结果', {
+                                                            confirmButtonText: '确定',
+                                                            type: 'error',
+                                                            callback: action => {
+                                                                that.$message.error('异常错误：' + error.message);
+                                                            }
+                                                        });*/
+
+                                let arr = that.reports;
+                                for (let i = 0; i < arr.length; i++) {
+                                    if (arr[i].id == this.testAliveForm.id) {
+                                        arr[i].result = false;
+                                        break;
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            });
+                    } else {
+                        return false;
+                    }
                 });
-                axios.post(baseUrl + '/rola/checkIPActive', {
-                    socksAddressIp: row.ip
-                }, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
-                    },
-                    withCredentials: true
-                })
-                    .then((response) => {
-                        loading.close();
-                        /*   that.$alert(response.data.message, '测活结果', {
-                               confirmButtonText: '确定',
-                               callback: action => {
-                                   that.$message({
-                                       type: 'info',
-                                       message: response.data.message
-                                   });
-                               }
-                           });*/
-                        let arr = that.reports;
-                        if (response.data.status == 100) {
-                            for (let i = 0; i < arr.length; i++) {
-                                if (arr[i].id == response.data.data.id) {
-                                    arr[i].result = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            console.log("测活失败，row.id 是 " + row.id)
-                            for (let i = 0; i < arr.length; i++) {
-                                if (arr[i].id == row.id) {
-                                    arr[i].result = false;
-                                    break;
-                                }
-                            }
-                        }
-                        that.reports = arr;
-                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
-                        this.timeStamp = new Date().getTime();
-
-                        // that.$set(that.reports);
-
-                        // that.$forceUpdate();
-                    })
-                    .catch((error) => {
-                        loading.close();
-                        /*                        that.$alert(error.message, '测活结果', {
-                                                    confirmButtonText: '确定',
-                                                    type: 'error',
-                                                    callback: action => {
-                                                        that.$message.error('异常错误：' + error.message);
-                                                    }
-                                                });*/
-
-                        let arr = that.reports;
-                        for (let i = 0; i < arr.length; i++) {
-                            if (arr[i].id == row.id) {
-                                arr[i].result = false;
-                                break;
-                            }
-                        }
-                        that.reports = arr;
-                        // 重设内部 el-table 的 key 值，手动触发组件的重载机制
-                        this.timeStamp = new Date().getTime();
-
-                    });
 
             },
             deleteByIp({row, column}) {
