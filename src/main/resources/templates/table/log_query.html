@@ -243,13 +243,13 @@
                                             <el-table-column
                                                     prop="createTime"
                                                     label="创建时间"
-                                                    :formatter="timeReplace"
+                                                    :formatter="createTimeReplace"
                                             >
                                             </el-table-column>
                                             <el-table-column
                                                     prop="lastUseTime"
                                                     label="最后使用时间"
-                                                    :formatter="timeReplace"
+                                                    :formatter="lastUseTimeReplace"
                                             >
                                             </el-table-column>
                                             <el-table-column
@@ -802,7 +802,6 @@
                 }
             },*/
             tableRowClassName({row, rowIndex}) {
-                console.log("tableRowClassName 方法触发了！！！！")
                 if (row.result === true) {
                     return 'primary-row';
                 } else if (row.result === false) {
@@ -981,8 +980,15 @@
                         that.ipTotal = response.data.data.total;
                     });
             },
-            timeReplace(row, column) {
-                return row.createTime.replace(/T/g, ' ').replace(/.[\d]{3}Z/, ' ')
+            createTimeReplace(row, column) {
+                if (row.createTime != null) {
+                    return row.createTime.replace(/T/g, ' ').replace(/.[\d]{3}Z/, ' ');
+                }
+            },
+            lastUseTimeReplace(row, column) {
+                if (row.lastUseTime != null) {
+                    return row.lastUseTime.replace(/T/g, ' ').replace(/.[\d]{3}Z/, ' ');
+                }
             },
             batchHandle() {
 
