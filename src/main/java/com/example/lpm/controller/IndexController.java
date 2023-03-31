@@ -3,7 +3,7 @@ package com.example.lpm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.example.lpm.v3.domain.vo.LoginVO;
 import com.example.lpm.service.UserService;
-import com.example.lpm.util.IpUtil;
+import com.example.lpm.v3.util.IpUtil;
 import com.example.lpm.v3.common.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

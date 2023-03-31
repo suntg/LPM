@@ -1,15 +1,20 @@
 package com.example.lpm.v3.controller;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.example.lpm.constant.RedisKeyConstant;
-import com.example.lpm.v3.domain.request.FileRequest;
-import com.example.lpm.util.IpUtil;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.domain.dto.FileDTO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
+import com.example.lpm.v3.domain.request.FileRequest;
 import com.example.lpm.v3.service.FileService;
 import com.example.lpm.v3.service.OperationLogService;
+import com.example.lpm.v3.util.IpUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -114,10 +119,23 @@ public class LuaController {
     @Resource
     private FileService fileService;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Operation(summary = "lua保存OperationLog")
     @PostMapping("/saveOperationLog")
     public void createProxyPort(@RequestBody OperationLogDO operationLogDO) {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
+        try {
+
+            String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + operationLogDO.getIp());
+            JSONObject jsonObject = JSON.parseObject(result);
+            operationLogDO.setCountry(jsonObject.getString("country"));
+            operationLogDO.setRegion(jsonObject.getString("province"));
+            operationLogDO.setCity(jsonObject.getString("city"));
+        } catch (Exception e) {
+            log.error("ip123 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
+        }
         operationLogService.save(operationLogDO);
     }
 

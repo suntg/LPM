@@ -1,18 +1,21 @@
-package com.example.lpm.util;
+package com.example.lpm.v3.util;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
-
-import lombok.extern.slf4j.Slf4j;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Slf4j
 public class IpUtil {
 
     private static final String NUKNOWN = "unknown";
 
-    private IpUtil() {}
+    private IpUtil() {
+    }
 
     /**
      * 获取当前网络ip
@@ -50,4 +53,11 @@ public class IpUtil {
         }
         return ipAddress;
     }
+
+    public static void main(String[] args) {
+        String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + "115.57.136.16");
+        JSONObject jsonObject = JSON.parseObject(result);
+        System.out.println(jsonObject.getString("province"));
+    }
+
 }

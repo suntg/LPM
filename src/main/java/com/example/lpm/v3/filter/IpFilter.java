@@ -1,9 +1,16 @@
 package com.example.lpm.v3.filter;
 
 
-import com.example.lpm.util.IpUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.example.lpm.v3.util.IpUtil;
+import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
 import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.service.OperationLogService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +36,8 @@ public class IpFilter implements Filter {
 
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -42,6 +51,18 @@ public class IpFilter implements Filter {
             OperationLogDO operationLogDO = new OperationLogDO();
             operationLogDO.setRequestUri("建立端口");
             operationLogDO.setIp(IpUtil.getIpAddr(httpRequest));
+
+            try {
+                String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip="  + operationLogDO.getIp());
+                JSONObject jsonObject = JSON.parseObject(result);
+                operationLogDO.setCountry(jsonObject.getString("country"));
+                operationLogDO.setRegion(jsonObject.getString("province"));
+                operationLogDO.setCity(jsonObject.getString("city"));
+            } catch (Exception e) {
+                log.error("ip123 查询异常:{}", ExceptionUtil.stacktraceToString(e));
+            }
+
+
             operationLogDO.setCreateTime(LocalDateTime.now());
             operationLogService.save(operationLogDO);
         }

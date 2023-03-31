@@ -18,4 +18,8 @@ public class OperationLogDO extends BaseEntity {
 
     private String deviceInfo;
 
+    private String city;
+    private String country;
+    private String region;
+
 }
