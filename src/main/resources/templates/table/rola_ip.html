@@ -733,7 +733,9 @@
                     background: 'rgba(0, 0, 0, 0.7)'
                 });
                 axios.post(baseUrl + '/rola/checkIPActive', {
-                    socksAddressIp: row.ip
+                    socksAddressIp: row.ip,
+                    rolaUsername: row.rolaUsername,
+                    rolaPassword: row.rolaPassword
                 }, {
                     headers: {
                         'Access-Control-Allow-Origin': '*',  //解决cors头问题
