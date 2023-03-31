@@ -287,7 +287,7 @@
                         number: this.number,
                         country: this.selectedCountry.toLowerCase(),
                         state: this.selectedState.toLowerCase(),
-                        city: this.selectedCity.toLowerCase().replace(/%0D$/, '')
+                        city: this.selectedCity.toLowerCase()
                     }
                 })
                     .then(function (response) {
@@ -417,7 +417,7 @@
                 for (const line of this.lines) {
                     const [c, s, stateName, city] = line.split(',');
                     if (c === country && s === state) {
-                        this.cities.push(city);
+                        this.cities.push(city.replace('\r', ''));
                     }
                 }
             }
