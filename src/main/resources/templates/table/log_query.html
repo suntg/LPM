@@ -91,7 +91,7 @@
                                             style="width:10%;margin-right:20px;"
                                     >
                                     </el-input>
-                                    <span>文件路径：</span>
+<!--                                    <span>文件路径：</span>
                                     <el-input
                                             placeholder="请输入内容"
                                             v-model.trim="filePath"
@@ -99,7 +99,7 @@
                                             @keyup.enter.native="search"
                                             style="width:10%;margin-right:20px;"
                                     >
-                                    </el-input>
+                                    </el-input>-->
                                     <span>IP：</span>
                                     <el-input
                                             placeholder="请输入内容"
@@ -109,14 +109,34 @@
                                             style="width:10%;margin-right:20px;"
                                     >
                                     </el-input>
-                                    <span>日志内容：</span>
+                                    <span>Country：</span>
+                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
+                                        <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
+                                    </el-select>
+                                    <span>State：</span>
+                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
+                                        <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
+                                    </el-select>
+                                    <span>City：</span>
+                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
+                                        <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
+                                    </el-select>
+                                    <span>ZipCode：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="zipCode"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+<!--                                    <span>日志内容：</span>
                                     <el-input
                                             placeholder="请输入内容"
                                             v-model.trim="logContent"
                                             @keyup.enter.native="search"
                                             style="width:10%;margin-right:20px;"
                                             clearable>
-                                    </el-input>
+                                    </el-input>-->
                                     <!--<span>文件ID：</span>
                                     <el-input
                                             placeholder="请输入内容"
@@ -152,7 +172,7 @@
                                     </div>-->
                                     <div style="margin-bottom:25px;margin-top:25px;">
                                     <el-button type="primary" @click="onSubmit">查询</el-button>
-                                    <el-button type="warning" @click="batchHandle">批量查询文件</el-button>
+<!--                                    <el-button type="warning" @click="batchHandle">批量查询文件</el-button>-->
                                     </div>
                                 </div>
 
@@ -187,7 +207,9 @@
                                                 :key="timeStamp"
                                                 :fit="true"
                                         >
+<!--
                                             <el-table-column type="selection" width="55" :reserve-selection="true">
+-->
                                             </el-table-column>
                                             <el-table-column
                                                     prop="id"
@@ -195,12 +217,28 @@
                                             >
                                             </el-table-column>
                                             <el-table-column
-                                                    prop="name"
+                                                    prop="ip"
+                                                    label="IP">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="fileFlag"
                                                     label="文件名">
                                             </el-table-column>
                                             <el-table-column
-                                                    prop="path"
-                                                    label="文件路径">
+                                                    prop="country"
+                                                    label="国家">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="region"
+                                                    label="州">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="city"
+                                                    label="城市">
+                                            </el-table-column>
+                                            <el-table-column
+                                                    prop="postalCode"
+                                                    label="邮编">
                                             </el-table-column>
                                             <el-table-column
                                                     prop="createTime"
@@ -209,37 +247,33 @@
                                             >
                                             </el-table-column>
                                             <el-table-column
-                                                    prop="updateTime"
-                                                    label="修改时间"
+                                                    prop="lastUseTime"
+                                                    label="最后使用时间"
                                                     :formatter="timeReplace"
                                             >
                                             </el-table-column>
                                             <el-table-column
-                                                    prop="content"
-                                                    label="日志内容">
+                                                    prop="useNumber"
+                                                    label="使用次数">
                                             </el-table-column>
-                                            <el-table-column
-                                                    prop="type"
+<!--                                            <el-table-column
+                                                    prop="fileType"
                                                     label="日志类型"
                                             >
                                                 <template slot-scope="scope">
                                                     <span v-if="scope.row.type == '1'">PHONE</span>
                                                     <span v-if="scope.row.type == '2'">PAGE</span>
                                                 </template>
-                                            </el-table-column>
-                                            <el-table-column
-                                                    prop="ip"
-                                                    label="IP">
-                                            </el-table-column>
+                                            </el-table-column>-->
                                             <el-table-column
                                                     label="操作"
                                                     align="center"
                                                     min-width="100"
                                             >
-                                                <template slot-scope="scope">
+<!--                                                <template slot-scope="scope">
                                                     <el-dropdown>
                                                         <el-button type="primary">
-                                                            更多菜单<i class="el-icon-arrow-down el-icon--right"></i>
+                                                            更多菜单<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>
                                                         </el-button>
                                                         <el-dropdown-menu slot="dropdown">
                                                             <el-dropdown-item>
@@ -252,7 +286,10 @@
                                                             </el-dropdown-item>
                                                         </el-dropdown-menu>
                                                     </el-dropdown>
-
+                                                </template>-->
+                                                <template slot-scope="scope">
+                                                    <el-button type="primary" @click="testAlive(scope)">测活</el-button>
+                                                    <el-button type="danger" @click="deleteByIp(scope)">删除</el-button>
                                                 </template>
                                             </el-table-column>
                                         </el-table>
@@ -651,59 +688,36 @@
                 content: '',
                 type: ''
             },
+            zipCode: '',
+            lines: '',
+            selectedCountry: 'us',
+            selectedState: '',
+            selectedCity: '',
+            countries: [],
+            states: [],
+            cities: [],
 
         },
         methods: {
             onSubmit() {
-                axios.get(baseUrl + '/file/listFilesPage',
+                axios.get(baseUrl + '/rola/listFilesPage',
                     {
                         params: {
-                            fileName: this.fileName.toLowerCase(),
-                            filePath: this.filePath.toLowerCase(),
-                            ip: this.ip.toLowerCase(),
-                            logContent: this.logContent,
-                            logType: this.logType,
-                            fileId: this.fileId,
-                            startCreateTime: this.createTimeRange[0],
-                            endCreateTime: this.createTimeRange[1],
+                            fileName: this.fileName,
+                            ip: this.ip,
+                            country: this.selectedCountry.toLowerCase(),
+                            state: this.selectedState.toLowerCase(),
+                            city: this.selectedCity.toLowerCase(),
+                            zipCode: this.zipCode,
                             pageNum: this.pageNum,
                             pageSize: this.pageSize
                         }
                     })
                     .then((response) => {
 
-                        let fileList = [];
-                        let idx = 0;
-                        for (let i = 0; i < response.data.data.rows.length; i++) {
-                            console.log("data：" + response.data.data.rows[i]);
-                            let file = {
-                                idx: idx,
-                                id: response.data.data.rows[i].file.id,
-                                name: response.data.data.rows[i].file.name,
-                                path: response.data.data.rows[i].file.path,
-                                createTime: response.data.data.rows[i].file.createTime,
-                                updateTime: response.data.data.rows[i].file.updateTime,
-                                content: null,
-                                type: null,
-                                ip: null,
-                            }
-                            idx++;
-                            if (response.data.data.rows[i].lastFileLog != null) {
-                                file.content = response.data.data.rows[i].lastFileLog.content;
-                                file.type = response.data.data.rows[i].lastFileLog.type;
-                            }
-                            if (response.data.data.rows[i].lastFileIp != null) {
-                                file.ip = response.data.data.rows[i].lastFileIp.ip;
-                            }
-                            fileList.push(file);
-                        }
-
-                        this.reports = fileList;
+                        this.reports = response.data.data.rows
                         if (response.data != null) {
                             this.total = response.data.data.total
-                        }
-                        if (response.data == null) {
-                            this.reports = null;
                         }
                     })
             },
@@ -1070,7 +1084,7 @@
                                    });
                                }
                            });*/
-                        let arr = that.ipsList;
+                        let arr = that.reports;
                         if (response.data.status == 100) {
                             for (let i = 0; i < arr.length; i++) {
                                 if (arr[i].id == response.data.data.id) {
@@ -1087,7 +1101,7 @@
                                 }
                             }
                         }
-                        that.ipsList = arr;
+                        that.reports = arr;
                         // 重设内部 el-table 的 key 值，手动触发组件的重载机制
                         this.timeStamp = new Date().getTime();
 
@@ -1105,14 +1119,14 @@
                                                     }
                                                 });*/
 
-                        let arr = that.ipsList;
+                        let arr = that.reports;
                         for (let i = 0; i < arr.length; i++) {
                             if (arr[i].id == row.id) {
                                 arr[i].result = false;
                                 break;
                             }
                         }
-                        that.ipsList = arr;
+                        that.reports = arr;
                         // 重设内部 el-table 的 key 值，手动触发组件的重载机制
                         this.timeStamp = new Date().getTime();
 
@@ -1150,6 +1164,7 @@
                                 });
                             }
                         });
+                        that.onSubmit();
                     })
                     .catch(function (error) {
                         loading.close();
@@ -1162,10 +1177,56 @@
                         });
                     });
             },
+            async loadData() {
+                try {
+                    // 从 localStorage 中获取文件内容
+                    let data = localStorage.getItem('country-state-city');
+                    // localStorage 没有则从后端拉取
+                    if (data == null) {
+                        const response = await fetch('/rola/country-state-city');
+                        data = await response.text();
+                        localStorage.setItem('country-state-city', data);
+                    }
+
+                    this.lines = data.split('\n');
+                    for (const line of this.lines) {
+                        const [country, stateAbbreviation, stateName, city] = line.split(',');
+                        if (!this.countries.includes(country)) {
+                            this.countries.push(country);
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+            onCountryChange() {
+                this.states = [];
+                this.cities = [];
+                const country = this.selectedCountry;
+                for (const line of this.lines) {
+                    const [c, stateAbbreviation, stateName, city] = line.split(',');
+                    if (c === country && !this.states.includes(stateAbbreviation)) {
+                        this.states.push(stateAbbreviation);
+                    }
+                }
+            },
+            onStateChange() {
+                this.cities = [];
+                const country = this.selectedCountry;
+                const state = this.selectedState;
+                for (const line of this.lines) {
+                    const [c, s, stateName, city] = line.split(',');
+                    if (c === country && s === state) {
+                        this.cities.push(city.replace('\r', ''));
+                    }
+                }
+            }
 
         },
         mounted() {
             this.onSubmit();
+            this.loadData();
+            this.onCountryChange();
         }
     })
 </script>
