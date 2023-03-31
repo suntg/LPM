@@ -854,8 +854,8 @@
                         that.$message({
                             showClose: true,
                             offset: 250,
-                            message: error.data.message,
-                            type: 'warning'
+                            message: error.response.data.message,
+                            type: 'error'
                         });
                         that.onSubmit()
                         that.dialogVisible = false;
