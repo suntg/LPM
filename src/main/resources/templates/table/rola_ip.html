@@ -106,15 +106,15 @@
                                             clearable>
                                     </el-input>-->
                                     <span>Country：</span>
-                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange">
+                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
                                         <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
                                     </el-select>
                                     <span>State：</span>
-                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange">
+                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
                                         <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
                                     </el-select>
                                     <span>City：</span>
-                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市">
+                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
                                         <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
                                     </el-select>
                                     <span>ZipCode：</span>
@@ -531,7 +531,7 @@
                             ip: this.ip,
                             country: this.selectedCountry.toLowerCase(),
                             state: this.selectedState.toLowerCase(),
-                            city: this.selectedCity.toLowerCase(),
+                            city: this.selectedCity.toLowerCase().replace(/%0D$/, ''),
                             zipCode: this.zipCode,
                             //remark: this.remark,
                             //state: this.state,

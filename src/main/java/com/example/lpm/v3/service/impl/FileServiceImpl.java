@@ -53,7 +53,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileDO> implements 
         if (CharSequenceUtil.isAllBlank(fileQuery.getLogContent(), fileQuery.getXLuminatiIp(), fileQuery.getIp())) {
             Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
             List<FileDO> fileDOList = fileMapper.selectList(new QueryWrapper<FileDO>().lambda()
-                .eq(CharSequenceUtil.isNotBlank(fileQuery.getFileName()), FileDO::getName, fileQuery.getFileName())
+                .like(CharSequenceUtil.isNotBlank(fileQuery.getFileName()), FileDO::getName, fileQuery.getFileName())
                 .eq(CharSequenceUtil.isNotBlank(fileQuery.getFilePath()), FileDO::getPath, fileQuery.getFilePath())
                 .orderByDesc(FileDO::getCreateTime));
             List<FileDTO> fileDTOList = new ArrayList<>();

@@ -68,15 +68,15 @@
 
                                 <div style="margin-bottom:25px;margin-top:25px;">
                                     <span>Country：</span>
-                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange">
+                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
                                         <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
                                     </el-select>
                                     <span>State：</span>
-                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange">
+                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
                                         <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
                                     </el-select>
                                     <span>City：</span>
-                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市">
+                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
                                         <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
                                     </el-select>
                                     <span>数量：</span>
@@ -287,11 +287,11 @@
                         number: this.number,
                         country: this.selectedCountry.toLowerCase(),
                         state: this.selectedState.toLowerCase(),
-                        city: this.selectedCity.toLowerCase()
+                        city: this.selectedCity.toLowerCase().replace(/%0D$/, '')
                     }
                 })
                     .then(function (response) {
-                        that.$alert('', '收录提示', {
+                        that.$alert(response.data.message, '收录提示', {
                             confirmButtonText: '确定',
                             callback: action => {
                                 that.$message({
