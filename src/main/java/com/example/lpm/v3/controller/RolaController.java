@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Rola")
@@ -65,6 +66,14 @@ public class RolaController {
     @PostMapping("/deleteFile")
     public void deleteFile(Long id) {
         rolaIpService.deleteFile(id);
+    }
+
+    @Operation(summary = "批量删除")
+    @PostMapping("/deleteFiles")
+    public void deleteFile(@RequestBody List<Long> ids) {
+        for (Long id : ids) {
+            rolaIpService.deleteFile(id);
+        }
     }
 
 
@@ -162,6 +171,24 @@ public class RolaController {
     @PostMapping("/checkIPActive")
     public RolaIpDO checkIpActive(@RequestBody RolaIpActiveRequest rolaIpLockRequest) throws Exception {
         return rolaIpService.checkIpActive(rolaIpLockRequest);
+    }
+
+    @Operation(summary = "批量测活")
+    @PostMapping("/checkIPsActive")
+    public List<RolaIpDO> checkIpsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
+        ArrayList<RolaIpDO> rolaIpDOs = new ArrayList<>();
+        for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
+            RolaIpDO rolaIpDO = null;
+            try {
+                rolaIpDO = rolaIpService.checkIpActive(rolaIpLockRequest);
+            } catch (Exception e) {
+
+            }
+            if (rolaIpDO != null) {
+                rolaIpDOs.add(rolaIpDO);
+            }
+        }
+        return rolaIpDOs;
     }
 
     @Operation(summary = "查询fileFlag所有数据")

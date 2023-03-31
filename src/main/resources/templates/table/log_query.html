@@ -16,7 +16,7 @@
         }
 
         .el-table .danger-row {
-            background: #f6cdc2;
+            background: #ffcdc4;
         }
 
         .el-table .primary-row {
@@ -173,6 +173,8 @@
                                     <div style="margin-bottom:25px;margin-top:25px;">
                                     <el-button type="primary" @click="onSubmit">查询</el-button>
 <!--                                    <el-button type="warning" @click="batchHandle">批量查询文件</el-button>-->
+                                    <el-button type="success" @click="batchTestAlive">批量测活</el-button>
+                                    <el-button type="danger" @click="batchDelete">批量删除</el-button>
                                     </div>
                                 </div>
 
@@ -207,13 +209,17 @@
                                                 :key="timeStamp"
                                                 :fit="true"
                                         >
-<!--
                                             <el-table-column type="selection" width="55" :reserve-selection="true">
--->
+                                            </el-table-column>
+                                            <el-table-column
+                                                    type="index"
+                                                    label="序列"
+                                                    width="50">
                                             </el-table-column>
                                             <el-table-column
                                                     prop="id"
                                                     label="ID"
+                                                    v-if="false"
                                             >
                                             </el-table-column>
                                             <el-table-column
@@ -1040,9 +1046,92 @@
                     })
 
                 })
+            },
+            batchTestAlive() {
 
+                //保存Vue指针
+                let that=this;
+                let ips = [];
+                let ids = [];
+                for (let i = 0; i < this.$refs.table.selection.length; i++) {
+                    ips.push({
+                        socksAddressIp: this.$refs.table.selection[i].ip
+                    });
+                    ids.push(this.$refs.table.selection[i].id);
+                }
+                console.log(JSON.stringify(ips));
+                axios.post(baseUrl + '/rola/checkIPsActive',
+                     JSON.stringify(ips)
+                , {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                    },
+                    withCredentials: true
+                }).then((response) => {
+                    let arr = that.reports;
+                    if (response.data.status == 100) {
+                        //先双循环遍历一遍，将批量测试的数据行.result设为false
+                        for (let i = 0; i < arr.length; i++) {
+                            for (let j = 0; j < ids.length; j++) {
+                                if (arr[i].id == ids[j].id) {
+                                    arr[i].result = false;
+                                }
+                            }
+                        }
+                        console.log("arr一阶段：" + JSON.stringify(arr))
+                        for (let i = 0; i < arr.length; i++) {
+                            for (let j = 0; j < response.data.data.length; j++) {
+                            if (arr[i].id == response.data.data[j].id) {
+                                arr[i].result = true;
+                                }
+                            }
+                        }
+                        console.log("arr二阶段：" + JSON.stringify(arr))
+                    }
+                    that.reports = arr;
+                    // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                    this.timeStamp = new Date().getTime();
+                })
+            },
+            batchDelete() {
+                //保存Vue指针
+                let that=this;
+                let ids = [];
+                for (let i = 0; i < this.$refs.table.selection.length; i++) {
+                    ids.push(this.$refs.table.selection[i].id);
+                }
+                console.log(JSON.stringify(ids));
+                axios.post(baseUrl + '/rola/deleteFiles', JSON.stringify(ids), {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                        'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                    },
+                    withCredentials: true
+                }).then((response) => {
 
+                        that.$alert(response.data.message, '操作结果', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                                that.$message({
+                                    type: 'info',
+                                    message: response.data.message
+                                });
+                            }
+                        });
+                        that.onSubmit();
 
+                }).catch(function (error) {
+                    that.$alert(error.data.message, '操作结果', {
+                        confirmButtonText: '确定',
+                        type: 'error',
+                        callback: action => {
+                            that.$message.error('异常错误：' + error.data.message);
+                        }
+                    });
+                });
             },
             fileIdSpan ({ row, column, rowIndex, columnIndex }) {
                 if(columnIndex === 1){
