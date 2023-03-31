@@ -15,8 +15,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.lpm.constant.ProxyConstant;
 import com.example.lpm.constant.RedisKeyConstant;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
+import com.example.lpm.v3.common.BizException;
+import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.config.GzipRequestInterceptor;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
+import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.RolaQuery;
 import com.example.lpm.v3.domain.query.ZipCodeQuery;
 import com.example.lpm.v3.domain.request.RolaIpActiveRequest;
@@ -26,10 +30,6 @@ import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
 import com.example.lpm.v3.mapper.RolaIpMapper;
 import com.example.lpm.v3.service.RolaIpService;
-import com.example.lpm.v3.common.BizException;
-import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.config.GzipRequestInterceptor;
-import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -211,6 +211,54 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
         List<RolaIpDO> rolaIpDOList =
                 rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda()
+                        .ne(RolaIpDO::getStatus, 3)
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCountry()), RolaIpDO::getCountry, rolaQuery.getCountry())
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getState()), RolaIpDO::getRegion, rolaQuery.getState())
+                        .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCity()), RolaIpDO::getCity, rolaQuery.getCity())
+                        .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getIp()), RolaIpDO::getIp, rolaQuery.getIp())
+                        .likeRight(CharSequenceUtil.isNotBlank(rolaQuery.getZipCode()), RolaIpDO::getPostalCode,
+                                rolaQuery.getZipCode())
+                        .orderByDesc(RolaIpDO::getCreateTime));
+        if (CollUtil.isNotEmpty(rolaIpDOList)) {
+            for (RolaIpDO rolaIpDO : rolaIpDOList) {
+                if (CharSequenceUtil.isNotBlank(rolaIpDO.getCity())) {
+                    StringBuilder city = new StringBuilder();
+                    for (String s : CharSequenceUtil.split(rolaIpDO.getCity(), " ")) {
+                        city.append(CharSequenceUtil.upperFirst(s)).append(" ");
+                    }
+                    rolaIpDO.setCity(CharSequenceUtil.trim(city.toString()));
+                }
+                if (CharSequenceUtil.isNotBlank(rolaIpDO.getRegion())) {
+                    rolaIpDO.setRegion(rolaIpDO.getRegion().toUpperCase());
+                }
+                if (CharSequenceUtil.isNotBlank(rolaIpDO.getCountry())) {
+                    rolaIpDO.setCountry(rolaIpDO.getCountry().toUpperCase());
+                }
+            }
+        }
+
+        return new PageVO<>(page.getTotal(), rolaIpDOList);
+    }
+
+    @Override
+    public PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery) {
+        if (CharSequenceUtil.isNotBlank(rolaQuery.getCountry())) {
+            rolaQuery.setCountry(rolaQuery.getCountry().toLowerCase());
+        }
+        if (CharSequenceUtil.isNotBlank(rolaQuery.getState())) {
+            rolaQuery.setState(rolaQuery.getState().toLowerCase());
+        }
+        if (CharSequenceUtil.isNotBlank(rolaQuery.getCity())) {
+            rolaQuery.setCity(rolaQuery.getCity().toLowerCase());
+        }
+
+        Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
+
+        List<RolaIpDO> rolaIpDOList =
+                rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda()
+                        .ne(RolaIpDO::getStatus, 3)
+                        .like(CharSequenceUtil.isNotBlank(rolaQuery.getFileName()), RolaIpDO::getFileFlag, rolaQuery.getFileName())
+                        .isNotNull(RolaIpDO::getFileFlag)
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCountry()), RolaIpDO::getCountry, rolaQuery.getCountry())
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getState()), RolaIpDO::getRegion, rolaQuery.getState())
                         .eq(CharSequenceUtil.isNotBlank(rolaQuery.getCity()), RolaIpDO::getCity, rolaQuery.getCity())

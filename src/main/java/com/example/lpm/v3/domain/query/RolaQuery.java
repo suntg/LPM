@@ -16,4 +16,6 @@ public class RolaQuery {
     private String city;
 
     private String zipCode;
+
+    private String fileName;
 }

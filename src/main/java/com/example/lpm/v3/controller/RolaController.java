@@ -55,6 +55,13 @@ public class RolaController {
         return rolaIpService.listRolaIpsPage(rolaQuery, pageQuery);
     }
 
+    @Operation(summary = "分页查询Rola IP")
+    @GetMapping("/listFilesPage")
+    public PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery) {
+        return rolaIpService.listRolaIpsPage(rolaQuery, pageQuery);
+    }
+
+
     @Operation(summary = "启动代理端口")
     @PostMapping("/startProxyPort")
     public void startProxyPort(RolaIpRequest rolaIpRequest) throws Exception {

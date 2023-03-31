@@ -29,6 +29,7 @@ public interface RolaIpService extends IService<RolaIpDO> {
     RolaProgressVO collectProgress();
 
     PageVO<RolaIpDO> listRolaIpsPage(RolaQuery rolaQuery, PageQuery pageQuery);
+    PageVO<RolaIpDO> listFilesPage(RolaQuery rolaQuery, PageQuery pageQuery);
 
     RolaIpDO findSocksPort(FindSocksPortQuery findSocksPortQuery);
 
