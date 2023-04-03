@@ -999,8 +999,10 @@
                             socksAddressIp: this.portForm.socksAddressIp
                         }
                         localStorage.setItem('config', JSON.stringify(modifiedForm));
-                    } else {
 
+                        //启动完端口立刻刷新页面
+                        this.onSubmit();
+                    } else {
                         return false;
                     }
                 });
