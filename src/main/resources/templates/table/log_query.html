@@ -1158,7 +1158,7 @@
                                 });
                             }
                             console.log(JSON.stringify(ips));
-                            axios.post(baseUrl + '/rola/checkIPsActive',
+                            axios.post(baseUrl + '/rola/checkIPsActiveAsync',
                                  JSON.stringify(ips)
                             , {
                                 headers: {
@@ -1211,7 +1211,7 @@
                                     rolaPassword: this.batchTestAliveForm.rolaPassword,
                                 });
                             }
-                            axios.post(baseUrl + '/rola/checkIPsActive',
+                            axios.post(baseUrl + '/rola/checkIPsActiveAsync',
                                  JSON.stringify(ips)
                             , {
                                 headers: {

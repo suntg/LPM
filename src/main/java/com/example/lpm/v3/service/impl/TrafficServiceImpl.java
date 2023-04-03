@@ -57,7 +57,7 @@ public class TrafficServiceImpl extends ServiceImpl<TrafficMapper, TrafficDO> im
         List<TrafficVO> trafficVOList = new ArrayList<>();
         for (TrafficDO trafficDO : trafficDOList) {
             TrafficVO trafficVO = new TrafficVO();
-            trafficVO.setAmount(String.valueOf(NumberUtil.div(String.valueOf(trafficDO.getBytes()), String.valueOf(1024), 0)));
+            trafficVO.setAmount(String.valueOf(NumberUtil.div(String.valueOf(trafficDO.getBytes()), String.valueOf(1048576), 0)));
             trafficVO.setUsername(trafficDO.getUsername());
             trafficVOList.add(trafficVO);
         }

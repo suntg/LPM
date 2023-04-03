@@ -455,6 +455,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean startSocksPort(RolaStartSocksPortRequest startSocksPortRequest) {
         RolaProxyPortDO rolaProxyPortDO = rolaProxyPortMapper.selectOne(new QueryWrapper<RolaProxyPortDO>().lambda()
                 .eq(RolaProxyPortDO::getProxyPort, startSocksPortRequest.getSocksPort()));
@@ -523,6 +524,7 @@ public class RolaProxyPortServiceImpl extends ServiceImpl<RolaProxyPortMapper, R
             rolaIpDO.setUseNumber(0);
         }
         rolaIpDO.setUseNumber(rolaIpDO.getUseNumber() + 1);
+        rolaIpMapper.updateById(rolaIpDO);
 
         RolaProxyPortDO rolaProxyPort = new RolaProxyPortDO();
         rolaProxyPort.setProxyPort(startSocksPortRequest.getSocksPort());
