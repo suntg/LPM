@@ -872,6 +872,66 @@
                 });
 
             },
+            testAliveDirect() {
+
+                        //保存Vue指针
+                        let that = this;
+                        const loading = this.$loading({
+                            lock: true,
+                            text: '测活中...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+                        axios.post(baseUrl + '/rola/checkIPActive', {
+                            socksAddressIp: this.testAliveForm.socksAddressIp,
+                            rolaUsername: this.testAliveForm.rolaUsername,
+                            rolaPassword: this.testAliveForm.rolaPassword
+                        }, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                            },
+                            withCredentials: true
+                        })
+                            .then((response) => {
+                                loading.close();
+                                let arr = that.reports;
+                                if (response.data.status == 100) {
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == response.data.data.id) {
+                                            arr[i].result = true;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    console.log("测活失败，row.id 是 " + this.testAliveForm.id)
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == this.testAliveForm.id) {
+                                            arr[i].result = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            })
+                            .catch((error) => {
+                                loading.close();
+                                let arr = that.reports;
+                                for (let i = 0; i < arr.length; i++) {
+                                    if (arr[i].id == this.testAliveForm.id) {
+                                        arr[i].result = false;
+                                        break;
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            });
+
+            },
             deleteByIp({row, column}) {
                 //保存Vue指针
                 var that = this;
@@ -991,7 +1051,11 @@
                 }
                 this.testAliveForm.socksAddressIp = row.ip;
                 this.testAliveForm.id = row.id;
-                this.testAliveVisible = true;
+                if (!this.testAliveForm.rolaUsername|| !this.testAliveForm.rolaUsername) {
+                    this.testAliveVisible = true;
+                } else {
+                    this.testAliveDirect();
+                }
 
             },
             startSocksPort() {

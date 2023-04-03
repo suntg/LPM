@@ -1121,7 +1121,11 @@
                 }
                 this.batchTestAliveForm.socksAddressIps = ips;
                 this.batchTestAliveForm.ids = ids;
-                this.batchTestAliveVisible = true;
+                if (!this.batchTestAliveForm.rolaUsername|| !this.batchTestAliveForm.rolaUsername) {
+                    this.batchTestAliveVisible = true;
+                } else {
+                    this.batchTestAliveDirect();
+                }
 
             },
             batchTestAlive() {
@@ -1174,7 +1178,6 @@
                                             }
                                         }
                                     }
-                                    console.log("arr一阶段：" + JSON.stringify(arr))
                                     for (let i = 0; i < arr.length; i++) {
                                         for (let j = 0; j < response.data.data.length; j++) {
                                         if (arr[i].id == response.data.data[j].id) {
@@ -1182,9 +1185,10 @@
                                             }
                                         }
                                     }
-                                    console.log("arr二阶段：" + JSON.stringify(arr))
                                 }
                                 that.reports = arr;
+                                //取消多选框选中状态
+                                that.$refs.table.clearSelection();
                                 // 重设内部 el-table 的 key 值，手动触发组件的重载机制
                                 this.timeStamp = new Date().getTime();
                                 });
@@ -1194,8 +1198,55 @@
                         }
                 });
 
-
             },
+            batchTestAliveDirect() {
+                            //保存Vue指针
+                            let that=this;
+                            let ips = [];
+                            let ids = this.batchTestAliveForm.ids;
+                            for (let i = 0; i < this.batchTestAliveForm.socksAddressIps.length; i++) {
+                                ips.push({
+                                    socksAddressIp: this.batchTestAliveForm.socksAddressIps[i],
+                                    rolaUsername: this.batchTestAliveForm.rolaUsername,
+                                    rolaPassword: this.batchTestAliveForm.rolaPassword,
+                                });
+                            }
+                            axios.post(baseUrl + '/rola/checkIPsActive',
+                                 JSON.stringify(ips)
+                            , {
+                                headers: {
+                                    'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                    'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                    'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                                },
+                                withCredentials: true
+                            }).then((response) => {
+                                let arr = that.reports;
+                                if (response.data.status == 100) {
+                                    //先双循环遍历一遍，将批量测试的数据行.result设为false
+                                    for (let i = 0; i < arr.length; i++) {
+                                        for (let j = 0; j < ids.length; j++) {
+                                            if (arr[i].id == ids[j]) {
+                                                arr[i].result = false;
+                                            }
+                                        }
+                                    }
+                                    for (let i = 0; i < arr.length; i++) {
+                                        for (let j = 0; j < response.data.data.length; j++) {
+                                        if (arr[i].id == response.data.data[j].id) {
+                                            arr[i].result = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                that.reports = arr;
+                                //取消多选框选中状态
+                                that.$refs.table.clearSelection();
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                                });
+            },
+
             batchDelete() {
                 //保存Vue指针
                 let that=this;
@@ -1222,6 +1273,7 @@
                                 });
                             }
                         });
+                        that.$refs.table.clearSelection();
                         that.onSubmit();
 
                 }).catch(function (error) {
@@ -1258,9 +1310,14 @@
                 }
                 this.testAliveForm.socksAddressIp = row.ip;
                 this.testAliveForm.id = row.id;
-                this.testAliveVisible = true;
+                if (!this.testAliveForm.rolaUsername|| !this.testAliveForm.rolaUsername) {
+                    this.testAliveVisible = true;
+                } else {
+                    this.testAliveDirect();
+                }
 
             },
+
             testAlive() {
                 this.$refs.testAliveForm.validate((valid) => {
                     if (valid) {
@@ -1355,6 +1412,67 @@
                         return false;
                     }
                 });
+
+            },
+
+            testAliveDirect() {
+                        //保存Vue指针
+                        let that = this;
+                        const loading = this.$loading({
+                            lock: true,
+                            text: '测活中...',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+                        axios.post(baseUrl + '/rola/checkIPActive', {
+                            socksAddressIp: this.testAliveForm.socksAddressIp,
+                            rolaUsername: this.testAliveForm.rolaUsername,
+                            rolaPassword: this.testAliveForm.rolaPassword
+                        }, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为json类型
+                            },
+                            withCredentials: true
+                        })
+                            .then((response) => {
+                                loading.close();
+                                let arr = that.reports;
+                                if (response.data.status == 100) {
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == response.data.data.id) {
+                                            arr[i].result = true;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    console.log("测活失败，row.id 是 " + this.testAliveForm.id)
+                                    for (let i = 0; i < arr.length; i++) {
+                                        if (arr[i].id == this.testAliveForm.id) {
+                                            arr[i].result = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            })
+                            .catch((error) => {
+                                loading.close();
+
+                                let arr = that.reports;
+                                for (let i = 0; i < arr.length; i++) {
+                                    if (arr[i].id == this.testAliveForm.id) {
+                                        arr[i].result = false;
+                                        break;
+                                    }
+                                }
+                                that.reports = arr;
+                                // 重设内部 el-table 的 key 值，手动触发组件的重载机制
+                                this.timeStamp = new Date().getTime();
+                            });
 
             },
             deleteByIp({row, column}) {
