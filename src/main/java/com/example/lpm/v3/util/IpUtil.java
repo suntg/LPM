@@ -1,7 +1,7 @@
 package com.example.lpm.v3.util;
 
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +66,8 @@ public class IpUtil {
         JSONObject jsonObject = JSON.parseObject(result);
         System.out.println(jsonObject.getJSONArray("data").get(0));
 
-        System.out.println(StrUtil.split("119.8.99.83:9502",":").get(0));;
+        System.out.println(StrUtil.split("119.8.99.83:9502", ":").get(0));
+
+        System.out.println(NumberUtil.div(String.valueOf(9502231), String.valueOf(1024), 0));
     }
 }

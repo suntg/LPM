@@ -1,6 +1,7 @@
 package com.example.lpm.v3.service.impl;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -47,7 +48,7 @@ public class TrafficServiceImpl extends ServiceImpl<TrafficMapper, TrafficDO> im
     public List<TrafficVO> statistic(TrafficStatisticQuery trafficStatisticQuery) {
         QueryWrapper<TrafficDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.select(" sum(bytes) as bytes, username");
-        queryWrapper.lambda().eq(CharSequenceUtil.isNotBlank(trafficStatisticQuery.getUsername()), TrafficDO::getUsername, trafficStatisticQuery.getUsername())
+        queryWrapper.lambda().like(CharSequenceUtil.isNotBlank(trafficStatisticQuery.getUsername()), TrafficDO::getUsername, trafficStatisticQuery.getUsername())
                 .ge(ObjectUtil.isNotNull(trafficStatisticQuery.getStartTime()), TrafficDO::getCreateTime,
                         trafficStatisticQuery.getStartTime())
                 .le(ObjectUtil.isNotNull(trafficStatisticQuery.getEndTime()), TrafficDO::getCreateTime,
@@ -56,7 +57,7 @@ public class TrafficServiceImpl extends ServiceImpl<TrafficMapper, TrafficDO> im
         List<TrafficVO> trafficVOList = new ArrayList<>();
         for (TrafficDO trafficDO : trafficDOList) {
             TrafficVO trafficVO = new TrafficVO();
-            trafficVO.setAmount(trafficDO.getBytes());
+            trafficVO.setAmount(String.valueOf(NumberUtil.div(String.valueOf(trafficDO.getBytes()), String.valueOf(1024), 0)));
             trafficVO.setUsername(trafficDO.getUsername());
             trafficVOList.add(trafficVO);
         }

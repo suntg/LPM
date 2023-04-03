@@ -9,5 +9,5 @@ public class TrafficVO {
     private String username;
 
 
-    private Long amount;
+    private String amount;
 }
