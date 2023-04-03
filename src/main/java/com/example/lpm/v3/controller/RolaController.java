@@ -199,8 +199,16 @@ public class RolaController {
         List<RolaIpDO> rolaIpDOs = new ArrayList<>();
         if (CollUtil.isNotEmpty(rolaIpLockRequests)) {
             for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
-                Future<RolaIpDO> future = rolaIpService.checkIpActiveAsync(rolaIpLockRequest);
-                rolaIpDOs.add(future.get());
+                RolaIpDO rolaIpDO = null;
+                try {
+                    Future<RolaIpDO> future = rolaIpService.checkIpActiveAsync(rolaIpLockRequest);
+                    rolaIpDO = future.get();
+                } catch (Exception e) {
+
+                }
+                if (rolaIpDO != null) {
+                    rolaIpDOs.add(rolaIpDO);
+                }
             }
         }
         return rolaIpDOs;
