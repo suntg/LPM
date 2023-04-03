@@ -82,7 +82,6 @@
                                             style="width:10%;margin-right:20px;"
                                     >
                                     </el-input>
-                                    <div style="margin-bottom:25px;margin-top:25px;">
                                         <span class="demonstration">选择时间区间：</span>
                                         <el-date-picker
                                                 v-model="createTimeRange"
@@ -94,8 +93,7 @@
                                                 end-placeholder="结束日期"
                                                 align="right">
                                         </el-date-picker>
-                                    </div>
-                                    <el-button type="primary" @click="onSubmit">查询</el-button>
+                                    <el-button type="primary" @click="onSubmit" style="margin-left:20px;">查询</el-button>
                                 </div>
                                 <hr>
                                 <table class="table table-striped table-hover table-bordered"
