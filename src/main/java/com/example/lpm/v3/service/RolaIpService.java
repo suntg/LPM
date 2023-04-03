@@ -1,6 +1,7 @@
 package com.example.lpm.v3.service;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
@@ -41,6 +42,8 @@ public interface RolaIpService extends IService<RolaIpDO> {
     RolaIpDO checkIpLock(RolaIpLockRequest rolaIpLockRequest);
 
     RolaIpDO checkIpActive(RolaIpActiveRequest rolaIpActiveRequest) throws Exception;
+
+    Future<RolaIpDO> checkIpActiveAsync(RolaIpActiveRequest rolaIpActiveRequest) throws Exception;
 
     List<RolaIpDO> listByFileFlag(String fileFlag, String fileType);
 }

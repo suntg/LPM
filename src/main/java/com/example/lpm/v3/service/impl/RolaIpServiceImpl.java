@@ -48,6 +48,8 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -58,6 +60,7 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -563,6 +566,12 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             throw new BizException(ReturnCode.RC999.getCode(), "调用paypal返回403");
         }*/
         return rolaIpDO;
+    }
+
+    @Async
+    @Override
+    public Future<RolaIpDO> checkIpActiveAsync(RolaIpActiveRequest rolaIpActiveRequest) throws Exception {
+        return new AsyncResult<>(checkIpActive(rolaIpActiveRequest));
     }
 
     @Override

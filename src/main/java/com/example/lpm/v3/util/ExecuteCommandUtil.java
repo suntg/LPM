@@ -1,16 +1,12 @@
 package com.example.lpm.v3.util;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.util.List;
 
 @Slf4j
@@ -124,7 +120,7 @@ public class ExecuteCommandUtil {
 
     public static boolean proxyState(String proxyCom) {
         String result = RuntimeUtil.execForStr("ps -ef");
-        return StrUtil.contains(result, proxyCom);
+        return CharSequenceUtil.contains(result, proxyCom);
     }
 
     public static String rolaLocalLumtest(int port, String username, String password) {
@@ -135,6 +131,7 @@ public class ExecuteCommandUtil {
         log.info(" rolaLocalLumtest curl:{}", JSON.toJSONString(stringList));
         return stringList.get(stringList.size() - 1);
     }
+
     public static String rolaLumtest(String user) {
         // curl -v --socks5 proxyus.rola.info:2042 -U skyescn_1:209209us http://lumtest.com/myip.json
         List<String> stringList = RuntimeUtil.execForLines(
@@ -146,16 +143,16 @@ public class ExecuteCommandUtil {
     public static String rolaRefresh(String user, String country, String state, String city) {
 
         // http://refresh.rola.info/refresh?user=skyescn_1&country=us&state=&city=
-        //http://refreshus2.rola.info/refresh?user=skyescn_1&country=us&state=&city=
+        // http://refreshus2.rola.info/refresh?user=skyescn_1&country=us&state=&city=
         StringBuilder rolaUrl = new StringBuilder("http://refreshus2.rola.info/refresh?user=" + user + "&country=");
         rolaUrl.append(StrUtil.replace(country, " ", "").toLowerCase());
         rolaUrl.append("&state=");
-        if (StrUtil.isNotBlank(state)) {
-            rolaUrl.append(StrUtil.replace(state, " ", "").toLowerCase());
+        if (CharSequenceUtil.isNotBlank(state)) {
+            rolaUrl.append(CharSequenceUtil.replace(state, " ", "").toLowerCase());
         }
         rolaUrl.append("&city=");
-        if (StrUtil.isNotBlank(city)) {
-            rolaUrl.append(StrUtil.replace(city, " ", "").toLowerCase());
+        if (CharSequenceUtil.isNotBlank(city)) {
+            rolaUrl.append(CharSequenceUtil.replace(city, " ", "").toLowerCase());
         }
         log.info(" rola url :{}", rolaUrl);
         List<String> stringList = RuntimeUtil.execForLines("curl " + rolaUrl);
@@ -166,16 +163,12 @@ public class ExecuteCommandUtil {
 
     public static boolean rolaProxyState(String proxyCom) {
         String result = RuntimeUtil.execForStr("ps -ef");
-        return StrUtil.contains(result, proxyCom);
+        return CharSequenceUtil.contains(result, proxyCom);
     }
 
 
-    public static Boolean portOccupancy(int port) {
+    public static boolean portOccupancy(int port) {
         String result = RuntimeUtil.execForStr("/bin/bash", "-c", "lsof -i:" + port);
-        if (StrUtil.isBlank(result)) {
-            return false;
-        } else {
-            return true;
-        }
+        return CharSequenceUtil.isNotBlank(result);
     }
 }

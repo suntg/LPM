@@ -1,5 +1,6 @@
 package com.example.lpm.v3.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 @Tag(name = "Rola")
 @Slf4j
@@ -190,6 +192,20 @@ public class RolaController {
         }
         return rolaIpDOs;
     }
+
+    @Operation(summary = "批量测活")
+    @PostMapping("/checkIpsActiveAsync")
+    public List<RolaIpDO> checkIpsActiveAsync(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
+        List<RolaIpDO> rolaIpDOs = new ArrayList<>();
+        if (CollUtil.isNotEmpty(rolaIpLockRequests)) {
+            for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
+                Future<RolaIpDO> future = rolaIpService.checkIpActiveAsync(rolaIpLockRequest);
+                rolaIpDOs.add(future.get());
+            }
+        }
+        return rolaIpDOs;
+    }
+
 
     @Operation(summary = "查询fileFlag所有数据")
     @GetMapping("/listByFileFlag")
