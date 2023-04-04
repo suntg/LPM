@@ -175,27 +175,27 @@ public class RolaController {
         return rolaIpService.checkIpActive(rolaIpLockRequest);
     }
 
+    // @Operation(summary = "批量测活")
+    // @PostMapping("/checkIPsActive")
+    // public List<RolaIpDO> checkIpsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
+    //     ArrayList<RolaIpDO> rolaIpDOs = new ArrayList<>();
+    //     for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
+    //         RolaIpDO rolaIpDO = null;
+    //         try {
+    //             rolaIpDO = rolaIpService.checkIpActive(rolaIpLockRequest);
+    //         } catch (Exception e) {
+    //
+    //         }
+    //         if (rolaIpDO != null) {
+    //             rolaIpDOs.add(rolaIpDO);
+    //         }
+    //     }
+    //     return rolaIpDOs;
+    // }
+
     @Operation(summary = "批量测活")
     @PostMapping("/checkIPsActive")
-    public List<RolaIpDO> checkIpsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
-        ArrayList<RolaIpDO> rolaIpDOs = new ArrayList<>();
-        for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
-            RolaIpDO rolaIpDO = null;
-            try {
-                rolaIpDO = rolaIpService.checkIpActive(rolaIpLockRequest);
-            } catch (Exception e) {
-
-            }
-            if (rolaIpDO != null) {
-                rolaIpDOs.add(rolaIpDO);
-            }
-        }
-        return rolaIpDOs;
-    }
-
-    @Operation(summary = "批量测活")
-    @PostMapping("/checkIpsActiveAsync")
-    public List<RolaIpDO> checkIpsActiveAsync(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
+    public List<RolaIpDO> checkIPsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
         List<RolaIpDO> rolaIpDOs = new ArrayList<>();
         if (CollUtil.isNotEmpty(rolaIpLockRequests)) {
             for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
