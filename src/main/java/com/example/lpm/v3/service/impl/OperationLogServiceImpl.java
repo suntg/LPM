@@ -40,7 +40,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public void record(OperationLogDO operationLogDO) {
         try {
-            OperationLogDO result = operationLogMapper.selectOne(new QueryWrapper<OperationLogDO>().lambda().eq(OperationLogDO::getIp, operationLogDO.getIp()).last(" limit 1"));
+            OperationLogDO result = operationLogMapper.selectOne(new QueryWrapper<OperationLogDO>().lambda()
+                    .eq(OperationLogDO::getIp, operationLogDO.getIp()).isNotNull(OperationLogDO::getCity)
+                    .isNotNull(OperationLogDO::getCountry).isNotNull(OperationLogDO::getCountry).last(" limit 1"));
             if (result == null) {
                 String ipInfo = HttpUtil.get("https://www.fkcoder.com/ip?ip=" + operationLogDO.getIp());
                 JSONObject jsonObject = JSON.parseObject(ipInfo);
