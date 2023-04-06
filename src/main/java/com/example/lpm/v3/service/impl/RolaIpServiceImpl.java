@@ -237,6 +237,11 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         log.info(result);
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray jsonArray = jsonObject.getJSONArray("data");
+        if (CollUtil.isEmpty(jsonArray)) {
+            throw new BizException(ReturnCode.RC999.getCode(), jsonObject.getString("msg"));
+        }
+
+
         for (Object o : jsonArray) {
             queue.offer((String) o);
         }
