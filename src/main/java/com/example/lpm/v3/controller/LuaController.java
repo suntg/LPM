@@ -126,7 +126,6 @@ public class LuaController {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
         operationLogDO.setSource(2);
         operationLogService.record(operationLogDO);
-        operationLogService.save(operationLogDO);
     }
 
 

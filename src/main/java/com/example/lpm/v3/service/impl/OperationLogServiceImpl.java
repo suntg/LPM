@@ -1,6 +1,7 @@
 package com.example.lpm.v3.service.impl;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
@@ -32,19 +33,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public PageVO<OperationLogDO> listPage(OperationQuery operationQuery, PageQuery pageQuery) {
         Page page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
-        List<OperationLogDO> operationLogDOList = operationLogMapper.selectList(new QueryWrapper<OperationLogDO>().lambda()
-                .eq(ObjectUtil.isNotEmpty(operationQuery.getIp()), OperationLogDO::getIp, operationQuery.getIp())
-                .like(ObjectUtil.isNotEmpty(operationQuery.getDeviceName()), OperationLogDO::getDeviceName, operationQuery.getDeviceName())
-                .like(ObjectUtil.isNotEmpty(operationQuery.getDeviceInfo()), OperationLogDO::getDeviceInfo, operationQuery.getDeviceInfo())
-                .like(ObjectUtil.isNotEmpty(operationQuery.getRequestUri()), OperationLogDO::getRequestUri, operationQuery.getRequestUri())
-                .like(ObjectUtil.isNotEmpty(operationQuery.getCity()), OperationLogDO::getCity, operationQuery.getCity())
-                .like(ObjectUtil.isNotEmpty(operationQuery.getRegion()), OperationLogDO::getRegion, operationQuery.getRegion())
-                .ge(ObjectUtil.isNotNull(operationQuery.getStartCreateTime()), OperationLogDO::getCreateTime,
-                        operationQuery.getStartCreateTime())
-                .le(ObjectUtil.isNotNull(operationQuery.getEndCreateTime()), OperationLogDO::getCreateTime,
-                        operationQuery.getEndCreateTime())
-                .orderByDesc(OperationLogDO::getCreateTime)
-        );
+        List<OperationLogDO> operationLogDOList = operationLogMapper.selectList(new QueryWrapper<OperationLogDO>().lambda().eq(ObjectUtil.isNotEmpty(operationQuery.getIp()), OperationLogDO::getIp, operationQuery.getIp()).like(ObjectUtil.isNotEmpty(operationQuery.getDeviceName()), OperationLogDO::getDeviceName, operationQuery.getDeviceName()).like(ObjectUtil.isNotEmpty(operationQuery.getDeviceInfo()), OperationLogDO::getDeviceInfo, operationQuery.getDeviceInfo()).like(ObjectUtil.isNotEmpty(operationQuery.getRequestUri()), OperationLogDO::getRequestUri, operationQuery.getRequestUri()).like(ObjectUtil.isNotEmpty(operationQuery.getCity()), OperationLogDO::getCity, operationQuery.getCity()).like(ObjectUtil.isNotEmpty(operationQuery.getRegion()), OperationLogDO::getRegion, operationQuery.getRegion()).ge(ObjectUtil.isNotNull(operationQuery.getStartCreateTime()), OperationLogDO::getCreateTime, operationQuery.getStartCreateTime()).le(ObjectUtil.isNotNull(operationQuery.getEndCreateTime()), OperationLogDO::getCreateTime, operationQuery.getEndCreateTime()).orderByDesc(OperationLogDO::getCreateTime));
         return new PageVO<>(page.getTotal(), operationLogDOList);
     }
 
@@ -55,9 +44,18 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
             if (result == null) {
                 String ipInfo = HttpUtil.get("https://www.fkcoder.com/ip?ip=" + operationLogDO.getIp());
                 JSONObject jsonObject = JSON.parseObject(ipInfo);
-                operationLogDO.setCountry(jsonObject.getString("country"));
-                operationLogDO.setRegion(jsonObject.getString("province"));
-                operationLogDO.setCity(jsonObject.getString("city"));
+                String country = jsonObject.getString("country");
+                if (CharSequenceUtil.isNotBlank(country) && !CharSequenceUtil.equals("0", country)) {
+                    operationLogDO.setCountry(country);
+                }
+                String province = jsonObject.getString("province");
+                if (CharSequenceUtil.isNotBlank(province) && !CharSequenceUtil.equals("0", province)) {
+                    operationLogDO.setRegion(province);
+                }
+                String city = jsonObject.getString("city");
+                if (CharSequenceUtil.isNotBlank(city) && !CharSequenceUtil.equals("0", city)) {
+                    operationLogDO.setCity(city);
+                }
             } else {
                 operationLogDO.setCountry(result.getCountry());
                 operationLogDO.setRegion(result.getRegion());
