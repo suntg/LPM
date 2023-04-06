@@ -1,10 +1,6 @@
 package com.example.lpm.v3.controller;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.example.lpm.constant.RedisKeyConstant;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
@@ -21,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -124,17 +121,11 @@ public class LuaController {
 
     @Operation(summary = "lua保存OperationLog")
     @PostMapping("/saveOperationLog")
+    @Transactional(rollbackFor = Exception.class)
     public void createProxyPort(@RequestBody OperationLogDO operationLogDO) {
         operationLogDO.setIp(IpUtil.getIpAddr(request));
-        try {
-            String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip="  + operationLogDO.getIp());
-            JSONObject jsonObject = JSON.parseObject(result);
-            operationLogDO.setCountry(jsonObject.getString("country"));
-            operationLogDO.setRegion(jsonObject.getString("province"));
-            operationLogDO.setCity(jsonObject.getString("city"));
-        }  catch (Exception e) {
-            log.error("ip.useragentinfo.com 查询{}异常:{}", operationLogDO.getIp(), ExceptionUtil.stacktraceToString(e));
-        }
+        operationLogDO.setSource(2);
+        operationLogService.record(operationLogDO);
         operationLogService.save(operationLogDO);
     }
 

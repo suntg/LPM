@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
+import com.example.lpm.v3.domain.entity.OperationLogDO;
 import com.example.lpm.v3.domain.entity.PortWhitelistDO;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
@@ -16,10 +17,12 @@ import com.example.lpm.v3.domain.request.RolaIpRequest;
 import com.example.lpm.v3.domain.request.RolaStartSocksPortRequest;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
+import com.example.lpm.v3.service.OperationLogService;
 import com.example.lpm.v3.service.PortWhitelistService;
 import com.example.lpm.v3.service.RolaIpService;
 import com.example.lpm.v3.service.RolaProxyPortService;
 import com.example.lpm.v3.util.ExecuteCommandUtil;
+import com.example.lpm.v3.util.IpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +49,9 @@ public class RolaController {
     private final RolaIpService rolaIpService;
 
     private final RolaProxyPortService rolaProxyPortService;
+
+    private final HttpServletRequest request;
+    private final OperationLogService operationLogService;
 
     @Operation(summary = "收集")
     @PostMapping("/collect")
@@ -139,6 +146,7 @@ public class RolaController {
         return rolaProxyPortService.startSocksPort(startSocksPortRequest);
     }
 
+
     @Operation(summary = "从页面上启动端口")
     @PostMapping("/startSocksPortFromPage")
     public boolean startSocksPortFromPage(@RequestBody RolaStartSocksPortRequest startSocksPortRequest) {
@@ -150,8 +158,11 @@ public class RolaController {
             throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
         }
 
-
-
+        OperationLogDO operationLogDO = new OperationLogDO();
+        operationLogDO.setRequestUri("建立端口");
+        operationLogDO.setIp(IpUtil.getIpAddr(request));
+        operationLogDO.setSource(1);
+        operationLogService.record(operationLogDO);
 
         return rolaProxyPortService.startSocksPort(startSocksPortRequest);
     }

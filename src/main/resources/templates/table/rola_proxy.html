@@ -961,7 +961,7 @@
                             rolaPassword: this.portForm.rolaPassword,
                             deviceName: this.portForm.deviceName
                         };
-                        axios.post(baseUrl + '/rola/startSocksPort', data)
+                        axios.post(baseUrl + '/rola/startSocksPortFromPage', data)
                             .then(function (response) {
                                 if (response.data.status == 100) {
                                     console.log(response.data.status);
