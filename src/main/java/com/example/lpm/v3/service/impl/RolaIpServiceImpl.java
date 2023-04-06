@@ -46,6 +46,7 @@ import org.redisson.api.RAtomicLong;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -76,6 +77,9 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     private final RedissonClient redissonClient;
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${rola.token}")
+    private String rolaToken;
 
     @Override
     public void collect(RolaIpRequest rolaIpRequest) {
@@ -215,7 +219,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         currentNum.set(rolaIpRequest.getNumber());
 
 
-        String url = "http://list.rola.info:8088/user_get_ip_list?token=TjyDqCmiXG0NjnOb1659194793009" +
+        String url = "http://list.rola.info:8088/user_get_ip_list?token=" + rolaToken +
                 "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry();
 
         StringBuilder urlSb = new StringBuilder(url);
