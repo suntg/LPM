@@ -115,6 +115,22 @@
                                         align="right">
                                         </el-date-picker>
                                     </div>
+                                    <span>城市：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="city"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
+                                    <span>省：</span>
+                                    <el-input
+                                            placeholder="请输入内容"
+                                            v-model.trim="region"
+                                            @keyup.enter.native="search"
+                                            style="width:10%;margin-right:20px;"
+                                            clearable>
+                                    </el-input>
 
     <el-button type="primary" @click="onSubmit">查询</el-button>
 </div>
@@ -167,25 +183,33 @@
                     label="City">
             </el-table-column>
             <el-table-column
-                    prop="createTime"
-                    label="创建时间">
+                    prop="source"
+                    label="来源">
+                <template slot-scope="scope">
+                    <span v-if="scope.row.source == '1'">页面</span>
+                    <span v-if="scope.row.source == '2'">手机</span>
+                </template>
             </el-table-column>
-        </el-table>
-    </template>
-    </tbody>
+<el-table-column
+prop="createTime"
+label="创建时间">
+</el-table-column>
+</el-table>
+</template>
+</tbody>
 </table>
 </div>
 </div>
-            <el-pagination
-                    background
-                    :page-sizes="[50, 10, 20, 100]"
-                    :page-size="pageSize"
-                    :current-page="pageNum"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    layout="total, sizes, prev, pager, next"
-                    :total="total">
-            </el-pagination>
+<el-pagination
+background
+:page-sizes="[50, 10, 20, 100]"
+:page-size="pageSize"
+:current-page="pageNum"
+@size-change="handleSizeChange"
+@current-change="handleCurrentChange"
+layout="total, sizes, prev, pager, next"
+:total="total">
+</el-pagination>
 </section>
 </div>
 </div>
@@ -221,7 +245,8 @@
 
 <script src="js/vue.js"></script>
 
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="js/axios.min.js"></script>
 <!-- 引入样式 -->
 <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 <!-- 引入组件库 -->
@@ -238,6 +263,9 @@
             requestUri:'',
             deviceName:'',
             deviceInfo:'',
+            city:'',
+            region:'',
+            country:'',
             reports: [],
             total: 0,
             pageNum: 1,
@@ -280,6 +308,9 @@
                             requestUri: this.requestUri.toLowerCase(),
                             deviceName: this.deviceName.toLowerCase(),
                             deviceInfo: this.deviceInfo.toLowerCase(),
+                            city: this.city,
+                            region: this.region,
+                            country: this.country,
                             startCreateTime: this.createTimeRange[0],
                             endCreateTime: this.createTimeRange[1],
                             pageNum: this.pageNum,
