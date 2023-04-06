@@ -224,18 +224,17 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
         StringBuilder urlSb = new StringBuilder(url);
 
-        if (StrUtil.isNotBlank(rolaIpRequest.getState())) {
-            urlSb.append("&state=" + rolaIpRequest.getState());
+        if (CharSequenceUtil.isNotBlank(rolaIpRequest.getState())) {
+            urlSb.append("&state=").append(rolaIpRequest.getState());
         }
-        if (StrUtil.isNotBlank(rolaIpRequest.getCity())) {
-            urlSb.append("&city=" + rolaIpRequest.getCity());
+        if (CharSequenceUtil.isNotBlank(rolaIpRequest.getCity())) {
+            urlSb.append("&city=").append(rolaIpRequest.getCity());
         }
         urlSb.append("&time=1&format=json&protocol=socks5&filter=1");
 
         log.info(String.valueOf(urlSb));
         String result = HttpUtil.get(String.valueOf(urlSb));
         log.info(result);
-        // TODO token 改了
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray jsonArray = jsonObject.getJSONArray("data");
         for (Object o : jsonArray) {

@@ -53,11 +53,7 @@ public class RolaController {
     private final HttpServletRequest request;
     private final OperationLogService operationLogService;
 
-    @Operation(summary = "收集")
-    @PostMapping("/collect")
-    public void collect(RolaIpRequest rolaIpRequest) {
-        rolaIpService.collect(rolaIpRequest);
-    }
+
 
     @Operation(summary = "分页查询Rola IP")
     @GetMapping("/listRolaIpsPage")
@@ -281,6 +277,13 @@ public class RolaController {
         InputStream inputStream = classPathResource.getInputStream();
         IOUtils.copy(inputStream, response.getOutputStream());
         response.flushBuffer();
+    }
+
+
+    @Operation(summary = "收集")
+    @PostMapping("/collect")
+    public void collect(RolaIpRequest rolaIpRequest) {
+        rolaIpService.collect(rolaIpRequest);
     }
 
     @Operation(summary = "收集")
