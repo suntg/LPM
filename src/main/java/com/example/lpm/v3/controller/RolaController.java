@@ -139,6 +139,24 @@ public class RolaController {
         return rolaProxyPortService.startSocksPort(startSocksPortRequest);
     }
 
+    @Operation(summary = "从页面上启动端口")
+    @PostMapping("/startSocksPortFromPage")
+    public boolean startSocksPortFromPage(@RequestBody RolaStartSocksPortRequest startSocksPortRequest) {
+        long count = portWhitelistService.count(new QueryWrapper<PortWhitelistDO>().lambda().eq(PortWhitelistDO::getPort, startSocksPortRequest.getSocksPort()));
+        if (count > 0) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
+        if (ExecuteCommandUtil.portOccupancy(startSocksPortRequest.getSocksPort())) {
+            throw new BizException(ReturnCode.RC500.getCode(), "端口为常用端口或项目使用中端口，更换重试");
+        }
+
+
+
+
+        return rolaProxyPortService.startSocksPort(startSocksPortRequest);
+    }
+
+
     @Operation(summary = "删除端口")
     @PostMapping("/deleteSocksPort")
     public void deleteProxyPortByPort(@RequestParam Integer socksPort) {

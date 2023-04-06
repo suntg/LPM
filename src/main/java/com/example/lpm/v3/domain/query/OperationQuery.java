@@ -20,6 +20,10 @@ public class OperationQuery {
 
     private String deviceInfo;
 
+    private String city;
+
+    private String region;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startCreateTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
