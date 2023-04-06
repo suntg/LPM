@@ -231,6 +231,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         log.info(String.valueOf(urlSb));
         String result = HttpUtil.get(String.valueOf(urlSb));
         log.info(result);
+        // TODO token 改了
         JSONObject jsonObject = JSON.parseObject(result);
         JSONArray jsonArray = jsonObject.getJSONArray("data");
         for (Object o : jsonArray) {

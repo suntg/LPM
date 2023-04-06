@@ -57,6 +57,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             operationLogDO.setIp(ip);
 
             try {
+                // TODO ip先查数据库，再查api
+
+
                 String result = HttpUtil.get("https://ip.useragentinfo.com/json?ip=" + operationLogDO.getIp());
                 JSONObject jsonObject = JSON.parseObject(result);
                 operationLogDO.setCountry(jsonObject.getString("country"));
