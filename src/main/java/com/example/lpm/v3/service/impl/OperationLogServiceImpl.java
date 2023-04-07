@@ -40,6 +40,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public void record(OperationLogDO operationLogDO) {
         try {
+            operationLogDO.setCity(null);
+            operationLogDO.setCountry(null);
+            operationLogDO.setRegion(null);
             OperationLogDO result = operationLogMapper.selectOne(new QueryWrapper<OperationLogDO>().lambda()
                     .eq(OperationLogDO::getIp, operationLogDO.getIp()).isNotNull(OperationLogDO::getCity)
                     .isNotNull(OperationLogDO::getCountry).isNotNull(OperationLogDO::getCountry).last(" limit 1"));
