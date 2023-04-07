@@ -215,7 +215,8 @@
                         const end = new Date();
                         const start = new Date();
                         start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                        picker.$emit('pick', [start, end]);
+                        let timeRange = getWeekRange();
+                        picker.$emit('pick', [new Date(new Date(timeRange[0]).setHours(0, 0, 0, 0)), new Date(timeRange[1].setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1)]);
                     }
                 }, {
                     text: '本月',
@@ -223,7 +224,8 @@
                         const end = new Date();
                         const start = new Date();
                         start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                        picker.$emit('pick', [start, end]);
+                        let timeRange = getMonthRange();
+                        picker.$emit('pick', [new Date(new Date(timeRange[0]).setHours(0, 0, 0, 0)), new Date(timeRange[1].setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1)]);
                     }
                 }]
             },
@@ -234,8 +236,8 @@
                     {
                         params:{
                             username: this.username,
-                            startTime: this.createTimeRange[0],
-                            endTime: this.createTimeRange[1],
+                            startTime: this.createTimeRange != null ?  this.createTimeRange[0] : null,
+                            endTime: this.createTimeRange != null ?this.createTimeRange[1] : null,
                         }
                     })
                     .then((response) => {
@@ -347,6 +349,22 @@
             }
         }
     })
+
+    const getWeekRange = () => {
+        const now = new Date();
+        const dayOfWeek = now.getDay() || 7;
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + 1).setHours(0, 0, 0, 0);
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - dayOfWeek + 1));
+        return [startOfDay, endOfDay];
+    };
+
+    const getMonthRange = () => {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const endOfMonth = new Date(nextMonth.getTime() - 86400000);
+        return [startOfMonth, endOfMonth];
+    };
 </script>
 
 </body>
