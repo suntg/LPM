@@ -275,7 +275,7 @@ public class RolaCollectRunner implements CommandLineRunner {
 
                 // if (CharSequenceUtil.contains(result, "SUCCESS")) {
                 // Thread.sleep(1500);
-                List<String> ipPort = StrUtil.split(rolaProxy, ":");
+                List<String> ipPort = CharSequenceUtil.split(rolaProxy, ":");
 
                 Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(ipPort.get(0), Integer.parseInt(ipPort.get(1))));
 
