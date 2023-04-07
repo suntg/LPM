@@ -22,11 +22,14 @@ import com.example.lpm.domain.dto.LuminatiIPDTO;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.config.GzipRequestInterceptor;
+import com.example.lpm.v3.constant.RolaCollectConstant;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
+import com.example.lpm.v3.domain.entity.TrafficDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.RolaQuery;
 import com.example.lpm.v3.domain.query.ZipCodeQuery;
+import com.example.lpm.v3.domain.request.RolaCollectRequest;
 import com.example.lpm.v3.domain.request.RolaIpActiveRequest;
 import com.example.lpm.v3.domain.request.RolaIpLockRequest;
 import com.example.lpm.v3.domain.request.RolaIpRequest;
@@ -34,6 +37,8 @@ import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
 import com.example.lpm.v3.mapper.RolaIpMapper;
 import com.example.lpm.v3.service.RolaIpService;
+import com.example.lpm.v3.service.TrafficService;
+import com.example.lpm.v3.util.OkHttpUtil;
 import com.example.lpm.v3.util.RolaUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -53,6 +58,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -223,7 +229,6 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
                 "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry();
 
         StringBuilder urlSb = new StringBuilder(url);
-
         if (CharSequenceUtil.isNotBlank(rolaIpRequest.getState())) {
             urlSb.append("&state=").append(rolaIpRequest.getState());
         }
@@ -231,7 +236,6 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             urlSb.append("&city=").append(rolaIpRequest.getCity());
         }
         urlSb.append("&time=1&format=json&protocol=socks5&filter=1");
-
         log.info(String.valueOf(urlSb));
         String result = HttpUtil.get(String.valueOf(urlSb));
         log.info(result);
@@ -257,6 +261,82 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         for (int i = 0; i < rolaIpRequest.getNumber(); i++) {
             queue.offer(rolaIpRequest);
         }
+    }
+
+    @Override
+    public void collectByRefresh(RolaCollectRequest rolaCollectRequest) {
+        // 通过http://refresh.rola.info 获取ip
+
+
+    }
+
+    @Resource
+    private TrafficService trafficService;
+
+    @Override
+    public void collectByApi(RolaCollectRequest rolaCollectRequest) {
+        // 通过http://list.rola.info:8088
+        if (rolaCollectRequest.getNumber() != null && rolaCollectRequest.getNumber() > 500) {
+            throw new BizException(ReturnCode.RC999.getCode(), "单次最多500个");
+        }
+
+        // TODO 验证地区
+
+
+        RBlockingQueue<String> queue =
+                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_API_QUEUE_KEY);
+        if (queue.size() > 0) {
+            throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
+        }
+
+        // 暂停，开始
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
+        // 开始 10
+        collectFlag.set(10L);
+
+
+        String url = RolaCollectConstant.GET_IPS_LINK + rolaToken +
+                "&qty=" + rolaCollectRequest.getNumber() + "&country=" + rolaCollectRequest.getCountry();
+
+        StringBuilder urlSb = new StringBuilder(url);
+        if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getState())) {
+            urlSb.append("&state=").append(rolaCollectRequest.getState());
+        }
+        if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getCity())) {
+            urlSb.append("&city=").append(rolaCollectRequest.getCity());
+        }
+        urlSb.append("&time=1&format=json&protocol=socks5&filter=1");
+        log.info("提取API链接:{}", urlSb);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .addInterceptor(new GzipRequestInterceptor()).build();
+        Request request = new Request.Builder().url(urlSb.toString()).build();
+        try {
+            okhttp3.Response response = client.newCall(request).execute();
+            long bytes = OkHttpUtil.measureTotalBytes(request, response);
+            String username = rolaCollectRequest.getUsernamePrefix() + "";
+            TrafficDO trafficDO = new TrafficDO();
+            trafficDO.setUsername(username);
+            trafficDO.setBytes(bytes);
+            trafficService.insert(trafficDO);
+
+            log.info("提取API链接返回结果:{}", response.body().string());
+
+            JSONObject jsonObject = JSON.parseObject(response.body().string());
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            if (CollUtil.isEmpty(jsonArray)) {
+                throw new BizException(ReturnCode.RC999.getCode(), jsonObject.getString("msg"));
+            }
+
+            for (Object o : jsonArray) {
+                queue.offer((String) o);
+            }
+        } catch (IOException e) {
+            throw new BizException(ReturnCode.RC999.getCode(), "调用list.rola.info异常");
+        }
+
+
+        // TODO 删除log
     }
 
     @Override

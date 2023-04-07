@@ -8,6 +8,7 @@ import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.RolaQuery;
+import com.example.lpm.v3.domain.request.RolaCollectRequest;
 import com.example.lpm.v3.domain.request.RolaIpActiveRequest;
 import com.example.lpm.v3.domain.request.RolaIpLockRequest;
 import com.example.lpm.v3.domain.request.RolaIpRequest;
@@ -24,6 +25,14 @@ public interface RolaIpService extends IService<RolaIpDO> {
     void collectV2(RolaIpRequest rolaIpRequest);
 
     void phoneCollect(RolaIpRequest rolaIpRequest);
+
+    void collectByRefresh(RolaCollectRequest rolaCollectRequest);
+
+    void collectByApi(RolaCollectRequest rolaCollectRequest);
+
+
+
+
 
     void endCollect();
 

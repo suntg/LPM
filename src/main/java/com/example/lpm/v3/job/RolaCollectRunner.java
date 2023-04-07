@@ -3,7 +3,6 @@ package com.example.lpm.v3.job;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.constant.ProxyConstant;
@@ -13,6 +12,7 @@ import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.config.AsyncConfig;
 import com.example.lpm.v3.config.GzipRequestInterceptor;
+import com.example.lpm.v3.constant.RolaCollectConstant;
 import com.example.lpm.v3.domain.dto.Ip123FraudDTO;
 import com.example.lpm.v3.domain.dto.Ip123InfoDTO;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
@@ -37,6 +37,7 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -330,6 +331,94 @@ public class RolaCollectRunner implements CommandLineRunner {
                 String today = DateUtil.today();
                 RAtomicLong todayNum = redissonClient.getAtomicLong("#ROLA_" + today);
                 todayNum.incrementAndGet();
+
+            } catch (Exception e) {
+                RAtomicLong currentFailNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_FAIL_KEY);
+                currentFailNum.incrementAndGet();
+
+                log.error(" ROLA_COLLECT_IP_QUEUE Exception:{}", ExceptionUtil.stacktraceToString(e));
+            }
+
+        }
+    }
+
+
+    public void collectByApi() {
+        RBlockingQueue<String> queue =
+                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_API_QUEUE_KEY);
+        while (true) {
+            String rolaProxy = null;
+            try {
+                RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
+                if (collectFlag.get() == 11L) {
+                    // 11 停止
+                    Thread.sleep(3000);
+                    continue;
+                }
+                // 10
+                rolaProxy = queue.take();
+
+                List<String> ipPort = CharSequenceUtil.split(rolaProxy, ":");
+
+                Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(ipPort.get(0), Integer.parseInt(ipPort.get(1))));
+
+                OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
+                        .addInterceptor(new GzipRequestInterceptor()).readTimeout(5, TimeUnit.SECONDS).build();
+                Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
+
+                okhttp3.Response response = client.newCall(request).execute();
+
+                String responseString = response.body().string();
+
+                log.info("lumtest :{}", responseString);
+                if (responseString.contains("No peer available")) {
+                    collectFlag.set(12L);
+                    queue.clear();
+                    redisTemplate.boundValueOps(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY).set("No peer available");
+                    continue;
+                }
+
+                LuminatiIPDTO luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
+
+                // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
+
+                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
+                        luminatiIPDTO.getGeo().getCity())) {
+                    String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
+
+                    JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
+
+                    Ip123InfoDTO ip123InfoDTO =
+                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
+
+                    luminatiIPDTO.getGeo().setRegion(ip123InfoDTO.getRegionCode());
+                    luminatiIPDTO.getGeo().setCity(ip123InfoDTO.getCity());
+                    luminatiIPDTO.getGeo().setPostalCode(ip123InfoDTO.getPostal());
+                }
+                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
+                        luminatiIPDTO.getGeo().getCity())) {
+                    throw new BizException(ReturnCode.RC999.getCode(), ReturnCode.RC999.getMessage());
+                }
+                String ip123FraudResult =
+                        HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
+                JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
+                Ip123FraudDTO ip123FraudDTO =
+                        objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
+
+                save(luminatiIPDTO, ip123FraudDTO, usAddress);
+
+                RAtomicLong totalNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_TOTAL_KEY);
+                totalNum.incrementAndGet();
+
+                String today = DateUtil.today();
+                RAtomicLong todayNum = redissonClient.getAtomicLong("#ROLA_" + today);
+                todayNum.incrementAndGet();
+
+            } catch (SocketTimeoutException se) {
+
+
+
+
 
             } catch (Exception e) {
                 RAtomicLong currentFailNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_FAIL_KEY);

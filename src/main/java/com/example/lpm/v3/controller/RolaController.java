@@ -11,10 +11,7 @@ import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.RolaQuery;
-import com.example.lpm.v3.domain.request.RolaIpActiveRequest;
-import com.example.lpm.v3.domain.request.RolaIpLockRequest;
-import com.example.lpm.v3.domain.request.RolaIpRequest;
-import com.example.lpm.v3.domain.request.RolaStartSocksPortRequest;
+import com.example.lpm.v3.domain.request.*;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
 import com.example.lpm.v3.service.OperationLogService;
@@ -51,9 +48,10 @@ public class RolaController {
     private final RolaProxyPortService rolaProxyPortService;
 
     private final HttpServletRequest request;
+
     private final OperationLogService operationLogService;
 
-
+    private final PortWhitelistService portWhitelistService;
 
     @Operation(summary = "分页查询Rola IP")
     @GetMapping("/listRolaIpsPage")
@@ -124,8 +122,6 @@ public class RolaController {
         return rolaIpService.findSocksPort(findSocksPortQuery);
     }
 
-
-    private final PortWhitelistService portWhitelistService;
 
     @Operation(summary = "启动端口")
     @PostMapping("/startSocksPort")
@@ -200,24 +196,6 @@ public class RolaController {
         return rolaIpService.checkIpActive(rolaIpLockRequest);
     }
 
-    // @Operation(summary = "批量测活")
-    // @PostMapping("/checkIPsActive")
-    // public List<RolaIpDO> checkIpsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
-    //     ArrayList<RolaIpDO> rolaIpDOs = new ArrayList<>();
-    //     for (RolaIpActiveRequest rolaIpLockRequest : rolaIpLockRequests) {
-    //         RolaIpDO rolaIpDO = null;
-    //         try {
-    //             rolaIpDO = rolaIpService.checkIpActive(rolaIpLockRequest);
-    //         } catch (Exception e) {
-    //
-    //         }
-    //         if (rolaIpDO != null) {
-    //             rolaIpDOs.add(rolaIpDO);
-    //         }
-    //     }
-    //     return rolaIpDOs;
-    // }
-
     @Operation(summary = "批量测活")
     @PostMapping("/checkIPsActive")
     public List<RolaIpDO> checkIPsActive(@RequestBody List<RolaIpActiveRequest> rolaIpLockRequests) throws Exception {
@@ -291,5 +269,18 @@ public class RolaController {
     public void collectV2(RolaIpRequest rolaIpRequest) {
         rolaIpService.collectV2(rolaIpRequest);
     }
+
+    @Operation(summary = "收集")
+    @PostMapping("/collectByRefresh")
+    public void collectByRefresh(RolaCollectRequest rolaCollectRequest) {
+        rolaIpService.collectByRefresh(rolaCollectRequest);
+    }
+
+    @Operation(summary = "收集")
+    @PostMapping("/collectByApi")
+    public void collectByApi(RolaCollectRequest rolaCollectRequest) {
+        rolaIpService.collectByApi(rolaCollectRequest);
+    }
+
 
 }
