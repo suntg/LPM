@@ -63,12 +63,12 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 50; i++) {
             asyncConfig.rolaCollectByApiThreadPool().submit(this::collectByApi);
             Thread.sleep(2000);
         }
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 400; i++) {
             asyncConfig.rolaCollectBySidThreadPool().submit(this::collectBySid);
             Thread.sleep(2000);
         }
@@ -119,9 +119,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 });
 
                 OkHttpClient client = new OkHttpClient.Builder()
-                        /*.connectTimeout(60, TimeUnit.SECONDS)
-                        .writeTimeout(60, TimeUnit.SECONDS)
-                        .readTimeout(60, TimeUnit.SECONDS)*/
+                        .connectTimeout(3, TimeUnit.SECONDS)
+                        .readTimeout(5, TimeUnit.SECONDS)
                         .proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(ipPort.get(0), Integer.parseInt(ipPort.get(1)))))
                         .build();
 
@@ -137,11 +136,9 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
                 String responseString = response.body().string();
 
-
                 log.info("lumtest :{}", responseString);
 
                 Ip234DTO ip234DTO = objectMapper.readValue(responseString, Ip234DTO.class);
-
 
                 if (CharSequenceUtil.hasBlank(ip234DTO.getRegion(), ip234DTO.getCity())) {
                     String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + ip234DTO.getIp());
@@ -224,7 +221,6 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY interruptedException:{}", ExceptionUtil.stacktraceToString(ie));
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-
                 RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
                 collectResultDTO.setIp(userSb.toString());
                 collectResultDTO.setMsg("请求失败，未获取到IP");
