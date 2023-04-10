@@ -345,120 +345,12 @@ public class RolaCollectRunner implements CommandLineRunner {
     }
 
 
-    public void collectByApi() {
-        RBlockingQueue<RolaCollectQueueMsgDTO> queue =
-                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_API_QUEUE_KEY);
-        while (true) {
-            RolaCollectQueueMsgDTO rolaProxy = null;
-            try {
-                RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
-                if (collectFlag.get() == 11L) {
-                    // 11 停止
-                    Thread.sleep(3000);
-                    continue;
-                }
-                // 10
-                rolaProxy = queue.take();
-
-                List<String> ipPort = CharSequenceUtil.split(rolaProxy.getRolaApiIp(), ":");
-
-                Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(ipPort.get(0), Integer.parseInt(ipPort.get(1))));
-
-                OkHttpClient client = new OkHttpClient().newBuilder().proxy(proxy)
-                        .addInterceptor(new GzipRequestInterceptor()).readTimeout(5, TimeUnit.SECONDS).build();
-                Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
-
-                okhttp3.Response response = client.newCall(request).execute();
-
-                String responseString = response.body().string();
-
-
-                log.info("lumtest :{}", responseString);
-                /*if (responseString.contains("No peer available")) {
-                    collectFlag.set(12L);
-                    queue.clear();
-                    redisTemplate.boundValueOps(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY).set("No peer available");
-                    continue;
-                }*/
-
-                LuminatiIPDTO luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
-
-                // TODO 流量
-
-
-                // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
-                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
-                    String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
-
-                    JsonNode jsonNode = objectMapper.readTree(ip123InfoResult);
-
-                    Ip123InfoDTO ip123InfoDTO =
-                            objectMapper.readValue(jsonNode.get("data").toString(), Ip123InfoDTO.class);
-
-                    luminatiIPDTO.getGeo().setRegion(ip123InfoDTO.getRegionCode());
-                    luminatiIPDTO.getGeo().setCity(ip123InfoDTO.getCity());
-                    luminatiIPDTO.getGeo().setPostalCode(ip123InfoDTO.getPostal());
-                }
-                if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(),
-                        luminatiIPDTO.getGeo().getCity())) {
-                    throw new BizException(ReturnCode.RC999.getCode(), ReturnCode.RC999.getMessage());
-                }
-                String ip123FraudResult =
-                        HttpUtil.get("http://www.ip123.in/fraud_check?ip=" + luminatiIPDTO.getIp());
-                JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
-                Ip123FraudDTO ip123FraudDTO =
-                        objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
-
-                save(luminatiIPDTO, ip123FraudDTO, rolaProxy.getRolaAccessServer());
-
-                // RAtomicLong totalNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_TOTAL_KEY);
-                // totalNum.incrementAndGet();
-                //
-                // String today = DateUtil.today();
-                // RAtomicLong todayNum = redissonClient.getAtomicLong("#ROLA_" + today);
-                // todayNum.incrementAndGet();
-
-
-
-
-
-
-
-
-
-
-            } catch (SocketTimeoutException se) {
-                //
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(rolaProxy.getRolaApiIp());
-                collectResultDTO.setMsg("ROLA IP网络异常，未获取到IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
-
-            } catch (Exception e) {
-                // RAtomicLong currentFailNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_FAIL_KEY);
-                // currentFailNum.incrementAndGet();
-
-                log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY Exception:{}", ExceptionUtil.stacktraceToString(e));
-            }
-
-        }
-    }
-
     private void save(LuminatiIPDTO luminatiIPDTO, Ip123FraudDTO ip123FraudDTO, String source) {
 
         long count =
                 rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
         if (count > 0) {
             log.info("已存在IP: {}", luminatiIPDTO.getIp());
-
-            RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-            collectResultDTO.setIp(luminatiIPDTO.getIp());
-            collectResultDTO.setMsg("重复IP");
-            redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
-
-            // RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_REPEAT_KEY);
-            // currentRepeatNum.incrementAndGet();
         } else {
             RolaIpDO rolaIpDO = new RolaIpDO();
             rolaIpDO.setIp(luminatiIPDTO.getIp());
@@ -473,19 +365,6 @@ public class RolaCollectRunner implements CommandLineRunner {
             rolaIpDO.setScore(ip123FraudDTO.getScore());
 
             rolaIpDO.setSource(source);
-            try {
-                rolaIpMapper.insert(rolaIpDO);
-
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(luminatiIPDTO.getIp());
-                collectResultDTO.setMsg("成功IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
-            } catch (Exception e) {
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(luminatiIPDTO.getIp());
-                collectResultDTO.setMsg("重复IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
-            }
             log.info("插入新数据: {}", rolaIpDO);
         }
 

@@ -231,17 +231,17 @@ public class RolaController {
         rolaIpService.save(rolaIpDO);
     }
 
-    @Operation(summary = "结束收集")
-    @GetMapping("/endCollect")
-    public void endCollect() {
-        rolaIpService.endCollect();
-    }
-
-    @Operation(summary = "暂停收集")
-    @GetMapping("/pauseCollect")
-    public void pauseCollect() {
-        rolaIpService.pauseCollect();
-    }
+    // @Operation(summary = "结束收集")
+    // @GetMapping("/endCollect")
+    // public void endCollect() {
+    //     rolaIpService.endCollect();
+    // }
+    //
+    // @Operation(summary = "暂停收集")
+    // @GetMapping("/pauseCollect")
+    // public void pauseCollect() {
+    //     rolaIpService.pauseCollect();
+    // }
 
     @Operation(summary = "收集")
     @PostMapping("/phoneCollect")
@@ -258,17 +258,17 @@ public class RolaController {
     }
 
 
-    @Operation(summary = "收集")
-    @PostMapping("/collect")
-    public void collect(RolaIpRequest rolaIpRequest) {
-        rolaIpService.collect(rolaIpRequest);
-    }
-
-    @Operation(summary = "收集")
-    @PostMapping("/collectV2")
-    public void collectV2(RolaIpRequest rolaIpRequest) {
-        rolaIpService.collectV2(rolaIpRequest);
-    }
+    // @Operation(summary = "收集")
+    // @PostMapping("/collect")
+    // public void collect(RolaIpRequest rolaIpRequest) {
+    //     rolaIpService.collect(rolaIpRequest);
+    // }
+    //
+    // @Operation(summary = "收集")
+    // @PostMapping("/collectV2")
+    // public void collectV2(RolaIpRequest rolaIpRequest) {
+    //     rolaIpService.collectV2(rolaIpRequest);
+    // }
 
     @Operation(summary = "收集——ROLA SID")
     @PostMapping("/collectBySid")
