@@ -16,10 +16,8 @@ public class RolaCollectRequest implements Serializable {
 
     private Long number;
 
-    /**
-     * 用户名前缀
-     */
-    private String usernamePrefix;
+
+    private String username;
 
     private String rolaPassword;
 

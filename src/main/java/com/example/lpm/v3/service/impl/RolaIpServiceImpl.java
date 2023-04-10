@@ -22,7 +22,9 @@ import com.example.lpm.domain.dto.LuminatiIPDTO;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
 import com.example.lpm.v3.config.GzipRequestInterceptor;
+import com.example.lpm.v3.constant.RolaAccessServerEnum;
 import com.example.lpm.v3.constant.RolaCollectConstant;
+import com.example.lpm.v3.domain.dto.RolaCollectQueueMsgDTO;
 import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.entity.TrafficDO;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
@@ -65,6 +67,7 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -82,10 +85,13 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
     private final RedissonClient redissonClient;
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Value("${rola.token}")
     private String rolaToken;
+
+    @Value("${rola.proxy-password}")
+    private String rolaProxyPassword;
 
     @Override
     public void collect(RolaIpRequest rolaIpRequest) {
@@ -175,32 +181,32 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
                 List<CsvRow> rows = data.getRows();
 
                 String state = null;
-                if (StrUtil.isNotBlank(rolaIpRequest.getState())) {
-                    state = StrUtil.replace(rolaIpRequest.getState(), " ", "").toLowerCase();
+                if (CharSequenceUtil.isNotBlank(rolaIpRequest.getState())) {
+                    state = CharSequenceUtil.replace(rolaIpRequest.getState(), " ", "").toLowerCase();
                 }
 
                 String city = null;
-                if (StrUtil.isNotBlank(rolaIpRequest.getCity())) {
-                    city = StrUtil.replace(rolaIpRequest.getCity(), " ", "").toLowerCase();
+                if (CharSequenceUtil.isNotBlank(rolaIpRequest.getCity())) {
+                    city = CharSequenceUtil.replace(rolaIpRequest.getCity(), " ", "").toLowerCase();
                 }
 
 
-                Integer stateFlag = 0;
-                Integer cityFlag = 0;
+                int stateFlag = 0;
+                int cityFlag = 0;
 
                 for (CsvRow row : rows) {
                     List<String> list = row.getRawList();
-                    if (StrUtil.isNotBlank(state) && list.contains(state)) {
+                    if (CharSequenceUtil.isNotBlank(state) && list.contains(state)) {
                         stateFlag = 1;
                     }
-                    if (StrUtil.isNotBlank(city) && list.contains(city)) {
+                    if (CharSequenceUtil.isNotBlank(city) && list.contains(city)) {
                         cityFlag = 1;
                     }
                 }
-                if (StrUtil.isNotBlank(state) && stateFlag == 0) {
+                if (CharSequenceUtil.isNotBlank(state) && stateFlag == 0) {
                     throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
                 }
-                if (StrUtil.isNotBlank(city) && cityFlag == 0) {
+                if (CharSequenceUtil.isNotBlank(city) && cityFlag == 0) {
                     throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
                 }
             } catch (IOException e) {
@@ -264,10 +270,106 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     }
 
     @Override
-    public void collectByRefresh(RolaCollectRequest rolaCollectRequest) {
-        // 通过http://refresh.rola.info 获取ip
+    public void collectBySid(RolaCollectRequest rolaCollectRequest) {
+
+        // 在收录代理的时候,先判断城市列表是存在.如果存在在进行收录(网页上)
+        // 如果不存在情况下,网页提示该州不在收录范围内.
+        if ("us".equalsIgnoreCase(rolaCollectRequest.getCountry())) {
+            ClassPathResource classPathResource = new ClassPathResource("country-state-city.csv");
+            try {
+                InputStream inputStream = classPathResource.getInputStream();
+                CsvReader reader = CsvUtil.getReader();
+                CsvData data = reader.read(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                List<CsvRow> rows = data.getRows();
+
+                String state = null;
+                if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getState())) {
+                    state = CharSequenceUtil.replace(rolaCollectRequest.getState(), " ", "").toLowerCase();
+                }
+
+                String city = null;
+                if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getCity())) {
+                    city = CharSequenceUtil.replace(rolaCollectRequest.getCity(), " ", "").toLowerCase();
+                }
 
 
+                int stateFlag = 0;
+                int cityFlag = 0;
+
+                for (CsvRow row : rows) {
+                    List<String> list = row.getRawList();
+                    if (CharSequenceUtil.isNotBlank(state) && list.contains(state)) {
+                        stateFlag = 1;
+                    }
+                    if (CharSequenceUtil.isNotBlank(city) && list.contains(city)) {
+                        cityFlag = 1;
+                    }
+                }
+                if (CharSequenceUtil.isNotBlank(state) && stateFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+                if (CharSequenceUtil.isNotBlank(city) && cityFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+            } catch (IOException e) {
+                throw new BizException(ReturnCode.RC999.getCode(), "打开罗拉代理的州和城市列表失败");
+            }
+        }
+
+        RBlockingQueue<RolaCollectRequest> queue =
+                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_SID_QUEUE_KEY);
+        if (!queue.isEmpty()) {
+            throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
+        }
+
+        // 暂停，开始
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FLAG_KEY);
+        // 开始 10
+        collectFlag.set(10L);
+
+        for (int i = 0; i < rolaCollectRequest.getNumber(); i++) {
+            queue.offer(rolaCollectRequest);
+        }
+
+        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_SUCCESS_NUM);
+        successNum.set(0);
+        RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
+        failNum.set(0);
+        RAtomicLong duplicateNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_DUPLICATE_NUM);
+        duplicateNum.set(0);
+        redisTemplate.delete(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT);
+    }
+
+    @Override
+    public RolaProgressVO collectBySidProgress() {
+        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_SUCCESS_NUM);
+        RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
+        RAtomicLong duplicateNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_DUPLICATE_NUM);
+
+
+        List<Object> rolaCollectResultDTOList = redisTemplate.opsForList().range(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, 0, -1);
+
+        RolaProgressVO rolaProgressVO = new RolaProgressVO();
+        rolaProgressVO.setFailNum(failNum.get());
+        rolaProgressVO.setSuccessNum(successNum.get());
+        rolaProgressVO.setDuplicateNum(duplicateNum.get());
+        rolaProgressVO.setRolaCollectResultDTOList(rolaCollectResultDTOList);
+        return rolaProgressVO;
+    }
+
+    @Override
+    public void collectBySidEnd() {
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FLAG_KEY);
+        collectFlag.set(11L);
+        RBlockingQueue<RolaIpRequest> queue =
+                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_SID_QUEUE_KEY);
+        queue.clear();
+    }
+
+    @Override
+    public void collectBySidPause() {
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FLAG_KEY);
+        collectFlag.set(11L);
     }
 
     @Resource
@@ -280,12 +382,54 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             throw new BizException(ReturnCode.RC999.getCode(), "单次最多500个");
         }
 
-        // TODO 验证地区
+        // 在收录代理的时候,先判断城市列表是存在.如果存在在进行收录(网页上)
+        // 如果不存在情况下,网页提示该州不在收录范围内.
+        if ("us".equalsIgnoreCase(rolaCollectRequest.getCountry())) {
+            ClassPathResource classPathResource = new ClassPathResource("country-state-city.csv");
+            try {
+                InputStream inputStream = classPathResource.getInputStream();
+                CsvReader reader = CsvUtil.getReader();
+                CsvData data = reader.read(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                List<CsvRow> rows = data.getRows();
+
+                String state = null;
+                if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getState())) {
+                    state = CharSequenceUtil.replace(rolaCollectRequest.getState(), " ", "").toLowerCase();
+                }
+
+                String city = null;
+                if (CharSequenceUtil.isNotBlank(rolaCollectRequest.getCity())) {
+                    city = CharSequenceUtil.replace(rolaCollectRequest.getCity(), " ", "").toLowerCase();
+                }
 
 
-        RBlockingQueue<String> queue =
+                int stateFlag = 0;
+                int cityFlag = 0;
+
+                for (CsvRow row : rows) {
+                    List<String> list = row.getRawList();
+                    if (CharSequenceUtil.isNotBlank(state) && list.contains(state)) {
+                        stateFlag = 1;
+                    }
+                    if (CharSequenceUtil.isNotBlank(city) && list.contains(city)) {
+                        cityFlag = 1;
+                    }
+                }
+                if (CharSequenceUtil.isNotBlank(state) && stateFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+                if (CharSequenceUtil.isNotBlank(city) && cityFlag == 0) {
+                    throw new BizException(ReturnCode.RC999.getCode(), "该地址不在收录范围内");
+                }
+            } catch (IOException e) {
+                throw new BizException(ReturnCode.RC999.getCode(), "打开罗拉代理的州和城市列表失败");
+            }
+        }
+
+
+        RBlockingQueue<RolaCollectQueueMsgDTO> queue =
                 redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_API_QUEUE_KEY);
-        if (queue.size() > 0) {
+        if (!queue.isEmpty()) {
             throw new BizException(ReturnCode.RC999.getCode(), "已有项目在执行，请等待完成后，再次增加收录项目。");
         }
 
@@ -293,7 +437,6 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
         // 开始 10
         collectFlag.set(10L);
-
 
         String url = RolaCollectConstant.GET_IPS_LINK + rolaToken +
                 "&qty=" + rolaCollectRequest.getNumber() + "&country=" + rolaCollectRequest.getCountry();
@@ -306,6 +449,9 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
             urlSb.append("&city=").append(rolaCollectRequest.getCity());
         }
         urlSb.append("&time=1&format=json&protocol=socks5&filter=1");
+        if (rolaCollectRequest.getAccessServer().equals(RolaAccessServerEnum.US)) {
+            urlSb.append("&area=us");
+        }
         log.info("提取API链接:{}", urlSb);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
@@ -314,29 +460,72 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         try {
             okhttp3.Response response = client.newCall(request).execute();
             long bytes = OkHttpUtil.measureTotalBytes(request, response);
-            String username = rolaCollectRequest.getUsernamePrefix() + "";
             TrafficDO trafficDO = new TrafficDO();
-            trafficDO.setUsername(username);
+            trafficDO.setUsername(rolaCollectRequest.getUsername());
             trafficDO.setBytes(bytes);
             trafficService.insert(trafficDO);
 
-            log.info("提取API链接返回结果:{}", response.body().string());
 
-            JSONObject jsonObject = JSON.parseObject(response.body().string());
+            String responseBody = response.body().string();
+            log.info("提取API链接返回结果:{}", responseBody);
+
+            JSONObject jsonObject = JSON.parseObject(responseBody);
             JSONArray jsonArray = jsonObject.getJSONArray("data");
             if (CollUtil.isEmpty(jsonArray)) {
                 throw new BizException(ReturnCode.RC999.getCode(), jsonObject.getString("msg"));
             }
 
             for (Object o : jsonArray) {
-                queue.offer((String) o);
+                RolaCollectQueueMsgDTO rolaCollectQueueMsgDTO = new RolaCollectQueueMsgDTO();
+                rolaCollectQueueMsgDTO.setRolaApiIp((String) o);
+                rolaCollectQueueMsgDTO.setUsername(rolaCollectRequest.getUsername());
+                rolaCollectQueueMsgDTO.setRolaAccessServer(rolaCollectRequest.getAccessServer().getServerAddr());
+                queue.offer(rolaCollectQueueMsgDTO);
             }
         } catch (IOException e) {
             throw new BizException(ReturnCode.RC999.getCode(), "调用list.rola.info异常");
         }
 
+        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_SUCCESS_NUM);
+        successNum.set(0);
+        RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
+        failNum.set(0);
+        RAtomicLong duplicateNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_DUPLICATE_NUM);
+        duplicateNum.set(0);
+        redisTemplate.delete(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT);
+    }
 
-        // TODO 删除log
+    @Override
+    public RolaProgressVO collectByApiProgress() {
+        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_SUCCESS_NUM);
+        RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
+        RAtomicLong duplicateNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_DUPLICATE_NUM);
+
+
+        List<Object> rolaCollectResultDTOList = redisTemplate.opsForList().range(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, 0, -1);
+
+        RolaProgressVO rolaProgressVO = new RolaProgressVO();
+        rolaProgressVO.setFailNum(failNum.get());
+        rolaProgressVO.setSuccessNum(successNum.get());
+        rolaProgressVO.setDuplicateNum(duplicateNum.get());
+        rolaProgressVO.setRolaCollectResultDTOList(rolaCollectResultDTOList);
+        return rolaProgressVO;
+
+    }
+
+    @Override
+    public void collectByApiEnd() {
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
+        collectFlag.set(11L);
+        RBlockingQueue<RolaIpRequest> queue =
+                redissonClient.getBlockingQueue(RolaCollectConstant.ROLA_COLLECT_BY_API_QUEUE_KEY);
+        queue.clear();
+    }
+
+    @Override
+    public void collectByApiPause() {
+        RAtomicLong collectFlag = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FLAG_KEY);
+        collectFlag.set(11L);
     }
 
     @Override
@@ -370,7 +559,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
         RAtomicLong currentFailNum = redissonClient.getAtomicLong(RedisKeyConstant.ROLA_CURRENT_FAIL_KEY);
 
-        String error = redisTemplate.opsForValue().get(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY);
+        String error = (String) redisTemplate.opsForValue().get(RedisKeyConstant.ROLA_COLLECT_ERROR_KEY);
 
         RolaProgressVO rolaProgressVO = new RolaProgressVO();
         rolaProgressVO.setCurrentNum(currentNum.get());

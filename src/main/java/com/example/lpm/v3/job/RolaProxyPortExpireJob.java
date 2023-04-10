@@ -25,7 +25,7 @@ public class RolaProxyPortExpireJob {
     /**
      * 第一次延迟1秒后执行，之后按fixedRate的规则每60秒执行一次
      */
-    @Scheduled(initialDelay = 1000, fixedRate = 60000)
+    // @Scheduled(initialDelay = 1000, fixedRate = 60000)
     public void rolaProxyPortExpire() {
         List<RolaProxyPortDO> rolaProxyPortDOList = rolaProxyPortService.list(new QueryWrapper<RolaProxyPortDO>().lambda()
                 .le(RolaProxyPortDO::getCreateTime, LocalDateTimeUtil.offset(LocalDateTime.now(), -1, ChronoUnit.HOURS)));

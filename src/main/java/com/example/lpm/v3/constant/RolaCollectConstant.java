@@ -6,57 +6,76 @@ public class RolaCollectConstant {
     /**
      * 通过API收集ip
      */
-    public static final String ROLA_COLLECT_BY_API_QUEUE_KEY = "#ROLA_COLLECT_BY_API_QUEUE_KEY";
+    public static final String ROLA_COLLECT_BY_API_QUEUE_KEY = "ROLA_COLLECT_BY_API_QUEUE";
 
     /**
      * ROLA API收集IP启停标志
      * 10
      * 11
      */
-    public static final String ROLA_COLLECT_BY_API_FLAG_KEY = "#ROLA_COLLECT_BY_API_FLAG";
+    public static final String ROLA_COLLECT_BY_API_FLAG_KEY = "rola_collect_by_api:flag";
 
-
+    /**
+     * ROLA API
+     */
     public static final String GET_IPS_LINK = "http://list.rola.info:8088/user_get_ip_list?token=";
 
 
+    public static final String IP234_URL = "http://www.ip234.in/ip.json";
 
-
-
+    /**
+     * ROLA API收集IP 成功个数
+     */
+    public static final String ROLA_COLLECT_BY_API_SUCCESS_NUM = "rola_collect:api:successNum";
 
 
     /**
-     * 收录ip 任务队列
+     * ROLA API收集IP 失败个数
      */
-    public static String COLLECTION_TASK_TOPIC = "collectiont_task_";
+    public static final String ROLA_COLLECT_BY_API_FAIL_NUM = "rola_collect:api:failNum";
 
     /**
-     * 收集任务标志位，用来启动停止
+     * ROLA API收集IP 重复个数
      */
-    public static final String COLLECTION_TASK_FLAG = "collectiont_task_flag_";
+    public static final String ROLA_COLLECT_BY_API_DUPLICATE_NUM = "rola_collect:api:duplicateNum";
 
     /**
-     * 需要收集的数量
+     * ROLA API收集IP 重复个数
      */
-    public static final String COLLECTION_TASK_CURRENT = "collectiont_task_current_";
+    public static final String ROLA_COLLECT_BY_API_RESULT = "rola_collect:api:result";
+
 
     /**
-     * 收集任务 失败原因
+     * 通过API收集ip
      */
-    public static final String COLLECTION_TASK_ERROR = "collectiont_task_error_";
-
-    public static final String COLLECTION_TASK_TOTAL = "collectiont_task_total_";
+    public static final String ROLA_COLLECT_BY_SID_QUEUE_KEY = "ROLA_COLLECT_BY_SID_QUEUE_KEY";
 
     /**
-     * 当天收集入库数量
+     * ROLA SID收集IP启停标志
+     * 10
+     * 11
      */
-    public static final String COLLECTION_TASK_TODAY = "collectiont_task_today_";
-
-    public static final String COLLECTION_TASK_FAIL = "collectiont_task_fail_";
-
-    public static final String COLLECTION_TASK_REPEAT = "collectiont_task_repeat_";
+    public static final String ROLA_COLLECT_BY_SID_FLAG_KEY = "rola_collect:sid:flag";
 
     /**
-     * lua添加IP 任务队列
+     * ROLA SID收集IP 成功个数
      */
-    public static String ADD_PROXY_IP_TASK_TOPIC = "add_proxy_id_";
+    public static final String ROLA_COLLECT_BY_SID_SUCCESS_NUM = "rola_collect:sid:successNum";
+
+
+    /**
+     * ROLA SID收集IP 失败个数
+     */
+    public static final String ROLA_COLLECT_BY_SID_FAIL_NUM = "rola_collect:sid:failNum";
+
+    /**
+     * ROLA SID收集IP 重复个数
+     */
+    public static final String ROLA_COLLECT_BY_SID_DUPLICATE_NUM = "rola_collect:sid:duplicateNum";
+
+    /**
+     * ROLA SID收集IP 重复个数
+     */
+    public static final String ROLA_COLLECT_BY_SID_RESULT = "rola_collect:sid:result";
+
 }

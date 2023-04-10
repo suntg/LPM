@@ -270,17 +270,52 @@ public class RolaController {
         rolaIpService.collectV2(rolaIpRequest);
     }
 
-    @Operation(summary = "收集")
-    @PostMapping("/collectByRefresh")
-    public void collectByRefresh(RolaCollectRequest rolaCollectRequest) {
-        rolaIpService.collectByRefresh(rolaCollectRequest);
+    @Operation(summary = "收集——ROLA SID")
+    @PostMapping("/collectBySid")
+    public void collectBySid(RolaCollectRequest rolaCollectRequest) {
+        rolaIpService.collectBySid(rolaCollectRequest);
     }
 
-    @Operation(summary = "收集")
+    @Operation(summary = "收集进度——ROLA SID")
+    @GetMapping("/collectBySidProgress")
+    public RolaProgressVO collectBySidProgress() {
+        return rolaIpService.collectBySidProgress();
+    }
+
+    @Operation(summary = "结束收集——ROLA SID")
+    @GetMapping("/collectBySidEnd")
+    public void collectBySidEnd() {
+        rolaIpService.collectBySidEnd();
+    }
+
+    @Operation(summary = "暂停收集——ROLA SID")
+    @GetMapping("/collectBySidPause")
+    public void collectBySidPause() {
+        rolaIpService.collectBySidPause();
+    }
+
+
+    @Operation(summary = "收集——ROLA API")
     @PostMapping("/collectByApi")
     public void collectByApi(RolaCollectRequest rolaCollectRequest) {
         rolaIpService.collectByApi(rolaCollectRequest);
     }
 
+    @Operation(summary = "收集进度——ROLA API")
+    @GetMapping("/collectByApiProgress")
+    public RolaProgressVO collectByApiProgress() {
+        return rolaIpService.collectByApiProgress();
+    }
 
+    @Operation(summary = "结束收集——ROLA API")
+    @GetMapping("/collectByApiEnd")
+    public void collectByApiEnd() {
+        rolaIpService.collectByApiEnd();
+    }
+
+    @Operation(summary = "暂停收集——ROLA API")
+    @GetMapping("/collectByApiPause")
+    public void collectByApiPause() {
+        rolaIpService.collectByApiPause();
+    }
 }

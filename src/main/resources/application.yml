@@ -1,6 +1,6 @@
 server:
   shutdown: graceful
-  port: 21888
+  port: 21889
 
 spring:
   application:
@@ -62,3 +62,5 @@ pagehelper:
 
 rola:
   token: A8Jm7YGr3p5lNkX21680763452748
+  sid-username: xinyi1989_1000000
+  proxy-password: Skyescn2929!

@@ -1,5 +1,6 @@
 package com.example.lpm.v3.util;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -69,5 +70,10 @@ public class IpUtil {
         System.out.println(StrUtil.split("119.8.99.83:9502", ":").get(0));
 
         System.out.println(NumberUtil.div(String.valueOf(9502231), String.valueOf(1024), 0));
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println(IdUtil.getSnowflake().nextId());
+
+        }
     }
 }

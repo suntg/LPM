@@ -26,11 +26,23 @@ public interface RolaIpService extends IService<RolaIpDO> {
 
     void phoneCollect(RolaIpRequest rolaIpRequest);
 
-    void collectByRefresh(RolaCollectRequest rolaCollectRequest);
+    void collectBySid(RolaCollectRequest rolaCollectRequest);
+
+
+    RolaProgressVO collectBySidProgress();
+
+    void collectBySidEnd();
+
+    void collectBySidPause();
+
 
     void collectByApi(RolaCollectRequest rolaCollectRequest);
 
+    RolaProgressVO collectByApiProgress();
 
+    void collectByApiEnd();
+
+    void collectByApiPause();
 
 
 

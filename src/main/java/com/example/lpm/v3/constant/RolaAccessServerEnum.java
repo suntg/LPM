@@ -9,8 +9,8 @@ import lombok.Getter;
 @Getter
 public enum RolaAccessServerEnum {
 
-    CHINA("gate8.rola.info"),
-    US("proxyus.rola.info");
+    CHINA("gate8.rola.info:2008"),
+    US("proxyus.rola.info:2000");
 
 
     @EnumValue

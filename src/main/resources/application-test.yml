@@ -4,9 +4,8 @@ spring:
     username: root
     password: JGOp&7%XPb
   redis:
-    host: 192.168.100.3
+    host: 127.0.0.1
     port: 6379
-    password: root
     lettuce:
       pool:
         max-active: 8
