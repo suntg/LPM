@@ -10,7 +10,8 @@ proxy sps -p :5000 -a hotkingda:209209us -P socks5://skyescn_80225-ip-92.119.177
 
 nohup java -Xmx1024m -jar /opt/mail-4.0.2.jar >/dev/null 2>&1 &
 nohup java -Xmx1024m -Xms1024m -jar /opt/mail-ex-1.2.4.jar --server.port=80 >/dev/null 2>&1 &
-nohup java -Xmx4096m -jar /opt/LPM-1.0.0.final.jar  --spring.profiles.active=prod >/dev/null 2>&1 &
+nohup java -Xmx5120m -jar /opt/LPM-1.0.0.final.jar  --spring.profiles.active=prod >/dev/null 2>&1 &
+
 nohup java -jar  xxl-job-admin-2.3.1.jar  >/dev/null 2>&1 &
 
 

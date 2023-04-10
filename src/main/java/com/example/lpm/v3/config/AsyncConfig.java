@@ -24,8 +24,8 @@ public class AsyncConfig {
     @Bean(value = "rolaCollectByApiThreadPool")
     public AsyncTaskExecutor rolaCollectByApiThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(30);
-        taskExecutor.setCorePoolSize(30);
+        taskExecutor.setMaxPoolSize(8);
+        taskExecutor.setCorePoolSize(8);
         taskExecutor.setThreadNamePrefix("rola-collect-by-api-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
@@ -35,8 +35,8 @@ public class AsyncConfig {
     @Bean(value = "rolaCollectBySidThreadPool")
     public AsyncTaskExecutor rolaCollectBySidThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(400);
-        taskExecutor.setCorePoolSize(400);
+        taskExecutor.setMaxPoolSize(30);
+        taskExecutor.setCorePoolSize(30);
         taskExecutor.setThreadNamePrefix("rola-collect-by-sid-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
@@ -46,8 +46,8 @@ public class AsyncConfig {
     @Bean(value = "phoneCollectRolaThreadPool")
     public AsyncTaskExecutor phoneCollectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(50);
-        taskExecutor.setCorePoolSize(50);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.setCorePoolSize(4);
         taskExecutor.setThreadNamePrefix("phone-collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
