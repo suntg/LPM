@@ -36,6 +36,10 @@ spring:
   mvc:
     async:
       request-timeout: 50000
+  boot:
+    admin:
+      client:
+        url: http://localhost:18080
 
 mybatis-plus:
   type-aliases-package: com.example.lpm
@@ -64,3 +68,23 @@ rola:
   token: A8Jm7YGr3p5lNkX21680763452748
   sid-username: xinyi1989_1000000
   proxy-password: Skyescn2929!
+
+
+management:
+  endpoints:
+#    enabled-by-default: false  #关闭所有监控端点
+    web:
+      exposure:
+        include: '*'
+  endpoint:   #对某个端点的具体配置
+    health:
+      show-details: always
+      enabled: true
+    info:
+      enabled: true
+    beans:
+      enabled: true
+    metrics:
+      enabled: true
+    shutdown:
+      enabled: true
