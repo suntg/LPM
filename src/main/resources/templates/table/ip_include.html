@@ -74,6 +74,12 @@
                                     <div class="adv-table editable-table ">
                                         <div class="config-page">
 
+                                            <div style="margin-top: 20px;margin-bottom: 40px;margin-left: 20px;">
+                                                <span style="font-weight: bold; margin-right: 20px;">成功收录： {{sidSuccessNum}}</span>
+                                                当前失败：<span style="color: red" >&nbsp;     {{sidFailNum}}</span>
+                                                <span>&nbsp;    重复收录： {{sidDuplicateNum}}</span>
+                                            </div>
+
 <!--                                        <el-form :model="form" ref="form" :rules="rules" label-width="120px">-->
 <!--                                            <el-form-item label="代理用户名" prop="rolaUsername" required>-->
 <!--                                                <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>-->
@@ -150,11 +156,7 @@
                                         </el-table-column>
                                     </el-table>
 
-                                    <div style="margin-top: 40px;">
-                                    <span style="font-weight: bold; margin-right: 20px;">成功收录： {{sidSuccessNum}}</span>
-                                    当前失败：<span style="color: red" >&nbsp;     {{sidFailNum}}</span>
-                                    <span>&nbsp;    重复收录： {{sidDuplicateNum}}</span>
-                                    </div>
+
                                 </el-tab-pane>
 
 
@@ -166,6 +168,13 @@
                                     <div class="adv-table editable-table ">
 
                                         <div class="config-page">
+
+                                            <div style="margin-top: 20px;margin-bottom: 40px;margin-left: 20px;">
+                                                <span style="font-weight: bold; margin-right: 20px;">成功收录： {{apiSuccessNum}}</span>
+                                                当前失败：<span style="color: red" >&nbsp;     {{apiFailNum}}</span>
+                                                <span>&nbsp;    重复收录： {{apiDuplicateNum}}</span>
+                                            </div>
+
 <!--                                            <el-form :model="form" ref="form" :rules="rules" label-width="120px">-->
 <!--                                                <el-form-item label="代理用户名" prop="rolaUsername" required>-->
 <!--                                                    <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>-->
@@ -242,12 +251,6 @@
                                                 label="结果">
                                         </el-table-column>
                                     </el-table>
-
-                                    <div style="margin-top: 40px;">
-                                        <span style="font-weight: bold; margin-right: 20px;">成功收录： {{apiSuccessNum}}</span>
-                                        当前失败：<span style="color: red" >&nbsp;     {{apiFailNum}}</span>
-                                        <span>&nbsp;    重复收录： {{apiDuplicateNum}}</span>
-                                    </div>
 
                                 </el-tab-pane>
                             </el-tabs>
