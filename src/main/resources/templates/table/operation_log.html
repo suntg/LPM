@@ -128,6 +128,7 @@
                                         range-separator="至"
                                         start-placeholder="开始日期"
                                         end-placeholder="结束日期"
+                                        :default-time="['00:00:00', '23:59:59']"
                                         align="right">
                                         </el-date-picker>
                                         <el-button type="primary" @click="onSubmit" style="margin-left:20px;">查询</el-button>
@@ -273,28 +274,29 @@ layout="total, sizes, prev, pager, next"
             createTimeRange:'',
             pickerOptions: {
                 shortcuts: [{
-                    text: '最近一周',
+                    text: '当天',
+                    onClick(picker) {
+                        const start = new Date(new Date().setHours(0, 0, 0, 0)); //获取当天零点的时间
+                        const end = new Date(new Date().setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1); //获取当天23:59:59的时间
+                        picker.$emit('pick', [start, end]);
+                    }
+                },{
+                    text: '本周',
                     onClick(picker) {
                         const end = new Date();
                         const start = new Date();
                         start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                        picker.$emit('pick', [start, end]);
+                        let timeRange = getWeekRange();
+                        picker.$emit('pick', [new Date(new Date(timeRange[0]).setHours(0, 0, 0, 0)), new Date(timeRange[1].setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1)]);
                     }
                 }, {
-                    text: '最近一个月',
+                    text: '本月',
                     onClick(picker) {
                         const end = new Date();
                         const start = new Date();
                         start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近三个月',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date();
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                        picker.$emit('pick', [start, end]);
+                        let timeRange = getMonthRange();
+                        picker.$emit('pick', [new Date(new Date(timeRange[0]).setHours(0, 0, 0, 0)), new Date(timeRange[1].setHours(0, 0, 0, 0) + 24 * 60 * 60 * 1000 - 1)]);
                     }
                 }]
             },
@@ -311,8 +313,8 @@ layout="total, sizes, prev, pager, next"
                             city: this.city,
                             region: this.region,
                             country: this.country,
-                            startCreateTime: this.createTimeRange[0],
-                            endCreateTime: this.createTimeRange[1],
+                            startCreateTime: this.createTimeRange != null ?  this.createTimeRange[0] : null,
+                            endCreateTime: this.createTimeRange != null ?this.createTimeRange[1] : null,
                             pageNum: this.pageNum,
                             pageSize: this.pageSize
                         }
@@ -343,6 +345,22 @@ layout="total, sizes, prev, pager, next"
             this.onSubmit();
         }
     })
+
+    const getWeekRange = () => {
+        const now = new Date();
+        const dayOfWeek = now.getDay() || 7;
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + 1).setHours(0, 0, 0, 0);
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - dayOfWeek + 1));
+        return [startOfDay, endOfDay];
+    };
+
+    const getMonthRange = () => {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const endOfMonth = new Date(nextMonth.getTime() - 86400000);
+        return [startOfMonth, endOfMonth];
+    };
 </script>
 
 </body>

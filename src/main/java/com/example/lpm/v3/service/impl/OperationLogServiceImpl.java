@@ -40,10 +40,13 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public void record(OperationLogDO operationLogDO) {
         try {
+            operationLogDO.setCity(null);
+            operationLogDO.setCountry(null);
+            operationLogDO.setRegion(null);
             OperationLogDO result = operationLogMapper.selectOne(new QueryWrapper<OperationLogDO>().lambda()
                     .eq(OperationLogDO::getIp, operationLogDO.getIp()).isNotNull(OperationLogDO::getCity)
-                    .isNotNull(OperationLogDO::getCountry).isNotNull(OperationLogDO::getCountry).last(" limit 1"));
-            if (result == null) {
+                    .isNotNull(OperationLogDO::getCountry).isNotNull(OperationLogDO::getCountry).orderByDesc(OperationLogDO::getCreateTime).last(" limit 1"));
+            if (result == null || CharSequenceUtil.isBlank(result.getRegion()) || CharSequenceUtil.isBlank(result.getCity())) {
                 String ipInfo = HttpUtil.get("https://www.fkcoder.com/ip?ip=" + operationLogDO.getIp());
                 JSONObject jsonObject = JSON.parseObject(ipInfo);
                 String country = jsonObject.getString("country");
