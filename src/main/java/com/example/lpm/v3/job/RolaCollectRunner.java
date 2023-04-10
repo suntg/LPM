@@ -69,11 +69,11 @@ public class RolaCollectRunner implements CommandLineRunner {
         /*for (int i = 0; i < 50; i++) {
             asyncConfig.collectRolaThreadPool().submit(this::collectV2);
             Thread.sleep(2000);
-        }
-        for (int i = 0; i < 8; i++) {
+        }*/
+        for (int i = 0; i < 4; i++) {
             asyncConfig.phoneCollectRolaThreadPool().submit(this::phoneCollect);
             Thread.sleep(2000);
-        }*/
+        }
     }
 
     public void phoneCollect() {

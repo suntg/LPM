@@ -10,7 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class AsyncConfig {
 
-    @Bean(value = "collectRolaThreadPool")
+    /*@Bean(value = "collectRolaThreadPool")
     public AsyncTaskExecutor collectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setMaxPoolSize(80);
@@ -19,37 +19,35 @@ public class AsyncConfig {
         taskExecutor.initialize();
         return taskExecutor;
     }
-
+*/
 
     @Bean(value = "rolaCollectByApiThreadPool")
     public AsyncTaskExecutor rolaCollectByApiThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(80);
-        taskExecutor.setCorePoolSize(49);
+        taskExecutor.setMaxPoolSize(30);
+        taskExecutor.setCorePoolSize(30);
         taskExecutor.setThreadNamePrefix("rola-collect-by-api-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
     }
 
 
-
     @Bean(value = "rolaCollectBySidThreadPool")
     public AsyncTaskExecutor rolaCollectBySidThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(80);
-        taskExecutor.setCorePoolSize(49);
+        taskExecutor.setMaxPoolSize(50);
+        taskExecutor.setCorePoolSize(50);
         taskExecutor.setThreadNamePrefix("rola-collect-by-sid-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;
     }
 
 
-
     @Bean(value = "phoneCollectRolaThreadPool")
     public AsyncTaskExecutor phoneCollectRolaThreadPool() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(8);
-        taskExecutor.setCorePoolSize(6);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.setCorePoolSize(4);
         taskExecutor.setThreadNamePrefix("phone-collect-rola-ip-task-thread-pool-");
         taskExecutor.initialize();
         return taskExecutor;

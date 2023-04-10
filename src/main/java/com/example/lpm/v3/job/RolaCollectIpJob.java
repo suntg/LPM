@@ -17,6 +17,7 @@ import com.example.lpm.v3.domain.entity.RolaIpDO;
 import com.example.lpm.v3.domain.entity.TrafficDO;
 import com.example.lpm.v3.domain.request.RolaCollectRequest;
 import com.example.lpm.v3.mapper.RolaIpMapper;
+import com.example.lpm.v3.service.TrafficService;
 import com.example.lpm.v3.util.OkHttpUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +53,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private final TrafficService trafficService;
+
     @Value("${rola.proxy-password}")
     private String rolaProxyPassword;
 
@@ -60,12 +63,12 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             asyncConfig.rolaCollectByApiThreadPool().submit(this::collectByApi);
             Thread.sleep(2000);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             asyncConfig.rolaCollectBySidThreadPool().submit(this::collectBySid);
             Thread.sleep(2000);
         }
@@ -126,18 +129,18 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 Request request = new Request.Builder().url(RolaCollectConstant.IP234_URL).build();
 
                 okhttp3.Response response = client.newCall(request).execute();
+                long bytes = OkHttpUtil.measureTotalBytes(request, response);
+                TrafficDO trafficDO = new TrafficDO();
+                trafficDO.setUsername(rolaSidUsername);
+                trafficDO.setBytes(bytes);
+                trafficService.insert(trafficDO);
 
                 String responseString = response.body().string();
-
-
-
 
 
                 log.info("lumtest :{}", responseString);
 
                 Ip234DTO ip234DTO = objectMapper.readValue(responseString, Ip234DTO.class);
-
-
 
 
                 if (CharSequenceUtil.hasBlank(ip234DTO.getRegion(), ip234DTO.getCity())) {
@@ -210,7 +213,7 @@ public class RolaCollectIpJob implements CommandLineRunner {
             } catch (SocketTimeoutException | SocketException se) {
                 RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
                 collectResultDTO.setIp(userSb.toString());
-                collectResultDTO.setMsg("ROLA网络异常，未获取到IP");
+                collectResultDTO.setMsg("请求失败，未获取到IP");
                 redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
                 RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
@@ -252,6 +255,12 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
                 Response response = client.newCall(request).execute();
 
+                long bytes = OkHttpUtil.measureTotalBytes(request, response);
+                TrafficDO trafficDO = new TrafficDO();
+                trafficDO.setUsername(rolaProxy.getUsername());
+                trafficDO.setBytes(bytes);
+                trafficService.insert(trafficDO);
+
                 String responseString = response.body().string();
 
 
@@ -265,7 +274,6 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
                 LuminatiIPDTO luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
 
-                // TODO 流量
 
 
                 // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
@@ -337,7 +345,7 @@ public class RolaCollectIpJob implements CommandLineRunner {
             } catch (SocketTimeoutException | SocketException se) {
                 RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
                 collectResultDTO.setIp(rolaProxy.getRolaApiIp());
-                collectResultDTO.setMsg("ROLA IP网络异常，未获取到IP");
+                collectResultDTO.setMsg("请求失败，未获取到IP");
                 redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
                 RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);

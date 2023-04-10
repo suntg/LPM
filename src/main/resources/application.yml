@@ -1,6 +1,6 @@
 server:
   shutdown: graceful
-  port: 21889
+  port: 21888
 
 spring:
   application:
