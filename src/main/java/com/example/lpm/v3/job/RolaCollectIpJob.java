@@ -177,8 +177,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 } else {
                     RolaIpDO rolaIpDO = new RolaIpDO();
                     rolaIpDO.setIp(ip234DTO.getIp());
-                    rolaIpDO.setCountry(ip234DTO.getCountry().toLowerCase());
-                    rolaIpDO.setRegion(ip234DTO.getRegion().toLowerCase());
+                    rolaIpDO.setCountry(ip234DTO.getCountryCode().toLowerCase());
+                    rolaIpDO.setRegion(ip234DTO.getRegionCode().toLowerCase());
                     rolaIpDO.setCity(ip234DTO.getCity().toLowerCase());
                     rolaIpDO.setPostalCode(ip234DTO.getPostal());
                     rolaIpDO.setTz(ip234DTO.getTimezone());
