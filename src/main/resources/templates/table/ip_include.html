@@ -22,6 +22,10 @@
         .el-table .primary-row {
             background: #98F5FF;
         }
+
+        .config-page {
+            padding: 20px;
+        }
     </style>
     <div th:include="common :: commonheader"></div>
 </head>
@@ -64,53 +68,190 @@
                         </header>
 
                         <div class="panel-body">
-                            <div class="adv-table editable-table ">
+                            <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+                                <el-tab-pane label="SID收录模式" name="first">
 
-                                <div style="margin-bottom:25px;margin-top:25px;">
-                                    <span>Country：</span>
-                                    <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
-                                        <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
-                                    </el-select>
-                                    <span>State：</span>
-                                    <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
-                                        <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
-                                    </el-select>
-                                    <span>City：</span>
-                                    <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
-                                        <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
-                                    </el-select>
-                                    <span>数量：</span>
-                                    <el-input
-                                            placeholder="请输入"
-                                            v-model.trim="number"
-                                            style="width:10%;margin-right:20px;"
-                                            clearable>
-                                    </el-input>
-                                    <el-button type="success" @click="collect">执行</el-button>
-                                    <el-button type="warning" @click="pauseCollect">暂停</el-button>
-                                    <el-button type="danger" @click="endCollect">结束</el-button>
-                                    <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
-                                </div>
-                                <hr>
+                                    <div class="adv-table editable-table ">
+                                        <div class="config-page">
 
-                                <div style="margin-top:35px;">
-                                    <span>收录进度：</span>
-                                    <el-progress type="circle" :percentage="percentage"
-                                                 :status="progressStatus"></el-progress>
-                                    <br/>
-                                    <br/>
-                                    <span>当前收录： {{currentNum}}</span>
-                                    <span>&nbsp;    当前失败： {{currentFailNum}}</span>
-                                    <span>&nbsp;    当前抛弃： {{currentRepeatNum}}</span>
-                                    <span>&nbsp;    成功收录： {{totalNum}}</span>
-                                    <span>&nbsp;    今日收录： {{todayNum}}</span>
-                                    <span>&nbsp;    总收录： {{completedNum}}</span>
-                                    </br>
-                                    </br>
-                                    <span v-if="errorMessage != null" style="color:#fff;font-weight: bold;background-color: red;">错误信息： {{errorMessage}}</span>
-                                </div>
+                                        <el-form :model="form" ref="form" :rules="rules" label-width="120px">
+                                            <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>
+                                            </el-form-item>
 
-                            </div>
+                                        <div style="margin-bottom:25px;margin-top:25px;">
+                                            <span style="margin-left:20px">Rola服务器：</span>
+                                            <el-select filterable v-model="accessServer" placeholder="请选择服务器"  clearable>
+                                                <el-option v-for="accessServer in accessServers" :key="accessServer.value" :label="accessServer.label" :value="accessServer.value"></el-option>
+                                            </el-select>
+                                            <span style="margin-left:20px">Country：</span>
+                                            <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
+                                                <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">State：</span>
+                                            <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
+                                                <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">City：</span>
+                                            <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
+                                                <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">数量：</span>
+                                            <el-input
+                                                    placeholder="请输入"
+                                                    v-model.trim="number"
+                                                    style="width:10%;margin-right:20px;"
+                                                    clearable>
+                                            </el-input>
+                                            <el-button type="success" @click="collect">执行</el-button>
+                                            <el-button type="warning" @click="pauseCollect">暂停</el-button>
+                                            <el-button type="danger" @click="endCollect">结束</el-button>
+                                            <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
+                                        </div>
+                                        </el-form>
+                                        </div>
+                                        <hr>
+
+<!--                                        <div style="margin-top:35px;">-->
+<!--                                            <span>收录进度：</span>-->
+<!--                                            <el-progress type="circle" :percentage="percentage"-->
+<!--                                                         :status="progressStatus"></el-progress>-->
+<!--                                            <br/>-->
+<!--                                            <br/>-->
+<!--                                            <span>当前收录： {{currentNum}}</span>-->
+<!--                                            <span>&nbsp;    当前失败： {{currentFailNum}}</span>-->
+<!--                                            <span>&nbsp;    当前抛弃： {{currentRepeatNum}}</span>-->
+<!--                                            <span>&nbsp;    成功收录： {{totalNum}}</span>-->
+<!--                                            <span>&nbsp;    今日收录： {{todayNum}}</span>-->
+<!--                                            <span>&nbsp;    总收录： {{completedNum}}</span>-->
+<!--                                            </br>-->
+<!--                                            </br>-->
+<!--                                            <span v-if="errorMessage != null" style="color:#fff;font-weight: bold;background-color: red;">错误信息： {{errorMessage}}</span>-->
+<!--                                        </div>-->
+
+                                    </div>
+
+                                    <el-table
+                                            :data="collectInfos1"
+                                            border
+                                            style="width: 100%; margin-top: 20px">
+                                        <el-table-column
+                                                type="index"
+                                                label="ID"
+                                                width="180">
+                                        </el-table-column>
+                                        <el-table-column
+                                                prop="ip"
+                                                label="IP">
+                                        </el-table-column>
+                                        <el-table-column
+                                                prop="msg"
+                                                label="结果">
+                                        </el-table-column>
+                                    </el-table>
+
+                                    <div style="margin-top: 40px;">
+                                    <span style="font-weight: bold; margin-right: 20px;">成功收录： {{sidSuccessNum}}</span>
+                                    当前失败：<span style="color: red" >&nbsp;     {{sidFailNum}}</span>
+                                    <span>&nbsp;    重复收录： {{sidDuplicateNum}}</span>
+                                    </div>
+                                </el-tab-pane>
+
+
+
+
+
+                                <el-tab-pane label="API收录模式" name="second">
+
+                                    <div class="adv-table editable-table ">
+
+                                        <div class="config-page">
+                                            <el-form :model="form" ref="form" :rules="rules" label-width="120px">
+                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
+                                                    <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>
+                                                </el-form-item>
+
+                                        <div style="margin-bottom:25px;margin-top:25px;">
+                                            <span style="margin-left:20px">Rola服务器：</span>
+                                            <el-select filterable v-model="apiAccessServer" placeholder="请选择服务器"  clearable>
+                                                <el-option v-for="accessServer in accessServers" :key="accessServer.value" :label="accessServer.label" :value="accessServer.value"></el-option>
+                                            </el-select>
+                                            <span style="margin-left:20px">Country：</span>
+                                            <el-select filterable v-model="selectedCountry" placeholder="请选择国家" @change="onCountryChange" clearable>
+                                                <el-option v-for="country in countries" :key="country" :label="country" :value="country"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">State：</span>
+                                            <el-select filterable v-model="selectedState" placeholder="请选择州" @change="onStateChange" clearable>
+                                                <el-option v-for="state in states" :key="state" :label="state" :value="state"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">City：</span>
+                                            <el-select filterable v-model="selectedCity" placeholder="请选择城市" clearable>
+                                                <el-option v-for="city in cities" :key="city" :label="city" :value="city"></el-option>
+                                            </el-select>
+                                            <span tyle="margin-left:20px">数量：</span>
+                                            <el-input
+                                                    placeholder="请输入"
+                                                    v-model.trim="apiNumber"
+                                                    style="width:10%;margin-right:20px;"
+                                                    clearable>
+                                            </el-input>
+                                            <el-button type="success" @click="collectWithConfig">执行</el-button>
+                                            <el-button type="warning" @click="pauseCollect">暂停</el-button>
+                                            <el-button type="danger" @click="endCollect">结束</el-button>
+                                            <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
+                                                </div>
+                                            </el-form>
+
+                                        </div>
+                                        <hr>
+
+<!--                                        <div style="margin-top:35px;">-->
+<!--                                            <span>收录进度：</span>-->
+<!--                                            <el-progress type="circle" :percentage="percentage"-->
+<!--                                                         :status="progressStatus"></el-progress>-->
+<!--                                            <br/>-->
+<!--                                            <br/>-->
+<!--                                            <span>当前收录： {{currentNum}}</span>-->
+<!--                                            <span>&nbsp;    当前失败： {{currentFailNum}}</span>-->
+<!--                                            <span>&nbsp;    当前抛弃： {{currentRepeatNum}}</span>-->
+<!--                                            <span>&nbsp;    成功收录： {{totalNum}}</span>-->
+<!--                                            <span>&nbsp;    今日收录： {{todayNum}}</span>-->
+<!--                                            <span>&nbsp;    总收录： {{completedNum}}</span>-->
+<!--                                            </br>-->
+<!--                                            </br>-->
+<!--                                            <span v-if="errorMessage != null" style="color:#fff;font-weight: bold;background-color: red;">错误信息： {{errorMessage}}</span>-->
+<!--                                        </div>-->
+
+                                    </div>
+
+                                    <el-table
+                                            :data="collectInfos2"
+                                            border
+                                            style="width: 100%; margin-top: 20px">
+                                        <el-table-column
+                                                type="index"
+                                                label="ID"
+                                                width="180">
+                                        </el-table-column>
+                                        <el-table-column
+                                                prop="ip"
+                                                label="IP">
+                                        </el-table-column>
+                                        <el-table-column
+                                                prop="msg"
+                                                label="结果">
+                                        </el-table-column>
+                                    </el-table>
+
+                                    <div style="margin-top: 40px;">
+                                        <span style="font-weight: bold; margin-right: 20px;">成功收录： {{apiSuccessNum}}</span>
+                                        当前失败：<span style="color: red" >&nbsp;     {{apiFailNum}}</span>
+                                        <span>&nbsp;    重复收录： {{apiDuplicateNum}}</span>
+                                    </div>
+
+                                </el-tab-pane>
+                            </el-tabs>
+
                         </div>
                     </section>
                 </div>
@@ -136,7 +277,7 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/modernizr.min.js"></script>
 <script src="js/jquery.nicescroll.js"></script>
-<script src="js/Date.js"></script>
+<script src="js/dayjs.min"></script>
 
 <!--data table-->
 <script type="text/javascript" src="js/data-tables/jquery.dataTables.js"></script>
@@ -147,7 +288,8 @@
 
 <script src="js/vue.js"></script>
 
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="js/axios.min.js"></script>
 <!-- 引入样式 -->
 <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 <!-- 引入组件库 -->
@@ -169,6 +311,7 @@
             state: '',
             city: '',
             number: '',
+            accessServer:'CHINA',
             percentage: 0,
             progressStatus: null,
             errorMessage:null,
@@ -187,6 +330,37 @@
             countries: [],
             states: [],
             cities: [],
+            activeName: 'first',
+            form: {
+                rolaUsername: '',
+                rolaPassword: ''
+            },
+            rules: {
+                rolaUsername: [
+                    { required: true, message: '请填写 代理用户名', trigger: 'blur' }
+                ],
+                rolaPassword: [
+                    { required: true, message: '请填写 代理用户密码', trigger: 'blur' }
+                ]
+            },
+            accessServers: [{
+                value: 'CHINA',
+                label: 'CHINA'
+            }, {
+                value: 'US',
+                label: 'US'
+            }],
+            collectInfos1:[],
+            collectInfos2:[],
+            apiNumber:'',
+            apiAccessServer:'CHINA',
+            sidSuccessNum:0,
+            sidFailNum:0,
+            sidDuplicateNum:0,
+            apiIntervalFlag: null,
+            apiSuccessNum:0,
+            apiFailNum:0,
+            apiDuplicateNum:0,
 
         },
         methods: {
@@ -195,76 +369,47 @@
                 var that = this;
                 // 每隔 1s 请求接口，获取进度条 进度，如果达到 100% 则取消 定时请求任务
                 this.intervalFlag = setInterval(() => {
-                    axios.get(baseUrl + '/rola/collectProgress',
+                    axios.get(baseUrl + '/rola/collectBySidProgress',
                         {
                             params: {}
                         })
                         .then((response) => {
-                            that.currentNum = response.data.data.currentNum;
-                            that.totalNum = response.data.data.completedNum;
-                            that.todayNum = response.data.data.todayNum;
-                            that.completedNum = response.data.data.totalNum;
-                            that.errorMessage = response.data.data.error;
+                            that.sidSuccessNum = response.data.data.successNum;
+                            that.sidFailNum = response.data.data.failNum;
+                            that.sidDuplicateNum = response.data.data.duplicateNum;
+                            that.collectInfos1 = response.data.data.rolaCollectResultDTOList;
 
-                            if (response.data != null) {
-                                console.log("currentNum:" + response.data.data.currentNum);
-                                console.log("totalNum:" + response.data.data.totalNum);
-                                this.percentage = (response.data.data.completedNum / response.data.data.currentNum * 100).toFixed(2);
-                            }
-
-                            if (response.data.data.error != null) {
-                                this.collectError(response.data.data.error);
-                                return;
-                            }
 
                             //从90自增到100
-                            if (this.percentage == 100) {
+                            if (this.number == (response.data.data.successNum + response.data.data.failNum + response.data.data.duplicateNum)) {
                                 //自增到100后把进度条status变为success
                                 clearInterval(this.intervalFlag)
                                 this.progressStatus = 'success'
 
                                 setTimeout(() =>{
-                                    axios.get(baseUrl + '/rola/collectProgress',
+                                    axios.get(baseUrl + '/rola/collectBySidProgress',
                                         {
                                             params: {}
                                         })
                                         .then((response) => {
-                                            that.currentNum = response.data.data.currentNum;
-                                            that.totalNum = response.data.data.completedNum;
-                                            that.todayNum = response.data.data.todayNum;
-                                            that.completedNum = response.data.data.totalNum;
-                                            that.errorMessage = response.data.data.error;
-                                            if (response.data.data.error != null) {
-                                                this.collectError(response.data.data.error);
-                                                return;
-                                            }
+                                            that.sidSuccessNum = response.data.data.successNum;
+                                            that.sidFailNum = response.data.data.failNum;
+                                            that.sidDuplicateNum = response.data.data.duplicateNum;
+                                            that.collectInfos1 = response.data.data.rolaCollectResultDTOList;
 
-                                            that.$alert('当前收录：' + response.data.data.currentNum
-                                                + '   成功收录：' + response.data.data.completedNum
-                                                + '   今日收录：' + response.data.data.todayNum
-                                                + '   总收录：' + response.data.data.totalNum
-                                                , '收录提示', {
-                                                    confirmButtonText: '确定',
-                                                    type: 'success',
-                                                    callback: action => {
-                                                        that.$message({
-                                                            type: 'success',
-                                                            message: '收录成功！'
-                                                        });
-                                                    }
-                                                });
+                                            that.$message({
+                                                type: 'success',
+                                                message: '成功收录：' + response.data.data.successNum
+                                                    + '   收录失败：' + response.data.data.failNum
+                                                    + '   重复收录：' + response.data.data.duplicateNum
+                                            });
                                         })
                                 },2500)
 
                             }
 
                         }).catch(function (error) {
-                        that.$alert(response.data.data, '收录结果', {
-                            confirmButtonText: '确定',
-                            callback: action => {
-                                that.$message.error('异常错误：' + response.data.message);
-                            }
-                        });
+                        that.$message.error('异常错误：' + response.data.message);
                         that.progressStatus = 'exception'
                         //出现异常，停止定时任务
                         clearInterval(that.intervalFlag)
@@ -273,51 +418,73 @@
                 }, 1500);
             },
             collect() {
-                //保存Vue指针
-                let that = this;
-                let errorData = null;
-                axios.post(baseUrl + '/rola/collectV2', {}, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                    },
-                    withCredentials: true,
-                    params: {
-                        number: this.number,
-                        country: this.selectedCountry.toLowerCase(),
-                        state: this.selectedState.toLowerCase(),
-                        city: this.selectedCity.toLowerCase()
-                    }
-                })
-                    .then(function (response) {
-                        that.$alert(response.data.message, '收录提示', {
-                            confirmButtonText: '确定',
-                            callback: action => {
-                                that.$message({
-                                    type: 'info',
-                                    message: '开始收录！'
-                                });
-                            }
-                        });
-                    })
-                    .catch(function (error) {
-                        console.log("异常提示为：" + error.response.data.message);
-                        that.$alert(error.response.data.message, '开始收录', {
-                            confirmButtonText: '确定',
-                            type: 'error',
-                            callback: action => {
-                                that.$message.error('异常错误：' + error.response.data.message);
-                            }
-                        });
-                        errorData = error;
-                    });
-                //出现异常，不再执行接下来的操作
-                if (errorData != null) {
-                    return;
-                }
+                this.$refs.form.validate((valid) => {
 
-                this.collectProgress();
+                        //保存用户新设的账户&密码
+                        const config = localStorage.getItem('config');
+                        let modifiedForm = {};
+                        if (config) {
+                            modifiedForm = JSON.parse(config);
+                        }
+                        modifiedForm.rolaUsername = this.form.rolaUsername;
+                        modifiedForm.rolaPassword = this.form.rolaPassword;
+                        localStorage.setItem('config', JSON.stringify(modifiedForm));
+
+
+                        if (valid) {
+
+                                //保存Vue指针
+                                let that = this;
+                                let errorData = null;
+                                axios.post(baseUrl + '/rola/collectBySid', {}, {
+                                    headers: {
+                                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                        'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                                    },
+                                    withCredentials: true,
+                                    params: {
+                                        number: this.number,
+                                        country: this.selectedCountry.toLowerCase(),
+                                        state: this.selectedState.toLowerCase(),
+                                        city: this.selectedCity.toLowerCase(),
+                                        accessServer: this.accessServer,
+                                        username: this.form.rolaUsername.split("_")[0],
+
+                                    }
+                                })
+                                    .then(function (response) {
+                                        that.$message({
+                                            type: 'info',
+                                            message: '开始收录！'
+                                        });
+                                        that.collectProgress();
+                                    })
+                                    .catch(function (error) {
+                                        console.log("异常提示为：" + error.response.data.message);
+                                        that.$alert(error.response.data.message, '开始收录', {
+                                            confirmButtonText: '确定',
+                                            type: 'error',
+                                            callback: action => {
+                                                that.$message.error('异常错误：' + error.response.data.message);
+                                            }
+                                        });
+
+                                        errorData = error;
+                                        if (error.response.data.status == 999) {
+                                            return;
+                                        }
+                                    });
+                                //出现异常，不再执行接下来的操作
+                                if (errorData != null) {
+                                    return;
+                                }
+                        } else {
+                            return false;
+                        }
+                });
+
+
             },
             collectError(error){
                 this.$alert(error, '错误提示', {
@@ -336,7 +503,7 @@
                 let that = this;
                 //暂停收集进度查询
                 clearInterval(this.intervalFlag)
-                axios.get(baseUrl + '/rola/pauseCollect',
+                axios.get(baseUrl + '/rola/collectBySidPause',
                     {
                         params: {}
                     })
@@ -359,7 +526,7 @@
                 let that = this;
                 //暂停收集进度查询
                 clearInterval(this.intervalFlag)
-                axios.get(baseUrl + '/rola/endCollect',
+                axios.get(baseUrl + '/rola/collectBySidEnd',
                     {
                         params: {}
                     })
@@ -420,12 +587,213 @@
                         this.cities.push(city.replace('\r', ''));
                     }
                 }
+            },
+            handleClick(tab, event) {
+                console.log(tab, event);
+            },
+            pauseApiCollect() {
+                //保存Vue指针
+                let that = this;
+                //暂停收集进度查询
+                clearInterval(this.apiIntervalFlag)
+                axios.get(baseUrl + '/rola/collectByApiPause',
+                    {
+                        params: {}
+                    })
+                    .then((response) => {
+                        that.$alert('暂停成功！', '操作提示', {
+                            confirmButtonText: '确定',
+                            type: 'success',
+                            callback: action => {
+                                that.$message({
+                                    type: 'success',
+                                    message: '暂停收集成功！'
+                                });
+                            }
+                        });
+                    })
+
+            },
+            endApiCollect() {
+                //保存Vue指针
+                let that = this;
+                //暂停收集进度查询
+                clearInterval(this.apiIntervalFlag)
+                axios.get(baseUrl + '/rola/collectByApiEnd',
+                    {
+                        params: {}
+                    })
+                    .then((response) => {
+                        that.$alert('已结束收集！', '操作提示', {
+                            confirmButtonText: '确定',
+                            type: 'success',
+                            callback: action => {
+                                that.$message({
+                                    type: 'success',
+                                    message: '结束收集成功！'
+                                });
+                            }
+                        });
+                    })
+
+            },
+            collectWithConfig() {
+                this.$refs.form.validate((valid) => {
+
+                    //保存用户新设的账户&密码
+                    const config = localStorage.getItem('config');
+                    let modifiedForm = {};
+                    if (config) {
+                        modifiedForm = JSON.parse(config);
+                    }
+                    modifiedForm.rolaUsername = this.form.rolaUsername;
+                    modifiedForm.rolaPassword = this.form.rolaPassword;
+                    localStorage.setItem('config', JSON.stringify(modifiedForm));
+
+
+                    if (valid) {
+                        //保存Vue指针
+                        let that = this;
+                        let errorData = null;
+                        axios.post(baseUrl + '/rola/collectByApi', {}, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',  //解决cors头问题
+                                'Access-Control-Allow-Credentials': 'true', //解决session问题
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
+                            },
+                            withCredentials: true,
+                            params: {
+                                number: this.apiNumber,
+                                country: this.selectedCountry.toLowerCase(),
+                                state: this.selectedState.toLowerCase(),
+                                city: this.selectedCity.toLowerCase(),
+                                username: this.form.rolaUsername.split("_")[0],
+                                accessServer: this.apiAccessServer
+                            }
+                        })
+                            .then(function (response) {
+                                that.$message({
+                                    type: 'info',
+                                    message: '开始收录！'
+                                });
+                                that.collectByApiProgress();
+                            })
+                            .catch(function (error) {
+                                console.log("异常提示为：" + error.response.data.message);
+                                that.$alert(error.response.data.message, '开始收录', {
+                                    confirmButtonText: '确定',
+                                    type: 'error',
+                                    callback: action => {
+                                        that.$message.error('异常错误：' + error.response.data.message);
+                                    }
+                                });
+                                errorData = error;
+                                if (error.response.data.status === 999) {
+                                    return;
+                                }
+                            });
+                        //出现异常，不再执行接下来的操作
+                        if (errorData != null) {
+                            return;
+                        }
+                        } else {
+                            return false;
+                        }
+                });
+
+            },
+            collectByApiProgress() {
+                //保存Vue指针
+                var that = this;
+                // 每隔 1s 请求接口，获取进度条 进度，如果达到 100% 则取消 定时请求任务
+                this.apiIntervalFlag = setInterval(() => {
+                    axios.get(baseUrl + '/rola/collectByApiProgress',
+                        {
+                            params: {}
+                        })
+                        .then((response) => {
+
+                            that.apiSuccessNum = response.data.data.successNum;
+                            that.apiFailNum = response.data.data.failNum;
+                            that.apiDuplicateNum = response.data.data.duplicateNum;
+                            that.collectInfos2 = response.data.data.rolaCollectResultDTOList;
+
+                            //从90自增到100
+                            if (this.number == (response.data.data.successNum + response.data.data.failNum + response.data.data.duplicateNum)) {
+                                //自增到100后把进度条status变为success
+                                clearInterval(this.apiIntervalFlag)
+                                this.progressStatus = 'success'
+
+                                setTimeout(() =>{
+                                    axios.get(baseUrl + '/rola/collectByApiProgress',
+                                        {
+                                            params: {}
+                                        })
+                                        .then((response) => {
+
+                                            that.apiSuccessNum = response.data.data.successNum;
+                                            that.apiFailNum = response.data.data.failNum;
+                                            that.apiDuplicateNum = response.data.data.duplicateNum;
+                                            that.collectInfos2 = response.data.data.rolaCollectResultDTOList;
+
+                                                    that.$message({
+                                                        type: 'success',
+                                                        message: '成功收录：' + response.data.data.successNum
+                                                            + '   收录失败：' + response.data.data.failNum
+                                                            + '   重复收录：' + response.data.data.duplicateNum
+                                                    });
+
+                                        })
+                                },2500)
+
+                            }
+
+                        }).catch(function (error) {
+                        that.$message.error('异常错误：' + response.data.message);
+                        that.progressStatus = 'exception'
+                        //出现异常，停止定时任务
+                        clearInterval(that.apiIntervalFlag)
+                    });
+
+                }, 1500);
+            },
+
+            getSummariesWithConfig(param) {
+                const { columns, data } = param;
+                const sums = [];
+                columns.forEach((column, index) => {
+                    if (index === 0) {
+                        sums[index] = '总计';
+                        return;
+                    }
+                    const values = data.map(item => Number(item[column.property]));
+                    if (!values.every(value => isNaN(value))) {
+                        sums[index] = values.reduce((prev, curr) => {
+                            const value = Number(curr);
+                            if (!isNaN(value)) {
+                                return prev + curr;
+                            } else {
+                                return prev;
+                            }
+                        }, 0);
+                        sums[index] += ' 元';
+                    } else {
+                        sums[index] = 'N/A';
+                    }
+                });
+
+                return sums;
             }
         },
         mounted() {
-            this.collectProgress();
+            // this.collectProgress();
             this.loadData();
             this.onCountryChange();
+
+            const config = localStorage.getItem('config');
+            if (config) {
+                this.form = JSON.parse(config);
+            }
         }
     })
 </script>
