@@ -74,10 +74,10 @@
                                     <div class="adv-table editable-table ">
                                         <div class="config-page">
 
-                                        <el-form :model="form" ref="form" :rules="rules" label-width="120px">
-                                            <el-form-item label="代理用户名" prop="rolaUsername" required>
-                                                <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>
-                                            </el-form-item>
+<!--                                        <el-form :model="form" ref="form" :rules="rules" label-width="120px">-->
+<!--                                            <el-form-item label="代理用户名" prop="rolaUsername" required>-->
+<!--                                                <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>-->
+<!--                                            </el-form-item>-->
 
                                         <div style="margin-bottom:25px;margin-top:25px;">
                                             <span style="margin-left:20px">Rola服务器：</span>
@@ -108,7 +108,7 @@
                                             <el-button type="danger" @click="endCollect">结束</el-button>
                                             <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
                                         </div>
-                                        </el-form>
+<!--                                        </el-form>-->
                                         </div>
                                         <hr>
 
@@ -166,10 +166,10 @@
                                     <div class="adv-table editable-table ">
 
                                         <div class="config-page">
-                                            <el-form :model="form" ref="form" :rules="rules" label-width="120px">
-                                                <el-form-item label="代理用户名" prop="rolaUsername" required>
-                                                    <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>
-                                                </el-form-item>
+<!--                                            <el-form :model="form" ref="form" :rules="rules" label-width="120px">-->
+<!--                                                <el-form-item label="代理用户名" prop="rolaUsername" required>-->
+<!--                                                    <el-input v-model="form.rolaUsername" style="width:20%;"></el-input>-->
+<!--                                                </el-form-item>-->
 
                                         <div style="margin-bottom:25px;margin-top:25px;">
                                             <span style="margin-left:20px">Rola服务器：</span>
@@ -200,7 +200,7 @@
                                             <el-button type="danger" @click="endCollect">结束</el-button>
                                             <!--                                    <el-button type="danger" @click="">停止执行</el-button>-->
                                                 </div>
-                                            </el-form>
+<!--                                            </el-form>-->
 
                                         </div>
                                         <hr>
@@ -418,20 +418,17 @@
                 }, 1500);
             },
             collect() {
-                this.$refs.form.validate((valid) => {
-
-                        //保存用户新设的账户&密码
-                        const config = localStorage.getItem('config');
-                        let modifiedForm = {};
-                        if (config) {
-                            modifiedForm = JSON.parse(config);
-                        }
-                        modifiedForm.rolaUsername = this.form.rolaUsername;
-                        modifiedForm.rolaPassword = this.form.rolaPassword;
-                        localStorage.setItem('config', JSON.stringify(modifiedForm));
-
-
-                        if (valid) {
+                // this.$refs.form.validate((valid) => {
+                //         //保存用户新设的账户&密码
+                //         const config = localStorage.getItem('config');
+                //         let modifiedForm = {};
+                //         if (config) {
+                //             modifiedForm = JSON.parse(config);
+                //         }
+                //         modifiedForm.rolaUsername = this.form.rolaUsername;
+                //         modifiedForm.rolaPassword = this.form.rolaPassword;
+                //         localStorage.setItem('config', JSON.stringify(modifiedForm));
+                //         if (valid) {
 
                                 //保存Vue指针
                                 let that = this;
@@ -479,10 +476,10 @@
                                 if (errorData != null) {
                                     return;
                                 }
-                        } else {
-                            return false;
-                        }
-                });
+                //         } else {
+                //             return false;
+                //         }
+                // });
 
 
             },
@@ -638,20 +635,19 @@
 
             },
             collectWithConfig() {
-                this.$refs.form.validate((valid) => {
-
-                    //保存用户新设的账户&密码
-                    const config = localStorage.getItem('config');
-                    let modifiedForm = {};
-                    if (config) {
-                        modifiedForm = JSON.parse(config);
-                    }
-                    modifiedForm.rolaUsername = this.form.rolaUsername;
-                    modifiedForm.rolaPassword = this.form.rolaPassword;
-                    localStorage.setItem('config', JSON.stringify(modifiedForm));
-
-
-                    if (valid) {
+                // this.$refs.form.validate((valid) => {
+                //
+                //     //保存用户新设的账户&密码
+                //     const config = localStorage.getItem('config');
+                //     let modifiedForm = {};
+                //     if (config) {
+                //         modifiedForm = JSON.parse(config);
+                //     }
+                //     modifiedForm.rolaUsername = this.form.rolaUsername;
+                //     modifiedForm.rolaPassword = this.form.rolaPassword;
+                //     localStorage.setItem('config', JSON.stringify(modifiedForm));
+                //
+                //     if (valid) {
                         //保存Vue指针
                         let that = this;
                         let errorData = null;
@@ -696,10 +692,10 @@
                         if (errorData != null) {
                             return;
                         }
-                        } else {
-                            return false;
-                        }
-                });
+                //         } else {
+                //             return false;
+                //         }
+                // });
 
             },
             collectByApiProgress() {
