@@ -8,7 +8,7 @@ singleServerConfig:
   subscriptionConnectionMinimumIdleSize: 1
   subscriptionConnectionPoolSize: 50
   connectionMinimumIdleSize: 24
-  connectionPoolSize: 500
+  connectionPoolSize: 60
   database: 0
 threads: 32
 nettyThreads: 32

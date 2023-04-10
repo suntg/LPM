@@ -63,12 +63,12 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 8; i++) {
             asyncConfig.rolaCollectByApiThreadPool().submit(this::collectByApi);
             Thread.sleep(2000);
         }
 
-        for (int i = 0; i < 400; i++) {
+        for (int i = 0; i < 30; i++) {
             asyncConfig.rolaCollectBySidThreadPool().submit(this::collectBySid);
             Thread.sleep(2000);
         }
@@ -130,7 +130,7 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 okhttp3.Response response = client.newCall(request).execute();
                 long bytes = OkHttpUtil.measureTotalBytes(request, response);
                 TrafficDO trafficDO = new TrafficDO();
-                trafficDO.setUsername(rolaSidUsername);
+                trafficDO.setUsername(rolaProxy.getUsername());
                 trafficDO.setBytes(bytes);
                 trafficService.insert(trafficDO);
 
