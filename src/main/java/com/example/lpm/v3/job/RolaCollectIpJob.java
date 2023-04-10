@@ -191,8 +191,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                     try {
                         rolaIpMapper.insert(rolaIpDO);
 
-                        RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_SUCCESS_NUM);
-                        totalNum.incrementAndGet();
+                        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_SUCCESS_NUM);
+                        successNum.incrementAndGet();
 
 
                         RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
@@ -216,13 +216,23 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 collectResultDTO.setMsg("请求失败，未获取到IP");
                 redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
-                RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
-                totalNum.incrementAndGet();
+                RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
+                failNum.incrementAndGet();
 
                 log.error(" SocketException SocketTimeoutException:{}", ExceptionUtil.stacktraceToString(se));
+            } catch (InterruptedException ie) {
+                log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY interruptedException:{}", ExceptionUtil.stacktraceToString(ie));
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
-                RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
-                totalNum.incrementAndGet();
+
+                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                collectResultDTO.setIp(userSb.toString());
+                collectResultDTO.setMsg("请求失败，未获取到IP");
+                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
+
+
+                RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
+                failNum.incrementAndGet();
                 log.error(" ROLA_COLLECT_BY_SID_QUEUE_KEY Exception:{}", ExceptionUtil.stacktraceToString(e));
             }
         }
@@ -275,7 +285,6 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 LuminatiIPDTO luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
 
 
-
                 // 如果城市 或者 州 为nul 调用http://ip123.in/search_ip?ip=xxx 补齐
                 if (CharSequenceUtil.hasBlank(luminatiIPDTO.getGeo().getRegion(), luminatiIPDTO.getGeo().getCity())) {
                     String ip123InfoResult = HttpUtil.get("http://ip123.in/search_ip?ip=" + luminatiIPDTO.getIp());
@@ -323,8 +332,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                     try {
                         rolaIpMapper.insert(rolaIpDO);
 
-                        RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_SUCCESS_NUM);
-                        totalNum.incrementAndGet();
+                        RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_SUCCESS_NUM);
+                        successNum.incrementAndGet();
 
 
                         RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
@@ -348,13 +357,22 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 collectResultDTO.setMsg("请求失败，未获取到IP");
                 redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
-                RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
-                totalNum.incrementAndGet();
+                RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
+                failNum.incrementAndGet();
 
                 log.error(" SocketException SocketTimeoutException:{}", ExceptionUtil.stacktraceToString(se));
+            } catch (InterruptedException ie) {
+                log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY interruptedException:{}", ExceptionUtil.stacktraceToString(ie));
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
-                RAtomicLong totalNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
-                totalNum.incrementAndGet();
+                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                collectResultDTO.setIp(rolaProxy.getRolaApiIp());
+                collectResultDTO.setMsg("请求失败，未获取到IP");
+                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
+
+
+                RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
+                failNum.incrementAndGet();
                 log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY Exception:{}", ExceptionUtil.stacktraceToString(e));
             }
 
