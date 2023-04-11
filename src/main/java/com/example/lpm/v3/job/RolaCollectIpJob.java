@@ -56,12 +56,6 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     private final TrafficService trafficService;
 
-    @Value("${rola.proxy-password}")
-    private String rolaProxyPassword;
-
-    @Value("${rola.sid-username}")
-    private String rolaSidUsername;
-
     @Override
     public void run(String... args) throws Exception {
         for (int i = 0; i < 15; i++) {
@@ -97,7 +91,7 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
 
                 userSb = new StringBuilder();
-                userSb.append(rolaSidUsername).append("-country-").append(rolaProxy.getCountry());
+                userSb.append(RolaLoadData.CACHE.get(1).getSidUsername()).append("-country-").append(rolaProxy.getCountry());
                 if (CharSequenceUtil.isNotBlank(rolaProxy.getState())) {
                     userSb.append("-state-").append(rolaProxy.getState());
                 }
@@ -111,7 +105,7 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 StringBuilder finalUserSb = userSb;
                 java.net.Authenticator.setDefault(new java.net.Authenticator() {
                     private PasswordAuthentication authentication =
-                            new PasswordAuthentication(finalUserSb.toString(), rolaProxyPassword.toCharArray());
+                            new PasswordAuthentication(finalUserSb.toString(), RolaLoadData.CACHE.get(1).getProxyPassword().toCharArray());
 
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {

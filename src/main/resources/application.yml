@@ -43,19 +43,6 @@ mybatis-plus:
   configuration:
     default-enum-type-handler: org.apache.ibatis.type.EnumOrdinalTypeHandler
 
-
-#luminati:
-#  proxy-host: zproxy.lum-superproxy.io
-#  proxy-port: 22225
-#  proxy-username: lum-customer-c_99c3c376-zone-zone5-dns-remote-route_err-pass_dyn-country-us
-#  proxy-password: jekszis5wjgx
-#  test-url: http://lumtest.com/myip.json
-#  socks-username: hotkingda
-#  socks-password: 209209us
-#  customer: c_99c3c376
-#  zone: zone5
-#  country: us
-
 pagehelper:
   params: count=countSql
   helper-dialect: mysql

@@ -37,6 +37,7 @@ import com.example.lpm.v3.domain.request.RolaIpLockRequest;
 import com.example.lpm.v3.domain.request.RolaIpRequest;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
+import com.example.lpm.v3.job.RolaLoadData;
 import com.example.lpm.v3.mapper.RolaIpMapper;
 import com.example.lpm.v3.service.RolaIpService;
 import com.example.lpm.v3.service.TrafficService;
@@ -87,11 +88,6 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${rola.token}")
-    private String rolaToken;
-
-    @Value("${rola.proxy-password}")
-    private String rolaProxyPassword;
 
     @Override
     public void collect(RolaIpRequest rolaIpRequest) {
@@ -231,7 +227,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         currentNum.set(rolaIpRequest.getNumber());
 
 
-        String url = "http://list.rola.info:8088/user_get_ip_list?token=" + rolaToken +
+        String url = "http://list.rola.info:8088/user_get_ip_list?token=" + RolaLoadData.CACHE.get(1).getToken() +
                 "&qty=" + rolaIpRequest.getNumber() + "&country=" + rolaIpRequest.getCountry();
 
         StringBuilder urlSb = new StringBuilder(url);
@@ -438,7 +434,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
         // 开始 10
         collectFlag.set(10L);
 
-        String url = RolaCollectConstant.GET_IPS_LINK + rolaToken +
+        String url = RolaCollectConstant.GET_IPS_LINK + RolaLoadData.CACHE.get(1).getToken() +
                 "&qty=" + rolaCollectRequest.getNumber() + "&country=" + rolaCollectRequest.getCountry();
 
         StringBuilder urlSb = new StringBuilder(url);

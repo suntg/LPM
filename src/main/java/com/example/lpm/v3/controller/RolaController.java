@@ -1,19 +1,19 @@
 package com.example.lpm.v3.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.lpm.v3.common.BizException;
 import com.example.lpm.v3.common.ReturnCode;
-import com.example.lpm.v3.domain.entity.OperationLogDO;
-import com.example.lpm.v3.domain.entity.PortWhitelistDO;
-import com.example.lpm.v3.domain.entity.RolaIpDO;
-import com.example.lpm.v3.domain.entity.RolaProxyPortDO;
+import com.example.lpm.v3.domain.entity.*;
 import com.example.lpm.v3.domain.query.FindSocksPortQuery;
 import com.example.lpm.v3.domain.query.PageQuery;
 import com.example.lpm.v3.domain.query.RolaQuery;
 import com.example.lpm.v3.domain.request.*;
 import com.example.lpm.v3.domain.vo.PageVO;
 import com.example.lpm.v3.domain.vo.RolaProgressVO;
+import com.example.lpm.v3.job.RolaLoadData;
+import com.example.lpm.v3.mapper.RolaConfigMapper;
 import com.example.lpm.v3.service.OperationLogService;
 import com.example.lpm.v3.service.PortWhitelistService;
 import com.example.lpm.v3.service.RolaIpService;
@@ -317,5 +317,24 @@ public class RolaController {
     @GetMapping("/collectByApiPause")
     public void collectByApiPause() {
         rolaIpService.collectByApiPause();
+    }
+
+    private final RolaConfigMapper rolaConfigMapper;
+
+    @Operation(summary = "更新ROLA config")
+    @PostMapping("/updateRolaConfig")
+    public void updateRolaConfig(RolaConfigDO rolaConfigDO) {
+        RolaConfigDO rolaConfig = rolaConfigMapper.selectById(1);
+        if (CharSequenceUtil.isNotBlank(rolaConfigDO.getToken())) {
+            rolaConfig.setToken(rolaConfigDO.getToken());
+        }
+        if (CharSequenceUtil.isNotBlank(rolaConfigDO.getSidUsername())) {
+            rolaConfig.setSidUsername(rolaConfigDO.getSidUsername());
+        }
+        if (CharSequenceUtil.isNotBlank(rolaConfigDO.getProxyPassword())) {
+            rolaConfig.setProxyPassword(rolaConfigDO.getProxyPassword());
+        }
+        rolaConfigMapper.updateById(rolaConfig);
+        RolaLoadData.CACHE.put(1, rolaConfig);
     }
 }
