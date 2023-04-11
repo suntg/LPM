@@ -48,12 +48,6 @@
                 本地代理端口使用详情
             </h3>
             <ul class="breadcrumb">
-                <li>
-                    <a href="#">Dashboard</a>
-                </li>
-                <li>
-                    <a href="#">Data Table</a>
-                </li>
                 <li class="active">本地代理端口使用列表</li>
             </ul>
         </div>
@@ -126,36 +120,6 @@
                                     <el-button type="success" @click="fillForm(scope)">启动端口</el-button>
 
                                 </div>
-                                <!--<div style="margin-bottom:25px;margin-top:25px;">
-                                    <span class="demonstration">选择创建时间区间：</span>
-                                    <el-date-picker
-                                            v-model="createTimeRange"
-                                            type="datetimerange"
-                                            value-format="yyyy-MM-dd HH:mm:ss"
-                                            :picker-options="pickerOptions"
-                                            range-separator="至"
-                                            start-placeholder="开始日期"
-                                            end-placeholder="结束日期"
-                                            align="right">
-                                    </el-date-picker>
-                                </div>
-                                <div style="margin-bottom:25px;margin-top:25px;">
-                                    <span class="demonstration">选择心跳时间区间：</span>
-                                    <el-date-picker
-                                            v-model="heartbeatTimeRange"
-                                            type="datetimerange"
-                                            value-format="yyyy-MM-dd HH:mm:ss"
-                                            :picker-options="pickerOptions"
-                                            range-separator="至"
-                                            start-placeholder="开始日期"
-                                            end-placeholder="结束日期"
-                                            align="right">
-                                    </el-date-picker>
-                                </div>-->
-
-                                <!--                               <el-button type="primary" @click="startProxyPort">启动代理</el-button>
-                                                               <el-button type="warning" @click="batchDelete">批量删除</el-button>
-                                                               <el-button type="danger" @click="deleteAll">全部删除</el-button>-->
                                 <hr>
                                 <table class="table table-striped table-hover table-bordered"
                                        id="editable-sample"
@@ -204,55 +168,6 @@
                                                     prop="country"
                                                     label="国家">
                                             </el-table-column>
-                                            <!--                                            <el-table-column-->
-                                            <!--                                                    prop="postalCode"-->
-                                            <!--                                                    label="邮编">-->
-                                            <!--                                            </el-table-column>-->
-                                            <!--                                            <el-table-column-->
-                                            <!--                                                    prop="tz"-->
-                                            <!--                                                    label="时区">-->
-                                            <!--                                            </el-table-column>-->
-                                            <!--                                            <el-table-column
-                                                                                                prop="state"
-                                                                                                label="state"
-                                                                                        >
-                                                                                            <template slot-scope="scope">
-                                                                                                <span v-if="scope.row.state == '0'">不可用</span>
-                                                                                                <span v-if="scope.row.state == '1'">可用</span>
-                                                                                                <span v-if="scope.row.state == '2'">不稳定</span>
-                                                                                            </template>
-                                                                                        </el-table-column>
-                                                                                        <el-table-column
-                                                                                                prop="remark"
-                                                                                                label="remark"
-                                                                                        >
-                                                                                            <template slot-scope="scope">
-                                                                                                <el-input
-                                                                                                        ref="gain"
-                                                                                                        size="mini"
-                                                                                                        v-if="scope.row.isOK"
-                                                                                                        @keyup.native.enter="blurClick(scope)"
-                                                                                                        @blur="blurClick(scope)"
-                                                                                                        v-model="scope.row.remark"
-                                                                                                        style="width:100%;hight:100%"></el-input>
-                                                                                                <span size="mini" v-else>{{scope.row.remark}}</span>
-                                                                                            </template>
-                                                                                        </el-table-column>
-                                                                                        <el-table-column
-                                                                                                prop="heartbeatQuantity"
-                                                                                                label="heartbeatQuantity"
-                                                                                        >
-                                                                                        </el-table-column>
-                                                                                        <el-table-column
-                                                                                                prop="lastHeartbeatTime"
-                                                                                                label="lastHeartbeatTime"
-                                                                                                >
-                                                                                        </el-table-column>
-                                                                                        <el-table-column
-                                                                                                prop="createTime"
-                                                                                                label="createTime"
-                                                                                                >
-                                                                                        </el-table-column>-->
                                             <el-table-column
                                                     label="操作"
                                                     align="center"
@@ -261,11 +176,8 @@
                                                 <template slot-scope="scope">
                                                     <el-button type="primary" @click="changeForm(scope)">更换
                                                     </el-button>
-                                                    <!--                                                    <el-button type="success" @click="testAlive(scope)">停止</el-button>-->
                                                     <el-button type="danger" @click="deleteProxyPort(scope)">删除
                                                     </el-button>
-
-
                                                 </template>
                                             </el-table-column>
                                         </el-table>
@@ -283,9 +195,6 @@
                                                 <el-form-item label="城市">
                                                     <el-input v-model="form.city"></el-input>
                                                 </el-form-item>
-                                                <!--                                                <el-form-item label="代理端口">-->
-                                                <!--                                                    <el-input v-model="form.proxyPort"></el-input>-->
-                                                <!--                                                </el-form-item>-->
                                             </el-form>
 
                                             <el-button @click="dialogVisible = false">取 消</el-button>
@@ -373,7 +282,7 @@
 
 <script src="js/vue.js"></script>
 
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="js/axios.min.js"></script>
 <!-- 引入样式 -->
 <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 <!-- 引入组件库 -->
@@ -383,11 +292,7 @@
 <!-- END JAVASCRIPTS -->
 <script>
 
-    /*    jQuery(document).ready(function() {
-            EditableTable.init();
-        });*/
-    // let baseUrl = "http://192.168.100.119:8080";
-    var app = new Vue({
+    let app = new Vue({
         el: '#app',
         data: {
             name: '',
@@ -415,54 +320,15 @@
                 city: '',
                 proxyPort: ''
             },
-            createTimeRange: '',
-            heartbeatTimeRange: '',
-            manualHeartbeatTimeRange: '',
             reports: [],
             summary: '',
             total: 0,
             pageNum: 1,
             pageSize: 50000,
-            pickerOptions: {
-                shortcuts: [{
-                    text: '最近一周',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date();
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近一个月',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date();
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近三个月',
-                    onClick(picker) {
-                        const end = new Date();
-                        const start = new Date();
-                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                        picker.$emit('pick', [start, end]);
-                    }
-                }]
-            },
             getIpTimes: '',
             requestId: '',
-            intervalMinute: '',
-            executorPararm: '',
             timeStamp: '',
             dialogVisible: false,
-            options: [{
-                value: 0,
-                label: '否'
-            }, {
-                value: 1,
-                label: '是'
-            }],
             portFormVisible: false,
             portForm: {
                 socksPort: '',
@@ -503,19 +369,10 @@
                 axios.get(baseUrl + '/rola/listProxyPortsPage',
                     {
                         params: {
-                            // ip: this.ip,
-                            // name: this.name,
                             country: this.selectedCountry.toLowerCase(),
                             state: this.selectedState.toLowerCase(),
                             city: this.selectedCity.toLowerCase(),
-                            // postalCode: this.postalCode,
-                            // tz: this.tz,
-                            // state: this.state,
                             proxyPort: this.proxyPort,
-                            // startCreateTime: this.createTimeRange[0],
-                            // endCreateTime: this.createTimeRange[1],
-                            // startHeartbeatTime: this.heartbeatTimeRange[0],
-                            // endHeartbeatTime: this.heartbeatTimeRange[1],
                             pageNum: this.pageNum,
                             pageSize: this.pageSize
                         }
@@ -537,78 +394,17 @@
                 this.pageNum = val;
                 this.onSubmit();
             },
-            timeFormatter(row, column) {
-                return this.timestampToTime(row.confirmedTimestamp);
-            },
-            /**
-             * 计算时间返回 yyyy-MM-dd h:m:s 格式的⽅法
-             * timestamp 时间戳
-             */
-            timestampToTime(timestamp) {
-                // 计算年⽉⽇时分的函数
-                var date = new Date(timestamp * 1000)
-                console.log(date);
-                var Y = date.getFullYear() + '-'
-                var M = (date.getMonth() + 1) + '-'
-                var D = date.getDate() + ' '
-                var h = date.getHours() + ':'
-                var m = date.getMinutes() + ':'
-                var s = date.getSeconds()
-                return Y + M + D + h + m + s
-            },
             redCharacter(row, column, rowIndex, columnIndex) {
                 if (row.columnIndex == 8 && row.state == 0) {
                     return 'color:red';
                 }
             },
-            cellclick(row, column, cell, event) {
-                /*    if(column.label === 'remark'){
-                        this.$set(row, 'isOK', true)
-                    }
-                    this.$nextTick(() => {
-                        this.$refs.gain.focus()
-                    })*/
-            },
-            /*
-            blurClick({row,column}){
-                if(column.label === 'remark'){
-                    this.$set(row, 'isOK', false)
-                    axios.post(baseUrl + '/ipAddr/updateRemark', {
-
-                    },{
-                        headers: {
-                            'Access-Control-Allow-Origin':'*',  //解决cors头问题
-                            'Access-Control-Allow-Credentials':'true', //解决session问题
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                        },
-                        withCredentials : true,
-                        params: {
-                            id: row.id,
-                            remark: row.remark
-                        }
-                    })
-                        .then(function (response) {
-                            console.log(response);
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                }
-            },*/
             tableRowClassName({row, rowIndex}) {
-                console.log("tableRowClassName 方法触发了！！！！")
                 if (row.result === true) {
                     return 'primary-row';
                 } else if (row.result === false) {
                     return 'danger-row';
                 }
-
-
-                /*if (row.state === 0) {
-                    return 'danger-row';
-                } else if (row.state === 1) {
-                    return 'primary-row';
-                }*/
                 return '';
             },
             deleteProxyPort({row, column}) {
@@ -633,26 +429,6 @@
                             message: '删除成功！',
                             type: 'success'
                         });
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-            },
-            manualHeartbeat() {
-                axios.post(baseUrl + '/ipAddr/manualHeartbeat', {}, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                    },
-                    withCredentials: true,
-                    params: {
-                        startHeartbeatTime: this.manualHeartbeatTimeRange[0],
-                        endHeartbeatTime: this.manualHeartbeatTimeRange[1]
-                    }
-                })
-                    .then(function (response) {
-                        console.log(response);
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -688,136 +464,6 @@
                         this.timeStamp = new Date().getTime();
                     })
                 this.$set(this.reports);
-            },
-            active({row, column}) {
-                //保存Vue指针
-                var that = this;
-                axios.post(baseUrl + '/ipAddr/startProxy', {}, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                    },
-                    withCredentials: true,
-                    params: {
-                        id: row.id
-                    }
-                })
-                    .then(function (response) {
-                        console.log(response.data);
-                        that.$alert(response.data.data, '启用结果', {
-                            confirmButtonText: '确定',
-                            callback: action => {
-                                that.$message({
-                                    type: 'info',
-                                    message: response.data.message
-                                });
-                            }
-                        });
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-            },
-            startProxyPort() {
-                //保存Vue指针
-                var that = this;
-                const loading = this.$loading({
-                    lock: true,
-                    text: '启动代理中...',
-                    spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.7)'
-                });
-                axios.post(baseUrl + '/rola/startProxyPort', {
-                    country: that.country,
-                    state: that.region,
-                    city: that.city,
-                    proxyPort: that.proxyPort,
-                    name: that.name
-                }, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                    },
-                    withCredentials: true
-                })
-                    .then(function (response) {
-                        console.log("response.data.status 是：" + response.data.status);
-                        loading.close();
-                        if (response.data.status == 100) {
-                            that.$message({
-                                message: '启动成功！',
-                                type: 'success'
-                            });
-                            that.onSubmit()
-                        } else {
-                            that.$message({
-                                message: response.data.message,
-                                type: 'error'
-                            });
-                            that.onSubmit()
-                        }
-
-                    })
-                    .catch(function (error) {
-                        loading.close();
-                        that.$message({
-                            message: error.data.message,
-                            type: 'error'
-                        });
-                        console.log(error);
-                        that.onSubmit()
-                    });
-
-            },
-            batchDelete() {
-                console.log(this.$refs.table.selection);
-                console.log(this.$refs.table.selection[0].proxyPort);
-                let ports = [];
-                for (let i = 0; i < this.$refs.table.selection.length; i++) {
-                    ports.push(this.$refs.table.selection[i].proxyPort);
-                }
-
-                axios.post(baseUrl + '/rola/deleteBatchSocksPorts',
-
-                    JSON.stringify(ports)
-                    , {
-                        headers: {
-                            'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                            'Access-Control-Allow-Credentials': 'true', //解决session问题
-                            'Content-Type': 'application/json; charset=UTF-8' //将表单数据传递转化为form-data类型
-                        },
-                        withCredentials: true
-                    }).then((response) => {
-
-                    console.log(response)
-                    this.$message({
-                        message: response.data.message,
-                        type: 'success'
-                    });
-                    this.onSubmit();
-                })
-            },
-            deleteAll() {
-                axios.post(baseUrl + '/rola/deleteAllSocksPort', {}, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',  //解决cors头问题
-                        'Access-Control-Allow-Credentials': 'true', //解决session问题
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' //将表单数据传递转化为form-data类型
-                    },
-                    withCredentials: true
-                })
-                    .then((response) => {
-                        this.$message({
-                            message: response.data.message,
-                            type: 'success'
-                        });
-                        console.log(response);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
             },
             changeForm({row, column}) {
                 this.form.id = row.id,
