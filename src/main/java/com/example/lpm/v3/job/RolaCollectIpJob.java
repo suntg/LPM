@@ -28,6 +28,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -63,12 +64,12 @@ public class RolaCollectIpJob implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 15; i++) {
             asyncConfig.rolaCollectByApiThreadPool().submit(this::collectByApi);
             Thread.sleep(2000);
         }
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 40; i++) {
             asyncConfig.rolaCollectBySidThreadPool().submit(this::collectBySid);
             Thread.sleep(2000);
         }
@@ -134,6 +135,9 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 trafficDO.setBytes(bytes);
                 trafficService.insert(trafficDO);
 
+
+
+
                 String responseString = response.body().string();
 
                 log.info("lumtest :{}", responseString);
@@ -160,14 +164,17 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 Ip123FraudDTO ip123FraudDTO = objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
 
 
-                long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, ip234DTO.getIp()));
-                if (count > 0) {
+                RBloomFilter<String> bloomFilter = redissonClient.getBloomFilter(RolaCollectConstant.ROLA_IP_BLOOM);
+
+
+                // long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, ip234DTO.getIp()));
+                if (bloomFilter.contains(ip234DTO.getIp())) {
                     log.info("已存在IP: {}", ip234DTO.getIp());
 
-                    RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                    collectResultDTO.setIp(ip234DTO.getIp());
-                    collectResultDTO.setMsg("重复IP");
-                    redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
+                    // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                    // collectResultDTO.setIp(ip234DTO.getIp());
+                    // collectResultDTO.setMsg("重复IP");
+                    // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
                     RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_DUPLICATE_NUM);
                     currentRepeatNum.incrementAndGet();
@@ -188,6 +195,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                     try {
                         rolaIpMapper.insert(rolaIpDO);
 
+                        log.info("插入新数据: {}", rolaIpDO);
+
                         RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_SUCCESS_NUM);
                         successNum.incrementAndGet();
 
@@ -197,21 +206,22 @@ public class RolaCollectIpJob implements CommandLineRunner {
                         collectResultDTO.setMsg("成功IP");
                         redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
                     } catch (Exception e) {
-                        RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                        collectResultDTO.setIp(ip234DTO.getIp());
-                        collectResultDTO.setMsg("重复IP");
-                        redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
+                        // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                        // collectResultDTO.setIp(ip234DTO.getIp());
+                        // collectResultDTO.setMsg("重复IP");
+                        // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
                         RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_DUPLICATE_NUM);
                         currentRepeatNum.incrementAndGet();
                     }
-                    log.info("插入新数据: {}", rolaIpDO);
+                    bloomFilter.add(rolaIpDO.getIp());
+
                 }
             } catch (SocketTimeoutException | SocketException se) {
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(userSb.toString());
-                collectResultDTO.setMsg("请求失败，未获取到IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
+                // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                // collectResultDTO.setIp(userSb.toString());
+                // collectResultDTO.setMsg("请求失败，未获取到IP");
+                // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
                 RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
                 failNum.incrementAndGet();
@@ -221,10 +231,10 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY interruptedException:{}", ExceptionUtil.stacktraceToString(ie));
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(userSb.toString());
-                collectResultDTO.setMsg("请求失败，未获取到IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
+                // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                // collectResultDTO.setIp(userSb.toString());
+                // collectResultDTO.setMsg("请求失败，未获取到IP");
+                // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_SID_RESULT, collectResultDTO);
 
 
                 RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_SID_FAIL_NUM);
@@ -300,14 +310,17 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 JsonNode jsonNode = objectMapper.readTree(ip123FraudResult);
                 Ip123FraudDTO ip123FraudDTO = objectMapper.readValue(jsonNode.get("data").toString(), Ip123FraudDTO.class);
 
-                long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, luminatiIPDTO.getIp()));
-                if (count > 0) {
+                RBloomFilter<String> bloomFilter = redissonClient.getBloomFilter(RolaCollectConstant.ROLA_IP_BLOOM);
+
+
+                // long count = rolaIpMapper.selectCount(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, ip234DTO.getIp()));
+                if (bloomFilter.contains(luminatiIPDTO.getIp())) {
                     log.info("已存在IP: {}", luminatiIPDTO.getIp());
 
-                    RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                    collectResultDTO.setIp(luminatiIPDTO.getIp());
-                    collectResultDTO.setMsg("重复IP");
-                    redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
+                    // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                    // collectResultDTO.setIp(luminatiIPDTO.getIp());
+                    // collectResultDTO.setMsg("重复IP");
+                    // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
                     RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_DUPLICATE_NUM);
                     currentRepeatNum.incrementAndGet();
@@ -328,6 +341,8 @@ public class RolaCollectIpJob implements CommandLineRunner {
                     try {
                         rolaIpMapper.insert(rolaIpDO);
 
+                        log.info("插入新数据: {}", rolaIpDO);
+
                         RAtomicLong successNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_SUCCESS_NUM);
                         successNum.incrementAndGet();
 
@@ -337,21 +352,22 @@ public class RolaCollectIpJob implements CommandLineRunner {
                         collectResultDTO.setMsg("成功IP");
                         redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
                     } catch (Exception e) {
-                        RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                        collectResultDTO.setIp(luminatiIPDTO.getIp());
-                        collectResultDTO.setMsg("重复IP");
-                        redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
+                        // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                        // collectResultDTO.setIp(luminatiIPDTO.getIp());
+                        // collectResultDTO.setMsg("重复IP");
+                        // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
                         RAtomicLong currentRepeatNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_DUPLICATE_NUM);
                         currentRepeatNum.incrementAndGet();
                     }
-                    log.info("插入新数据: {}", rolaIpDO);
+
+                    bloomFilter.add(rolaIpDO.getIp());
                 }
             } catch (SocketTimeoutException | SocketException se) {
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(rolaProxy.getRolaApiIp());
-                collectResultDTO.setMsg("请求失败，未获取到IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
+                // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                // collectResultDTO.setIp(rolaProxy.getRolaApiIp());
+                // collectResultDTO.setMsg("请求失败，未获取到IP");
+                // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
                 RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);
                 failNum.incrementAndGet();
@@ -361,10 +377,10 @@ public class RolaCollectIpJob implements CommandLineRunner {
                 log.error(" ROLA_COLLECT_BY_API_QUEUE_KEY interruptedException:{}", ExceptionUtil.stacktraceToString(ie));
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
-                collectResultDTO.setIp(rolaProxy.getRolaApiIp());
-                collectResultDTO.setMsg("请求失败，未获取到IP");
-                redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
+                // RolaCollectResultDTO collectResultDTO = new RolaCollectResultDTO();
+                // collectResultDTO.setIp(rolaProxy.getRolaApiIp());
+                // collectResultDTO.setMsg("请求失败，未获取到IP");
+                // redisTemplate.opsForList().leftPush(RolaCollectConstant.ROLA_COLLECT_BY_API_RESULT, collectResultDTO);
 
 
                 RAtomicLong failNum = redissonClient.getAtomicLong(RolaCollectConstant.ROLA_COLLECT_BY_API_FAIL_NUM);

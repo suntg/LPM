@@ -78,4 +78,7 @@ public class RolaCollectConstant {
      */
     public static final String ROLA_COLLECT_BY_SID_RESULT = "rola_collect:sid:result";
 
+
+    public static final String ROLA_IP_BLOOM = "rola_ip_bloom";
+
 }
