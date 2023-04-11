@@ -48,7 +48,7 @@ public class IndexController {
             // 把登陆成功的用户保存起来
             session.setAttribute("loginUser", user);
             session.setAttribute("token", token);
-            return "redirect:/main.html";
+            return "redirect:/rola_proxy";
         } catch (BizException e) {
             model.addAttribute("msg", e.getMessage());
             // 回到登录页面
