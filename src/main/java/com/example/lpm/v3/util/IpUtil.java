@@ -1,5 +1,6 @@
 package com.example.lpm.v3.util;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 public class IpUtil {
@@ -75,5 +78,7 @@ public class IpUtil {
             System.out.println(IdUtil.getSnowflake().nextId());
 
         }
+
+        System.out.println(LocalDateTimeUtil.offset(LocalDateTime.now(), -10, ChronoUnit.DAYS));
     }
 }

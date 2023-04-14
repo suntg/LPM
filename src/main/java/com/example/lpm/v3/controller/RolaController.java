@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -220,8 +221,7 @@ public class RolaController {
 
     @Operation(summary = "查询fileFlag所有数据")
     @GetMapping("/listByFileFlag")
-    public List<RolaIpDO> listByFileFlag(@RequestParam() String fileFlag,
-                                         @RequestParam(required = false) String fileType) {
+    public List<RolaIpDO> listByFileFlag(@RequestParam() String fileFlag, @RequestParam(required = false) String fileType) {
         return rolaIpService.listByFileFlag(fileFlag, fileType);
     }
 
@@ -336,5 +336,17 @@ public class RolaController {
         }
         rolaConfigMapper.updateById(rolaConfig);
         RolaLoadData.CACHE.put(1, rolaConfig);
+    }
+
+    @Operation
+    @PostMapping("updateUseNumber")
+    public void updateUseNumber(String ip) {
+        RolaIpDO rolaIpDO = rolaIpService.getOne(new QueryWrapper<RolaIpDO>().lambda().eq(RolaIpDO::getIp, ip));
+        rolaIpDO.setLastUseTime(LocalDateTime.now());
+        if (rolaIpDO.getUseNumber() == null) {
+            rolaIpDO.setUseNumber(0);
+        }
+        rolaIpDO.setUseNumber(rolaIpDO.getUseNumber() + 1);
+        rolaIpService.updateById(rolaIpDO);
     }
 }
