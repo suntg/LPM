@@ -54,7 +54,6 @@ import org.redisson.api.RAtomicLong;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -851,7 +850,7 @@ public class RolaIpServiceImpl extends ServiceImpl<RolaIpMapper, RolaIpDO> imple
     @Override
     public List<RolaIpDO> listByFileFlag(String fileFlag, String fileType) {
         return rolaIpMapper.selectList(new QueryWrapper<RolaIpDO>().lambda().like(RolaIpDO::getFileFlag, fileFlag)
-                .like(CharSequenceUtil.isNotBlank(fileType), RolaIpDO::getFileType, fileType));
+                .like(CharSequenceUtil.isNotBlank(fileType), RolaIpDO::getFileType, fileType).orderByDesc(RolaIpDO::getUpdateTime));
     }
 
     @Override
