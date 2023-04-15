@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: jdbc:mysql://27.102.106.249:3306/xtzn_lpm?serverTimezone=Asia/Shanghai&useSSL=false&useUnicode=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://154.198.227.65:3306/xtzn_lpm?serverTimezone=Asia/Shanghai&useSSL=false&useUnicode=true&allowPublicKeyRetrieval=true
     username: root
     password: JGOp&7%XPb
   redis:
-    host: 27.102.106.249
+    host: 154.198.227.65
     port: 6379
     password: JGOp&7%XPb
     lettuce:
