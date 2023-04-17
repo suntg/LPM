@@ -87,7 +87,7 @@
 
     <!-- 开发环境日志级别为 DEBUG,并且开发环境不写日志文件 -->
     <springProfile name="dev">
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE_LOG"/>
         </root>
     </springProfile>
