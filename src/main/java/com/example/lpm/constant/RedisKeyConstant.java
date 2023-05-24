@@ -15,9 +15,7 @@ public class RedisKeyConstant {
     public static final String ROLA_CURRENT_KEY = "#ROLA_CURRENT";
 
     /**
-     * ROLA收集IP启停标志
-     * 10
-     * 11
+     * ROLA收集IP启停标志 10 11
      */
     public static final String ROLA_COLLECT_FLAG_KEY = "#ROLA_COLLECT_FLAG";
 
@@ -47,17 +45,14 @@ public class RedisKeyConstant {
      */
     public static final String ROLA_PHONE_COLLECT_IP_QUEUE_KEY = "#ROLA_PHONE_COLLECT_IP_QUEUE_KEY";
 
-
-
+    public static final String ROLA_V2_FIND_LOCK = "#ROLA_V2_FIND_LOCK";
 
     /**
      * 页面收集Luminati
      */
     public static final String LUMINATI_COLLECT_IP_QUEUE_KEY = "#LUMINATI_COLLECT_IP_QUEUE_KEY";
     /**
-     * LUMINATI收集IP启停标志
-     * 10
-     * 11
+     * LUMINATI收集IP启停标志 10 11
      */
     public static final String LUMINATI_CURRENT_KEY = "#LUMINATI_CURRENT";
 

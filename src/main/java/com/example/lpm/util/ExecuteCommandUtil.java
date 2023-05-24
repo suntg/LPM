@@ -150,7 +150,7 @@ public class ExecuteCommandUtil {
     public static String rolaRefresh(String user, String country, String state, String city) {
 
         // http://refresh.rola.info/refresh?user=skyescn_1&country=us&state=&city=
-        //http://refreshus2.rola.info/refresh?user=skyescn_1&country=us&state=&city=
+        // http://refreshus2.rola.info/refresh?user=skyescn_1&country=us&state=&city=
         StringBuilder rolaUrl = new StringBuilder("http://refreshus2.rola.info/refresh?user=" + user + "&country=");
         rolaUrl.append(StrUtil.replace(country, " ", "").toLowerCase());
         rolaUrl.append("&state=");

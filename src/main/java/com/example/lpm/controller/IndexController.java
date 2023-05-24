@@ -1,11 +1,10 @@
 package com.example.lpm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
-import com.example.lpm.v3.domain.vo.LoginVO;
-import com.example.lpm.service.UserService;
-import com.example.lpm.v3.util.IpUtil;
-import com.example.lpm.v3.common.BizException;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.QueryTimeoutException;
@@ -14,10 +13,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import com.example.lpm.service.UserService;
+import com.example.lpm.v1.common.BizException;
+import com.example.lpm.v1.domain.vo.LoginVO;
+import com.example.lpm.v1.util.IpUtil;
+
+import cn.dev33.satoken.stp.StpUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -77,16 +79,16 @@ public class IndexController {
      */
     @GetMapping("/main.html")
     public String mainPage(HttpSession session, Model model) {
-         try {
-         if (!StpUtil.isLogin()) {
-         return "redirect:login";
-         }
-         } catch (QueryTimeoutException e) {
-         return "redirect:login";
-         } catch (Exception e) {
-         return "redirect:login";
-         }
-         if (!StpUtil.isLogin()) {
+        try {
+            if (!StpUtil.isLogin()) {
+                return "redirect:login";
+            }
+        } catch (QueryTimeoutException e) {
+            return "redirect:login";
+        } catch (Exception e) {
+            return "redirect:login";
+        }
+        if (!StpUtil.isLogin()) {
             return "redirect:login";
         }
         return "main";
@@ -257,7 +259,7 @@ public class IndexController {
      */
     protected String getValue(Cookie[] cookies, String key) {
         String value = null;
-        if (null != cookies && cookies.length > 0) {
+        if (null != cookies) {
             for (Cookie c : cookies) {
                 if (key.equals(c.getName())) {
                     value = c.getValue();

@@ -14,34 +14,34 @@
 //
 // @Deprecated
 // public interface IpAddrService extends IService<IpAddrDO> {
-//     PageVO<IpAddrDO> listPage(IpAddrQuery ipAddrQuery, PageQuery pageQuery);
+// PageVO<IpAddrDO> listPage(IpAddrQuery ipAddrQuery, PageQuery pageQuery);
 //
-//     void updateRemark(Long id, String remark);
+// void updateRemark(Long id, String remark);
 //
-//     void getLuminatiIpAddrByAsync(String country, String state, String city);
+// void getLuminatiIpAddrByAsync(String country, String state, String city);
 //
-//     Future<Boolean> manualHeartbeatAsync(Long id);
+// Future<Boolean> manualHeartbeatAsync(Long id);
 //
-//     void heartbeatAsync(Long id);
+// void heartbeatAsync(Long id);
 //
-//     Boolean heartbeat(Long id);
+// Boolean heartbeat(Long id);
 //
-//     Integer startProxyById(Integer id);
+// Integer startProxyById(Integer id);
 //
-//     IpAddrDO luaGetIp(FindIpQuery findIpQuery);
+// IpAddrDO luaGetIp(FindIpQuery findIpQuery);
 //
-//     void luaReportIp(Long id, Integer useState, String remark);
+// void luaReportIp(Long id, Integer useState, String remark);
 //
-//     Boolean luaCheckIp(Long id);
+// Boolean luaCheckIp(Long id);
 //
-//     LuminatiIPDTO checkXLuminatiIpAndIp(String xLuminatiIp, String ip);
+// LuminatiIPDTO checkXLuminatiIpAndIp(String xLuminatiIp, String ip);
 //
-//     void collect(LuminatiCollectIpRequest luminatiCollectIpRequest);
+// void collect(LuminatiCollectIpRequest luminatiCollectIpRequest);
 //
-//     LuminatiProgressVO collectProgress();
+// LuminatiProgressVO collectProgress();
 //
-//     void endCollect();
+// void endCollect();
 //
-//     void pauseCollect();
+// void pauseCollect();
 //
 // }
