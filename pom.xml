@@ -18,10 +18,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <hutool-all.version>5.8.11</hutool-all.version>
+        <hutool-all.version>5.8.15</hutool-all.version>
         <swagger.version>1.9.1.RELEASE</swagger.version>
         <cglib.version>3.3.0</cglib.version>
-        <fastjson.version>2.0.16</fastjson.version>
+        <fastjson.version>2.0.32</fastjson.version>
         <springdoc.version>1.6.14</springdoc.version>
         <jsch.version>0.1.55</jsch.version>
         <commons-email.version>1.5</commons-email.version>

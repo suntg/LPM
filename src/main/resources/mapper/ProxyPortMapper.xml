@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.lpm.v3.mapper.ProxyPortMapper">
-    <resultMap id="BaseResultMap" type="com.example.lpm.v3.domain.entity.ProxyPortDO">
+<mapper namespace="com.example.lpm.v1.mapper.ProxyPortMapper">
+    <resultMap id="BaseResultMap" type="com.example.lpm.v1.domain.entity.ProxyPortDO">
         <!--@mbg.generated-->
         <!--@Table t_proxy_port-->
         <id column="id" jdbcType="BIGINT" property="id"/>
@@ -37,14 +37,14 @@
         from t_rola_proxy_port
         where id = #{id,jdbcType=BIGINT}
     </delete>-->
-    <!--<insert id="insert" parameterType="com.example.lpm.v3.domain.entity.RolaProxyPortDO">
+    <!--<insert id="insert" parameterType="com.example.lpm.v1.domain.entity.RolaProxyPortDO">
         &lt;!&ndash;@mbg.generated&ndash;&gt;
         insert into t_rola_proxy_port (id, rola_ip, proxy_port,
                                        create_time, update_time)
         values (#{id,jdbcType=BIGINT}, #{rolaIp,jdbcType=VARCHAR}, #{proxyPort,jdbcType=INTEGER},
                 #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
     </insert>-->
-    <!--<insert id="insertSelective" parameterType="com.example.lpm.v3.domain.entity.RolaProxyPortDO">
+    <!--<insert id="insertSelective" parameterType="com.example.lpm.v1.domain.entity.RolaProxyPortDO">
         &lt;!&ndash;@mbg.generated&ndash;&gt;
         insert into t_rola_proxy_port
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -82,7 +82,7 @@
             </if>
         </trim>
     </insert>-->
-    <!--<update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.v3.domain.entity.RolaProxyPortDO">
+    <!--<update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.v1.domain.entity.RolaProxyPortDO">
         &lt;!&ndash;@mbg.generated&ndash;&gt;
         update t_rola_proxy_port
         <set>
@@ -101,7 +101,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>-->
-    <!--<update id="updateByPrimaryKey" parameterType="com.example.lpm.v3.domain.entity.RolaProxyPortDO">
+    <!--<update id="updateByPrimaryKey" parameterType="com.example.lpm.v1.domain.entity.RolaProxyPortDO">
         &lt;!&ndash;@mbg.generated&ndash;&gt;
         update t_rola_proxy_port
         set rola_ip     = #{rolaIp,jdbcType=VARCHAR},
@@ -111,23 +111,23 @@
         where id = #{id,jdbcType=BIGINT}
     </update>-->
 
-    <select id="listProxyPorts" resultType="com.example.lpm.v3.domain.entity.ProxyPortDO">
+    <select id="listProxyPorts" resultType="com.example.lpm.v1.domain.entity.ProxyPortDO">
         SELECT p.id,
-               p.proxy_port,
-               p.ip,
-               p.name,
-               p.type_name,
-               p.create_time,
-               i.country,
-               i.city,
-               i.region
+        p.proxy_port,
+        p.ip,
+        p.name,
+        p.type_name,
+        p.create_time,
+        i.country,
+        i.city,
+        i.region
         FROM t_proxy_port AS p
-                 LEFT JOIN t_proxy_ip AS i ON p.ip = i.ip
+        LEFT JOIN t_proxy_ip AS i ON p.ip = i.ip
         <where>
             <if test="typeName != null">
                 AND p.type_name = #{typeName}
             </if>
-            <if test="ip != null and ip != '' ">
+            <if test="ip != null and ip != ''">
                 AND p.ip = #{ip}
             </if>
             <if test="country != null and country != ''">

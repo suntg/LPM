@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.lpm.v3.mapper.TrafficMapper">
-    <resultMap id="BaseResultMap" type="com.example.lpm.v3.domain.entity.TrafficDO">
+<mapper namespace="com.example.lpm.v1.mapper.TrafficMapper">
+    <resultMap id="BaseResultMap" type="com.example.lpm.v1.domain.entity.TrafficDO">
         <!--@mbg.generated-->
         <!--@Table t_traffic-->
         <id column="id" jdbcType="BIGINT" property="id"/>
@@ -44,7 +44,7 @@
         where id = #{id,jdbcType=BIGINT}
     </delete>
     <insert id="insertSelective" keyColumn="id" keyProperty="id"
-            parameterType="com.example.lpm.v3.domain.entity.TrafficDO" useGeneratedKeys="true">
+            parameterType="com.example.lpm.v1.domain.entity.TrafficDO" useGeneratedKeys="true">
         <!--@mbg.generated-->
         insert into t_traffic
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -112,7 +112,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.v3.domain.entity.TrafficDO">
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.lpm.v1.domain.entity.TrafficDO">
         <!--@mbg.generated-->
         update t_traffic
         <set>
@@ -149,19 +149,19 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.example.lpm.v3.domain.entity.TrafficDO">
+    <update id="updateByPrimaryKey" parameterType="com.example.lpm.v1.domain.entity.TrafficDO">
         <!--@mbg.generated-->
         update t_traffic
-        set server_addr     = #{serverAddr,jdbcType=VARCHAR},
-            client_addr     = #{clientAddr,jdbcType=VARCHAR},
-            target_addr     = #{targetAddr,jdbcType=VARCHAR},
-            username        = #{username,jdbcType=VARCHAR},
-            bytes           = #{bytes,jdbcType=BIGINT},
-            out_local_addr  = #{outLocalAddr,jdbcType=VARCHAR},
-            out_remote_addr = #{outRemoteAddr,jdbcType=VARCHAR},
-            upstream        = #{upstream,jdbcType=VARCHAR},
-            create_time     = #{createTime,jdbcType=TIMESTAMP},
-            update_time     = #{updateTime,jdbcType=TIMESTAMP}
+        set server_addr = #{serverAddr,jdbcType=VARCHAR},
+        client_addr = #{clientAddr,jdbcType=VARCHAR},
+        target_addr = #{targetAddr,jdbcType=VARCHAR},
+        username = #{username,jdbcType=VARCHAR},
+        bytes = #{bytes,jdbcType=BIGINT},
+        out_local_addr = #{outLocalAddr,jdbcType=VARCHAR},
+        out_remote_addr = #{outRemoteAddr,jdbcType=VARCHAR},
+        upstream = #{upstream,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        update_time = #{updateTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=BIGINT}
     </update>
 </mapper>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.lpm.v3.mapper.FileMapper">
-    <resultMap type="com.example.lpm.v3.domain.entity.FileDO" id="fileDOMap">
+<mapper namespace="com.example.lpm.v1.mapper.FileMapper">
+    <resultMap type="com.example.lpm.v1.domain.entity.FileDO" id="fileDOMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="path" column="path"/>
@@ -15,19 +15,19 @@
         <result property="ip" column="ip"/>
         <result property="xLuminatiIp" column="x_luminati_ip"/>
     </resultMap>
-    <select id="list" resultType="com.example.lpm.v3.domain.entity.FileDO">
+    <select id="list" resultType="com.example.lpm.v1.domain.entity.FileDO">
         SELECT f.id,
-               f.`name`,
-               f.path,
-               f.create_time,
-               f.update_time,
-               fi.ip,
-               fi.x_luminati_ip AS xLuminatiIp,
-               fl.content       AS logContent,
-               fl.type          AS logType
+        f.`name`,
+        f.path,
+        f.create_time,
+        f.update_time,
+        fi.ip,
+        fi.x_luminati_ip AS xLuminatiIp,
+        fl.content AS logContent,
+        fl.type AS logType
         FROM t_file AS f
-                 INNER JOIN t_file_ip AS fi ON f.id = fi.file_id
-                 INNER JOIN t_file_log AS fl ON f.id = fl.file_id
+        INNER JOIN t_file_ip AS fi ON f.id = fi.file_id
+        INNER JOIN t_file_log AS fl ON f.id = fl.file_id
         <where>
             <if test="fileName != null and fileName != ''">
                 f.`name` LIKE concat(concat("%", #{fileName}), "%")
