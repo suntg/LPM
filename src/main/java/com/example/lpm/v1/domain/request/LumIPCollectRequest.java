@@ -3,8 +3,10 @@ package com.example.lpm.v1.domain.request;
 import java.io.Serializable;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class LumIPCollectRequest implements Serializable {
 
     private String country;

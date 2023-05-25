@@ -1,13 +1,21 @@
 package com.example.lpm.v1.service.impl;
 
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -16,11 +24,9 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.lpm.constant.ProxyConstant;
 import com.example.lpm.domain.dto.LuminatiIPDTO;
 import com.example.lpm.v1.common.BizException;
 import com.example.lpm.v1.common.ReturnCode;
-import com.example.lpm.v1.config.GzipRequestInterceptor;
 import com.example.lpm.v1.constant.LumIPConstant;
 import com.example.lpm.v1.constant.RedisLockKeyConstant;
 import com.example.lpm.v1.domain.entity.LumIPDO;
@@ -34,13 +40,12 @@ import com.example.lpm.v1.service.LumIPService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 @Service
 @Slf4j
@@ -190,31 +195,46 @@ public class LumIPServiceImpl extends ServiceImpl<LumIPMapper, LumIPDO> implemen
             lumIPActiveRequest.getZoneUsername(), lumIPDO.getXLuminatiIp());
 
         LuminatiIPDTO luminatiIPDTO = null;
+        log.info("username {}", username);
+        // Proxy proxy = new Proxy(Proxy.Type.SOCKS,
+        // new InetSocketAddress(LumIPConstant.LUM_IP_PROXY_HOSTNAME, LumIPConstant.LUM_IP_PROXY_PORT));
+        //
+        // OkHttpClient client = new OkHttpClient.Builder().proxy(proxy).proxyAuthenticator((route, response) -> {
+        // String credential = Credentials.basic(username, lumIPActiveRequest.getZonePassword());
+        // return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+        // }).build();
+        //
+        // Request request = new Request.Builder().url("http://lumtest.com/myip.json").build();
 
-        Proxy proxy = new Proxy(Proxy.Type.SOCKS,
-            new InetSocketAddress(LumIPConstant.LUM_IP_PROXY_HOSTNAME, LumIPConstant.LUM_IP_PROXY_PORT));
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
-            private final PasswordAuthentication authentication =
-                new PasswordAuthentication(username, lumIPActiveRequest.getZonePassword().toCharArray());
+        String proxyHost = LumIPConstant.LUM_IP_PROXY_HOSTNAME;
+        int proxyPort = LumIPConstant.LUM_IP_PROXY_PORT;
+        // 设置代理服务器的认证信息
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(proxyHost, proxyPort),
+            new UsernamePasswordCredentials(username, lumIPActiveRequest.getZonePassword()));
 
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return authentication;
-            }
-        });
-
-        OkHttpClient client =
-            new OkHttpClient().newBuilder().proxy(proxy).addInterceptor(new GzipRequestInterceptor()).build();
-        Request request = new Request.Builder().url(ProxyConstant.LUMTEST_URL).build();
-
+        // 创建 HttpClient 实例，并设置代理服务器信息
+        HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+        RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
+        CloseableHttpClient client =
+            HttpClients.custom().setDefaultCredentialsProvider(credsProvider).setDefaultRequestConfig(config).build();
+        // 发送 GET 请求
+        String url = "http://lumtest.com/myip.json";
+        HttpGet request = new HttpGet(url);
         try {
-            okhttp3.Response response = client.newCall(request).execute();
-            String responseString = response.body().string();
+
+            // okhttp3.Response response = client.newCall(request).execute();
+            // String responseString = response.body().string();
+
+            CloseableHttpResponse response = client.execute(request);
+            String responseString = EntityUtils.toString(response.getEntity());
+
             log.info(responseString);
             luminatiIPDTO = objectMapper.readValue(responseString, LuminatiIPDTO.class);
         } catch (Exception e) {
             lumIPDO.setStatus(0);
             lumIPMapper.updateById(lumIPDO);
+            log.error("lum 测活异常 {}", ExceptionUtil.stacktraceToString(e));
             throw new BizException(ReturnCode.RC999.getCode(), "调用lumtest返回失败");
         }
         if (!CharSequenceUtil.equals(lumIPDO.getIp(), luminatiIPDTO.getIp())) {

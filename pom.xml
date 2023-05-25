@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>LPM</artifactId>
-    <version>1.0.0.final</version>
+    <version>1.0.1</version>
     <name>LPM</name>
     <description>LPM</description>
     <properties>
@@ -189,7 +189,10 @@
             <artifactId>dynamic-tp-core</artifactId>
             <version>1.1.2</version>
         </dependency>-->
-
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

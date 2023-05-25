@@ -192,7 +192,7 @@ public class LuaController {
     @Operation(summary = "收集——LUM API")
     @PostMapping("/collectLumIP")
     public void collectLumIP(LumIPCollectRequest lumIPCollectRequest) {
-        // rolaIpService.collectByApi(rolaCollectRequest);
+        lumIPService.collect(lumIPCollectRequest);
     }
 
 }
